@@ -23,6 +23,7 @@ streams_wq_dat<-read.csv('inputs/Herrera All Stream Data Dump 4 12 2023.csv') %>
          qualifier=trimws(qualifier),
          nonDetectFlag=grepl('U',qualifier),
          newResultValue=ifelse(nonDetectFlag,pql,value),
+         newResultValue=ifelse(parameter=='Turbidity'&newResultValue<=0,0.01,newResultValue),
          Year=year(DateTime),
          Month=month(DateTime),
          WaterYear=ifelse(Month>=10,Year+1,Year),
@@ -49,3 +50,80 @@ unique(streams_wq_dat$qualifier)
 ##need to do:
 #Stream WQI
 
+source('wqi_function.R')
+
+parm_table<-data.frame(rbind(c('FC','Fecal Coliform'),
+                             c('FC','E. coli'),
+                             c('FC','Fecal Bacteria'),
+                             c('Oxygen','Dissolved Oxygen'),
+                             c('pH','pH'),
+                             c('TP_P','Total Phosphorus'),
+                             c('SUSSOL','Total Suspended Solids'),
+                             c('Temp','Temperature, water'),
+                             #c('TPN','Total Nitrogen'),
+                             #for the sake of this example let's use nitate
+                             c('TPN','Nitrate-Nitrite as N'),
+                             c('Turb','Turbidity')))
+colnames(parm_table)<-c('shortParmName','parameter')
+
+
+annual_wqi<-streams_wq_dat %>%
+  left_join(parm_table) %>%
+  filter(!is.na(shortParmName)) %>%
+  with(.,
+       wqi_calc(site=SITE_CODE,
+                value=newResultValue,
+                shortParmName = shortParmName,
+                date=as.Date(DateTime),
+                TemperatureCode = 8, #assume core for no2
+                OxygenCode = 26, #assume core for now,
+                small_PS_stream = T #assume all puget sound small streams
+       ))
+saveRDS(annual_wqi,'outputs/annual_wqi.RDS')
+
+streams_wq_dat %>%
+  left_join(parm_table) %>%
+  filter(!is.na(shortParmName)) %>%
+  with(.,
+       wqi_calc(site=SITE_CODE,
+                value=newResultValue,
+                shortParmName = shortParmName,
+                date=as.Date(DateTime),
+                TemperatureCode = 8, #assume core for no2
+                OxygenCode = 26, #assume core for now,
+                small_PS_stream = T, #assume all puget sound small streams
+                summary_by = 'ByParameter'
+       )) %>%
+  saveRDS('outputs/annual_wqi_by_parameter.RDS')
+
+streams_wq_dat %>%
+  left_join(parm_table) %>%
+  filter(!is.na(shortParmName)) %>%
+  with(.,
+       wqi_calc(site=SITE_CODE,
+                value=newResultValue,
+                shortParmName = shortParmName,
+                date=as.Date(DateTime),
+                TemperatureCode = 8, #assume core for no2
+                OxygenCode = 26, #assume core for now,
+                small_PS_stream = T, #assume all puget sound small streams
+                summary_by = 'ByParameter',
+                period='Monthly'
+       )) %>%
+  saveRDS('outputs/monthly_wqi_by_parameter.RDS')
+
+
+streams_wq_dat %>%
+  left_join(parm_table) %>%
+  filter(!is.na(shortParmName)) %>%
+  with(.,
+       wqi_calc(site=SITE_CODE,
+                value=newResultValue,
+                shortParmName = shortParmName,
+                date=as.Date(DateTime),
+                TemperatureCode = 8, #assume core for no2
+                OxygenCode = 26, #assume core for now,
+                small_PS_stream = T, #assume all puget sound small streams
+                period='Monthly'
+       )) %>%
+  saveRDS('outputs/monthly_wqi.RDS')
