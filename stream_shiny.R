@@ -52,7 +52,7 @@ ui<-tagList(
                                              step=1,sep='')
                   )),
                   fluidRow(plotlyOutput('trend_plot')),
-                  
+                  fluidRow(verbatimTextOutput('trend_text')),
                   fluidRow(plotlyOutput('data_plot'))
                   )),
   tabPanel('Water Quality Index',value='wqi',
@@ -163,7 +163,11 @@ server<-function(input,output,session){
                       selected = click$id)
   })
   
-
+trend_out<-reactive({
+  dataSubset() %>%
+    filter(WaterYear>=input$trend_years[1]&WaterYear<=input$trend_years[2]) %>%
+    with(.,rkt::rkt(WaterYear,value,Month,rep='a'))
+})
   
   output$trend_plot<-renderPlotly({
     trendplot<-dataSubset() %>%
@@ -175,15 +179,21 @@ server<-function(input,output,session){
     ggplotly(trendplot)
   })
   output$trend_text<-renderText({
-    
-    pos_lik=.65
-    neg_lik=.35
-    
-    
-    paste('Between water years',input$trend_years[1],'and',input$trend_years[2],
-          'there is a ',pos_lik*100,'% likelihood that',input$trend_parm,'is increasing at',input$trend_site,"\n",
+    sigStatement<-ifelse(trend_out()$sl<=0.05,'a  significant trend','insufficient evidence of a trend')
+    slopeStatement<-ifelse(trend_out()$sl<=0.05,paste('The trend slope is',trend_out()$B,'per year'),'')
+    paste('Mann-Kendall Trend Test:','\n',
           'Between water years',input$trend_years[1],'and',input$trend_years[2],
-          'there is a ',neg_lik*100,'% likelihood that',input$trend_parm,'is decreasing at',input$trend_site)
+           'at',input$trend_site,'there is',sigStatement,'in',input$trend_parm,'\n',
+          slopeStatement)
+    
+    # pos_lik=.65
+    # neg_lik=.35
+    # 
+    # 
+    # paste('Between water years',input$trend_years[1],'and',input$trend_years[2],
+    #       'there is a ',pos_lik*100,'% likelihood that',input$trend_parm,'is increasing at',input$trend_site,"\n",
+    #       'Between water years',input$trend_years[1],'and',input$trend_years[2],
+    #       'there is a ',neg_lik*100,'% likelihood that',input$trend_parm,'is decreasing at',input$trend_site)
   })
   
   

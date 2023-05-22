@@ -18,9 +18,11 @@ ken_slopes<-function (x, y)
 #function returns average slopes from those imputation permutations
 #returns average rank_slope zero and the calculate zero (the center of the z-normalized slope distribution)
 #this functino works fine if there are not censored data (can set ycen to FALSE )
-imp_function<-function(x,y,ycen,iter=1000){
+imp_function<-function(x,y,ycen,iteration_threshold=0.2,iter=1000){
   VarS<-calc_VarS(x,y) # calculate S Variance
-  if((length(which(ycen))/length(y))>.1&length(unique(y))!=1){
+  
+  if((length(which(ycen))/length(y))>iteration_threshold&length(unique(y))!=1){
+    #only do iterations if more than XX% non-detects
     if((length(which(ycen))/length(ycen))>0.7){
       m=mean(y)
       s=sd(y)
