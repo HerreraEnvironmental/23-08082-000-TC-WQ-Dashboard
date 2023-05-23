@@ -40,27 +40,28 @@ ui<-tagList(
   navbarPage(
   paste0('Thurston County Streams Water Quality Data Dashboard - BETA (', Sys.Date(),')'),
   tabPanel('Map',value='map',
-           fluidRow(column(10,leafletOutput('map',height="90vh",width="70vh"))),
-           column(6,sidebarLayout(
-             sidebarPanel(width=6,
-                  selectInput('trend_site','Select Site',sites_list),
-                  selectInput('trend_parm','Select Parameter',parm_list)
-                  ),
-             mainPanel(width=6,
-                  selectInput('data_year','Select Year to Highlight',2000),
-                  sliderInput('trend_years','Select Year Range for Trend',value=c(2000,2020),
-                                           min=2000,max=2020,
-                                             step=1,sep='')
-                  )),
-                  fluidRow(plotlyOutput('trend_plot')),
+           fluidRow(column(11,leafletOutput('map',height="90vh",width="70vh"))),
+           #column(1,
+          #        sidebarLayout(
+          #   sidebarPanel(width=1,
+          #        selectInput('trend_site','Select Site',sites_list),
+          #        selectInput('trend_parm','Select Parameter',parm_list)
+          #        ),
+          #  mainPanel(width=1
+            #      selectInput('data_year','Select Year to Highlight',2000),
+            #      sliderInput('trend_years','Select Year Range for Trend',value=c(2000,2020),
+            #                               min=2000,max=2020,
+            #                                 step=1,sep='')
+                  #))
+                  #fluidRow(plotlyOutput('trend_plot')),
                   
-                  fluidRow(plotlyOutput('data_plot'))
-                  )),
+                 #fluidRow(plotlyOutput('data_plot'))
+                  ),
   tabPanel('Water Quality Index',value='wqi',
            column(6,leafletOutput('wqi_map',height=800,width=800)),
            column(6,sidebarLayout(
            sidebarPanel(width=6,
-                        selectInput('wqi_site','Select Site',sites_list),
+                        selectInput('wqi_site','Select Site',sites_list)
            )
            ,
            mainPanel(width=6,
@@ -136,33 +137,33 @@ server<-function(input,output,session){
       addProviderTiles('Esri.NatGeoWorldMap') 
   })
   
-  dataSubset<-reactive({
-    streams_wq_dat %>%
-      filter(SITE_CODE==input$trend_site&
-               parameter==input$trend_parm)
-  })
+  #dataSubset<-reactive({
+  #  streams_wq_dat %>%
+  #    filter(SITE_CODE==input$trend_site&
+  #             parameter==input$trend_parm)
+  #})
   
-  observe({
-    updateSliderInput(session,
-                       'trend_years',
-                       min=min(dataSubset()$Year),
-                       max=max(dataSubset()$Year),
-                       value=c(min(dataSubset()$Year),
-                               max(dataSubset()$Year))
-                       )
-  })
-  observe({
-    updateSelectInput(session,
-                      'trend_parm',
-                      choices=streams_wq_dat %>% filter(SITE_CODE==input$trend_site) %>% pull(parameter) %>% unique()
-    )
-  })
+  #observe({
+  #  updateSliderInput(session,
+  #                     'trend_years',
+  #                     min=min(dataSubset()$Year),
+  #                     max=max(dataSubset()$Year),
+  #                     value=c(min(dataSubset()$Year),
+  #                             max(dataSubset()$Year))
+  #                     )
+  #})
+  #observe({
+  #  updateSelectInput(session,
+  #                    'trend_parm',
+  #                    choices=streams_wq_dat %>% filter(SITE_CODE==input$trend_site) %>% pull(parameter) %>% unique()
+  #  )
+  #})
   
-  observeEvent(input$map_marker_click, {
-    click <- input$map_marker_click
-    updateSelectInput(session, "trend_site", 
-                      selected = click$id)
-  })
+  #observeEvent(input$map_marker_click, {
+  #  click <- input$map_marker_click
+  #  updateSelectInput(session, "trend_site", 
+  #                    selected = click$id)
+  #})
   
   observeEvent(input$wqi_map_marker_click, {
     click <- input$wqi_map_marker_click
@@ -172,26 +173,26 @@ server<-function(input,output,session){
   
 
   
-  output$trend_plot<-renderPlotly({
-    trendplot<-dataSubset() %>%
-      ggplot(aes(x=DateTime,y=value))+
-      geom_point(data=~filter(.x,WaterYear==input$data_year),col='red',size=4)+
-      geom_point()+
-      geom_smooth(data=~filter(.x,WaterYear>=input$trend_years[1]&WaterYear<=input$trend_years[2]))+
-      theme_bw()
-    ggplotly(trendplot)
-  })
-  output$trend_text<-renderText({
-    
-    pos_lik=.65
-    neg_lik=.35
-    
-    
-    paste('Between water years',input$trend_years[1],'and',input$trend_years[2],
-          'there is a ',pos_lik*100,'% likelihood that',input$trend_parm,'is increasing at',input$trend_site,"\n",
-          'Between water years',input$trend_years[1],'and',input$trend_years[2],
-          'there is a ',neg_lik*100,'% likelihood that',input$trend_parm,'is decreasing at',input$trend_site)
-  })
+  #output$trend_plot<-renderPlotly({
+  #  trendplot<-dataSubset() %>%
+  #    ggplot(aes(x=DateTime,y=value))+
+  #    geom_point(data=~filter(.x,WaterYear==input$data_year),col='red',size=4)+
+  #    geom_point()+
+  #    geom_smooth(data=~filter(.x,WaterYear>=input$trend_years[1]&WaterYear<=input$trend_years[2]))+
+  #    theme_bw()
+  #  ggplotly(trendplot)
+  #})
+  #output$trend_text<-renderText({
+  #  
+  #  pos_lik=.65
+  #  neg_lik=.35
+  #  
+  #  
+  #  paste('Between water years',input$trend_years[1],'and',input$trend_years[2],
+  #        'there is a ',pos_lik*100,'% likelihood that',input$trend_parm,'is increasing at',input$trend_site,"\n",
+  #        'Between water years',input$trend_years[1],'and',input$trend_years[2],
+  #        'there is a ',neg_lik*100,'% likelihood that',input$trend_parm,'is decreasing at',input$trend_site)
+  #})
   
   
   ##data plots
@@ -201,12 +202,12 @@ server<-function(input,output,session){
   #              parameter==input$`data_parm`)
   # })
   
-  observe({
-    updateSelectInput(session,
-                      'data_year',
-                      choices = sort(unique(dataSubset()$WaterYear),T)
-    )
-  })
+  #observe({
+  #  updateSelectInput(session,
+  #                    'data_year',
+  #                    choices = sort(unique(dataSubset()$WaterYear),T)
+  #  )
+  #})
 
   
   # observe({
@@ -216,18 +217,18 @@ server<-function(input,output,session){
   #   )
   # })
   
-  output$data_plot<-renderPlotly({
-    dataplot<-dataSubset() %>%
-      ggplot(aes(x=WY_FakeDate,y=value,group=WaterYear))+
-      geom_point(alpha=.2)+
-      geom_line(data=~.x %>% filter(WaterYear==input$data_year))+
-      geom_point(data=~.x %>% filter(WaterYear==input$data_year))+
-      theme_bw()+
-      scale_x_date('',date_breaks = '2 months',date_labels = '%b',limits=as.Date(c('1999-9-25','2000-10-05')),
-                   date_minor_breaks = '1 month')+
-      scale_y_continuous(input$trend_parm)
-    ggplotly(dataplot)
-  })
+  #output$data_plot<-renderPlotly({
+  #  dataplot<-dataSubset() %>%
+  #    ggplot(aes(x=WY_FakeDate,y=value,group=WaterYear))+
+  #    geom_point(alpha=.2)+
+  #    geom_line(data=~.x %>% filter(WaterYear==input$data_year))+
+  #    geom_point(data=~.x %>% filter(WaterYear==input$data_year))+
+  #    theme_bw()+
+  #    scale_x_date('',date_breaks = '2 months',date_labels = '%b',limits=as.Date(c('1999-9-25','2000-10-05')),
+  #                 date_minor_breaks = '1 month')+
+  #    scale_y_continuous(input$trend_parm)
+  #  ggplotly(dataplot)
+  #})
   
   output$wqi_annual<-renderPlotly({
     wqi_annual_plot<-annual_wqi %>%
