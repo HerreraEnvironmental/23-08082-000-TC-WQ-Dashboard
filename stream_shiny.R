@@ -21,7 +21,8 @@ sites_list<-setNames(streams_sites$SITE_CODE,streams_sites$SITE_NAME)
 parm_list<-unique(streams_wq_dat$parameter)
 
 ui<-tagList(
-  
+  tags$head(tags$link(includeScript("func.js"))),
+  tags$head(tags$style("a{cursor:pointer;}")),
   # tags$head(tags$script(HTML('
   #       var fakeClick = function(tabName) {
   #         var dropdownList = document.getElementsByTagName("a");
@@ -39,7 +40,7 @@ ui<-tagList(
   navbarPage(
   paste0('Thurston County Streams Water Quality Data Dashboard - BETA (', Sys.Date(),')'),
   tabPanel('Map',value='map',
-           column(6,leafletOutput('map',height=800,width=800)),
+           fluidRow(column(10,leafletOutput('map',height="90vh",width="70vh"))),
            column(6,sidebarLayout(
              sidebarPanel(width=6,
                   selectInput('trend_site','Select Site',sites_list),
@@ -70,7 +71,8 @@ ui<-tagList(
            )),
            fluidRow(plotlyOutput('wqi_annual')),
            fluidRow(plotlyOutput('wqi_monthly'))
-           ))
+           )),
+  tabPanel('All Data', value = 'all_data')
   #,
 #   tabPanel('WQ Trends',value='trends',
 #            sidebarLayout(
@@ -104,8 +106,13 @@ server<-function(input,output,session){
   
   output$map<-renderLeaflet({
     leaflet(streams_sites) %>%
-      addMarkers(popup=~paste0(SITE_CODE,'<br>',SITE_NAME,'<br>'#,
-                               #"<a onclick=","customHref('trends')>",'Trends','</a>'
+      addMarkers(popup=~paste0("<h5>", "<b>", SITE_NAME,'<br>', "</b>","</h5>",
+                               "<h6>", "<i>", SITE_CODE,'<br>', "</i>","</h6>",
+                               "<br>",
+                               "Last Sample Collected: ", "NA", "<br>",
+                               "Recent WQI Score:      ", "NA", "<br>",
+                               "<br>",
+                               "To view all data from this station, ", "<a onclick=","customHref('all_data')>",'click here.','</a>', "<br>"
                                         ),
                  layerId= ~SITE_CODE,
                  label = ~SITE_CODE) %>%
