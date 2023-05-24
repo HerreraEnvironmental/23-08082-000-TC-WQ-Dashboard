@@ -69,7 +69,7 @@ ui<-tagList(
   tabPanel('WQ Trends',value='trends',
             sidebarLayout(
               sidebarPanel(
-                selectInput('main_site','Select Site',sites_list),
+                selectInput('main_site2','Select Site',sites_list),
                 selectInput('trend_parm','Select Parameter',parm_list),
                 sliderInput('trend_years','Select Year Range for Trend',value=c(2000,2020),
                            min=2000,max=2020,
@@ -80,21 +80,22 @@ ui<-tagList(
                 textOutput('trend_text'),
                 tableOutput('trend_table')
             ))
+  ), 
+  tabPanel('Detailed Data',value='data_tab',
+            sidebarLayout(
+              sidebarPanel(
+               selectInput('main_site3','Select Site',sites_list),
+                selectInput('data_parm','Select Parameter',parm_list),
+                selectInput('data_year','Select Year to Highlight',2000)
+              ),
+              mainPanel(
+                plotlyOutput('data_plot')
+              ))
   ),
   tabPanel('All Data', value = 'all_data'),
   tabPanel('Data Download', value = 'data_download',
            column(6, ))
-#   tabPanel('Detailed Data',value='data_tab',
-#            sidebarLayout(
-#              sidebarPanel(
-#               selectInput('data_site','Select Site',sites_list),
-#                selectInput('data_parm','Select Parameter',parm_list),
-#                selectInput('data_year','Select Year to Highlight',2000)
-#              ),
-#              mainPanel(
-#                plotlyOutput('data_plot')
-#              ))
-#            )
+  
  ,id='navbarpanel')
 )
 
@@ -126,9 +127,6 @@ server<-function(input,output,session){
       left_join(annual_wqi %>%filter(WaterYear==input$wqi_year),by=c('SITE_CODE'='site')) %>%
       mutate(Category=ifelse(WQI>=80,'Good',ifelse(WQI>=40,"Moderate",'Poor'))) %>%
     leaflet() %>%
-      # addMarkers(popup=~paste0(SITE_CODE,'<br>',SITE_NAME,'<br>'#,
-      #                          #"<a onclick=","customHref('trends')>",'Trends','</a>'
-      # ),
       addCircleMarkers(color=~pal(Category),fillOpacity = 0.9,weight=1,
       layerId= ~SITE_CODE,
       label = ~SITE_CODE) %>%
@@ -144,15 +142,9 @@ server<-function(input,output,session){
   
   observe({
     updateSelectInput(session,
-                      'main_site',
+                      'main_site2',
                       selected = input$main_site
     )
-  })
-  
-  dataSubset<-reactive({
-    streams_wq_dat %>%
-      filter(SITE_CODE==input$main_site&
-               parameter==input$trend_parm)
   })
   
   observe({
@@ -171,19 +163,55 @@ server<-function(input,output,session){
     )
   })
   
+  # MAP 1 updates all variables
   observeEvent(input$map_marker_click, {
     click <- input$map_marker_click
     updateSelectInput(session, "main_site", 
                       selected = click$id)
+    updateSelectInput(session, "main_site2", 
+                      selected = click$id)
+    updateSelectInput(session, "main_site3", 
+                      selected = click$id)
   })
-  
+  # MAP 2 updates all variables
   observeEvent(input$wqi_map_marker_click, {
     click <- input$wqi_map_marker_click
     updateSelectInput(session, "main_site", 
                       selected = click$id)
+    updateSelectInput(session, "main_site2", 
+                      selected = click$id)
+    updateSelectInput(session, "main_site3", 
+                      selected = click$id)
+  })
+  # Dropdown 1 updates all variables
+  observeEvent(input$main_site, {
+    updateSelectInput(session, "main_site2",
+                      selected = input$main_site)
+    updateSelectInput(session, "main_site3",
+                      selected = input$main_site)
+  })
+  # Dropdown 2 updates all variables
+  observeEvent(input$main_site2, {
+    updateSelectInput(session, "main_site",
+                      selected = input$main_site2)
+    updateSelectInput(session, "main_site3",
+                      selected = input$main_site2)
+  })
+  # Dropdown 3 updates all variables
+  observeEvent(input$main_site3, {
+    updateSelectInput(session, "main_site",
+                      selected = input$main_site3)
+    updateSelectInput(session, "main_site2",
+                      selected = input$main_site3)
+  })
+
+  
+  dataSubset<-reactive({
+    streams_wq_dat %>%
+      filter(SITE_CODE==input$main_site&
+               parameter==input$trend_parm)
   })
   
-
   
   output$trend_plot<-renderPlotly({
     trendplot<-dataSubset() %>%
@@ -206,45 +234,40 @@ server<-function(input,output,session){
           'there is a ',neg_lik*100,'% likelihood that',input$trend_parm,'is decreasing at',input$main_site)
   })
   
-  output$trend_table<-renderTable({
-    dataSubset()
+  ##data plots
+  dataSubset_data<-reactive({
+     streams_wq_dat %>%
+       filter(SITE_CODE==input$main_site&
+                parameter==input$`data_parm`)
   })
   
-  
-  ##data plots
-  # dataSubset_data<-reactive({
-  #   streams_wq_dat %>%
-  #     filter(SITE_CODE==input$data_site&
-  #              parameter==input$`data_parm`)
-  # })
-  
-  #observe({
-  #  updateSelectInput(session,
-  #                    'data_year',
-  #                    choices = sort(unique(dataSubset()$WaterYear),T)
-  #  )
-  #})
+  observe({
+    updateSelectInput(session,
+                      'data_year',
+                      choices = sort(unique(dataSubset()$WaterYear),T)
+    )
+  })
 
   
-  # observe({
-  #   updateSelectInput(session,
-  #                     'data_parm',
-  #                     choices=streams_wq_dat %>% filter(SITE_CODE==input$trend_site) %>% pull(parameter) %>% unique()
-  #   )
-  # })
+   observe({
+     updateSelectInput(session,
+                       'data_parm',
+                       choices=streams_wq_dat %>% filter(SITE_CODE==input$main_site) %>% pull(parameter) %>% unique()
+     )
+  })
   
-  #output$data_plot<-renderPlotly({
-  #  dataplot<-dataSubset() %>%
-  #    ggplot(aes(x=WY_FakeDate,y=value,group=WaterYear))+
-  #    geom_point(alpha=.2)+
-  #    geom_line(data=~.x %>% filter(WaterYear==input$data_year))+
-  #    geom_point(data=~.x %>% filter(WaterYear==input$data_year))+
-  #    theme_bw()+
-  #    scale_x_date('',date_breaks = '2 months',date_labels = '%b',limits=as.Date(c('1999-9-25','2000-10-05')),
-  #                 date_minor_breaks = '1 month')+
-  #    scale_y_continuous(input$trend_parm)
-  #  ggplotly(dataplot)
-  #})
+  output$data_plot<-renderPlotly({
+    dataplot<-dataSubset() %>%
+      ggplot(aes(x=WY_FakeDate,y=value,group=WaterYear))+
+      geom_point(alpha=.2)+
+      geom_line(data=~.x %>% filter(WaterYear==input$data_year))+
+      geom_point(data=~.x %>% filter(WaterYear==input$data_year))+
+      theme_bw()+
+      scale_x_date('',date_breaks = '2 months',date_labels = '%b',limits=as.Date(c('1999-9-25','2000-10-05')),
+                   date_minor_breaks = '1 month')+
+      scale_y_continuous(input$trend_parm)
+    ggplotly(dataplot)
+  })
   
   output$wqi_annual<-renderPlotly({
     wqi_annual_plot<-annual_wqi %>%
