@@ -25,6 +25,16 @@ parm_list<-unique(streams_wq_dat$parameter)
 sites_list_df <- streams_sites[,c(2,3)]
 streams_wq_dat <- merge(streams_wq_dat, sites_list_df, by="SITE_CODE")
 
+streams <- merge(streams_wq_dat, streams_sites, by = "SITE_CODE")
+streams <- merge(streams, annual_wqi, by.x = "SITE_CODE", by.y = "site")
+
+streams <- streams[rev(order(streams$DateTime)),]
+
+recent_streams_data <- streams %>% 
+  group_by(SITE_CODE) %>%
+  slice(which.max(as.Date(ymd_hms(DateTime))))
+
+
 
 ui<-
   tagList(
@@ -38,8 +48,10 @@ ui<-
   tabPanel('Map',value='map',
            fluidRow(column(12,h1("Water Quality Station Map"))),
            fluidRow(column(12, hr())),
-           fluidRow(column(8,h4("Below are all stations, active and inactive, used to monitor water quality in Thurston County. To learn more about a station, click on the icon and follow the prompts to various data tabs."))),
-           fluidRow(column(12,leafletOutput('map',height="800",width="1200"))),
+           fluidRow(column(8,h5("Below are all stations, active and inactive, used to monitor water quality in Thurston County. To learn more about a station, click on the icon and follow the prompts to various data tabs."))),
+           fluidRow(column(12, br())),
+           fluidRow(column(12,leafletOutput('map',height="800",width="1600"))),
+           fluidRow(column(12, br())),
            #column(1,
           #        sidebarLayout(
           #   sidebarPanel(width=1,
@@ -73,8 +85,10 @@ ui<-
                      )),
                      fluidRow(plotlyOutput('wqi_annual')),
                      fluidRow(plotlyOutput('wqi_monthly'))
-                     ))
+                     )),
+           fluidRow(column(12, br()))
            ),
+  
   
   tabPanel('Water Quality Trends',value='trends',
            column(12,h1("Water Quality Trends")),
@@ -90,20 +104,22 @@ ui<-
             mainPanel(width = 9,
                 plotlyOutput('trend_plot'),
                 textOutput('trend_text')
-            ))
+            )),
+           fluidRow(column(12, br()))
   ), 
   tabPanel('Detailed Data',value='data_tab',
            column(12,h1("Detailed Water Quality Data")),
            column(12, hr()),
             sidebarLayout(
               sidebarPanel(width = 3,
-               selectInput('main_site3','Select Site',sites_list),
+                selectInput('main_site3','Select Site',sites_list),
                 selectInput('data_parm','Select Parameter',parm_list),
                 selectInput('data_year','Select Year to Highlight',2000)
               ),
               mainPanel(width = 9,
                 plotlyOutput('data_plot')
-              ))
+              )),
+           fluidRow(column(12, br()))
   ),
   tabPanel('All Data', value = 'all_data',
            column(12,h1("All Data Viewer")),
@@ -114,16 +130,18 @@ ui<-
            sidebarLayout(
              sidebarPanel(width = 3,
                           selectInput('main_site4','Select Site to Download',sites_list),
-                          selectInput('data_type', "Select Data Type for Download", c("Annual WQI",
-                                                                                      "Monthly WQI",
-                                                                                      "All Water Quality Data")),
+                          selectInput('params_out', "Select Parameter(s)", parm_list, multiple = TRUE),
+                          sliderInput('years_out','Select Year Range for Download',value=c(2000,2020),
+                                      min=2000,max=2020,
+                                      step=1),
                           downloadButton('downloadData', "Download Data")
              ),
              mainPanel(width = 9,
                       h4("Data Preview"),
                       br(),
                       DTOutput('data_view_table')
-             ))
+             )),
+           fluidRow(column(12, br()))
   )
   
  ,id='navbarpanel')
@@ -132,25 +150,25 @@ ui<-
 server<-function(input,output,session){
   
   output$map<-renderLeaflet({
-    leaflet(streams_sites) %>%
-      addMarkers(popup=~paste0("<h5>", "<b>", SITE_NAME,'<br>', "</b>","</h5>",
-                               "<h6>", "<i>", SITE_CODE,'<br>', "</i>","</h6>",
-                               "<br>",
-                               "Last Sample Collected: ", "NA", "<br>",
-                               "Recent WQI Score:      ", "NA", "<br>",
-                               "<br>",
-                               "<a onclick=","customHref('wqi')>",'View recent Water Quality Data.','</a>', "<br>",
-                               "<a onclick=","customHref('trends')>",'View Water Quality trends.','</a>', "<br>",
-                               "To view all data from this station, ", "<a onclick=","customHref('all_data')>",'click here.','</a>', "<br>",
-                               "To download data from this station, ", "<a onclick=","customHref('data_download')>",'click here.','</a>', "<br>"
-                                        ),
+    leaflet(recent_streams_data) %>%
+      addMarkers(popup=~paste0("<h5>", "<b>", SITE_NAME.y,'<br>', "</b>","</h5>",
+                               '<img src="https://thumbs.dreamstime.com/z/deep-forest-stream-crystal-clear-water-sunshine-plitvice-lakes-croatia-41645592.jpg" width="250px" height="250px"/>',
+                               "<hr>",
+                               "<h6>", "Last Sample Collected: ", "<b>", as.Date(DateTime, "%Y-%M-%d"), "</b>", "<br>",
+                               "Most Recent WQI Score:         ", "<b>", round(WQI,0), "</b>", "</h6>",
+                               "<hr>",
+                               "<h6>", "<b>", "Click to do the following:", "</b>","<ul>","<br>",
+                               "<li>", "<a onclick=","customHref('wqi')>",'View Recent Water Quality Index','</a>', "<br>","</li>",
+                               "<li>", "<a onclick=","customHref('trends')>",'View Water Quality Trends','</a>', "<br>","</li>",
+                               "<li>", "<a onclick=","customHref('all_data')>",'View all data for this station','</a>', "<br>","</li>",
+                               "<li>", "<a onclick=","customHref('data_download')>",'Download all data for this station', '</a>', "<br>","</li>",
+                               "</ul>","</h6>"),
                  layerId= ~SITE_CODE,
                  label = ~SITE_CODE) %>%
       addProviderTiles('Esri.NatGeoWorldMap')
   })
   
   output$wqi_map<-renderLeaflet({
-    
     pal<-colorFactor(c('green','yellow','red','grey'),levels=c('Good',"Moderate",'Poor',NA))
     
     streams_sites %>%
@@ -158,6 +176,12 @@ server<-function(input,output,session){
       mutate(Category=ifelse(WQI>=80,'Good',ifelse(WQI>=40,"Moderate",'Poor'))) %>%
     leaflet() %>%
       addCircleMarkers(color=~pal(Category),fillOpacity = 0.9,weight=1,
+                       popup=~paste0("<h5>", "<b>", SITE_NAME,'<br>', "</b>","</h5>",
+                                     "<hr>",
+                                     "<h6>","WY",WaterYear,  " WQI Score: ", "<b>", round(WQI,0),"</b>", "</h6>", 
+                                     "<br>"
+                                 
+      ),
       layerId= ~SITE_CODE,
       label = ~SITE_CODE) %>%
       addProviderTiles('Esri.NatGeoWorldMap') 
@@ -358,72 +382,38 @@ server<-function(input,output,session){
       theme_bw()+
       xlab('Month')+
       scale_y_continuous('Water Quality Index',limits = c(0,100))
-    ggplotly(monthly_wqi_plot)
+    myplot <- ggplotly(monthly_wqi_plot) %>%
+      layout(legend=list(title=list(text='')))
+  })
+  
+  dataout_data<-reactive({
+    streams_wq_dat %>%
+      filter(SITE_CODE==input$main_site4&
+               parameter==input$params_out&
+               WaterYear>=input$years_out[1]&WaterYear<=input$years_out[2])
   })
   
   output$data_view_table <- renderDT({
-    if(input$data_type == "Annual WQI"){
-      my_output <- head(annual_wqi[annual_wqi$site == input$main_site,])
+    if(is.null(input$params_out)){
+    } else{
+      datatable(head(dataout_data()), 
+      escape = FALSE,
+      options = list(
+        scrollX = TRUE,
+        dom = 't',
+        autoWidth = TRUE
+      ),
+      rownames= FALSE)
     }
-    if(input$data_type == "Monthly WQI"){
-      my_output <- head(monthly_wqi[monthly_wqi$site == input$main_site,])
-    }
-    if(input$data_type == "All Water Quality Data"){
-      my_output <- head(streams_wq_dat %>%
-                      filter(SITE_CODE == input$main_site))
-    }
-    datatable(my_output, 
-    escape = FALSE,
-    options = list(
-      scrollX = TRUE,
-      dom = 't',
-      autoWidth = TRUE
-    ),
-    rownames= FALSE)
   })
-  
-  output_dataset <- reactive({
-    if(input$data_type == "Annual WQI"){
-      my_output <- annual_wqi[annual_wqi$site == input$main_site,]
-    }  
-    if(input$data_type == "Annual WQI"){
-      my_output <- annual_wqi[annual_wqi$site == input$main_site,]
-    }  
-    if(input$data_type == "Monthly WQI"){
-      my_output <- monthly_wqi[monthly_wqi$site == input$main_site,]
-    }  
-    if(input$data_type == "All Water Quality Data"){
-      my_output <- streams_wq_dat[streams_wq_dat$SITE_CODE == input$main_site,]
-    }  
-    my_output
-    
-  })  
-   
-  
-  output_type <- reactive({
-    if(input$data_type == "Annual WQI"){
-      my_type = "AnnualWQI"
-    }  
-    if(input$data_type == "Annual WQI"){
-      my_type = "AnnualWQI"
-    }  
-    if(input$data_type == "Monthly WQI"){
-      my_type = "MonthlyWQI"
-    }  
-    if(input$data_type == "All Water Quality Data"){
-      my_type = "AllData"
-    }  
-    my_type
-  })
-  
   
   output$downloadData <- downloadHandler(
   
     filename = function() { 
-        paste(output_type(),"_", input$main_site, ".csv", sep="")
+        paste(input$main_site,"_", as.character(Sys.Date()), ".csv", sep="")
       },
       content = function(file) {
-        write.csv(output_dataset(), file)
+        write.csv(dataout_data(), file, row.names = F)
       }
   )  
       
