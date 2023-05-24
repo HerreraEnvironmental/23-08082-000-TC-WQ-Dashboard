@@ -84,7 +84,7 @@ ui<-
                  #fluidRow(plotlyOutput('data_plot'))
                   ),
   tabPanel('Summary of Water Quality Index',value='sum_wqi',
-           column(12,h1("Water Quality Index")),
+           column(12,h1("Summary of Water Quality Index")),
            column(12, hr()),
            fluidRow(column(8,leafletOutput('wqi_map',height=800,width=1200)),
                     column(4, 
@@ -93,7 +93,36 @@ ui<-
            )),
            fluidRow(column(12, br()))
            ),
+  tabPanel('Summary of Water Quality Criteria',value='sum_wqc',
+           column(12,h1("Summary of Water Quality Criteria")),
+           column(12, hr()),
+           #fluidRow(column(8,leafletOutput('wqc_map',height=800,width=1200)),
+           #          column(4, 
+                           #selectInput('wqc_sum_year','Select Year to Highlight',sort(unique(annual_wqi$WaterYear),T)),
+                           #plotlyOutput('wqc_summary_plot')
+           #         )),
+           fluidRow(column(12, br()))
+  ),
   
+  tabPanel('Water Quality Trends',value='trends',
+           column(12,h1("Water Quality Trends")),
+           column(12, hr()),
+            sidebarLayout(
+              sidebarPanel(width = 3,
+                selectInput('main_sites','Select Site',sites_list, multiple = T),
+                #selectInput('data_year','Select Year to Highlight',sort(unique(streams_wq_dat$WaterYear),T)),
+                selectInput('trend_parm','Select Parameter',parm_list),
+                sliderInput('trend_years','Select Year Range for Trend',value=c(2000,2020),
+                           min=2000,max=2020,
+                           step=1)
+            ),
+            mainPanel(width = 9,
+            #    plotlyOutput('trend_bar'),
+            #    DTOutput('trend_table')
+            #    plotlyOutput('trend_box') #Use box-n-whisker plot? Average with range?
+            )),
+           fluidRow(column(12, br()))
+  ), 
   tabPanel('WQI',value='wqi',
            column(12,h1("Water Quality Index")),
            column(12, hr()),
@@ -116,36 +145,44 @@ ui<-
            fluidRow(column(12, br()))
   ),
   
-  
-  tabPanel('Water Quality Trends',value='trends',
-           column(12,h1("Water Quality Trends")),
+  tabPanel('WQC',value='wqc',
+           column(12,h1("Water Quality Criteria")),
            column(12, hr()),
-            sidebarLayout(
-              sidebarPanel(width = 3,
-                selectInput('main_site2','Select Site',sites_list),
-                selectInput('data_year','Select Year to Highlight',sort(unique(streams_wq_dat$WaterYear),T)),
-                selectInput('trend_parm','Select Parameter',parm_list),
-                sliderInput('trend_years','Select Year Range for Trend',value=c(2000,2020),
-                           min=2000,max=2020,
-                           step=1)
-            ),
-            mainPanel(width = 9,
-                plotlyOutput('trend_plot'),
-                textOutput('trend_text')
-            )),
+           fluidRow(column(12,sidebarLayout(
+             sidebarPanel(width=3,
+                          selectInput('main_site5','Select Site',sites_list),
+                          #selectInput('wqc_year','Select Year to Highlight',sort(unique(annual_wqi$WaterYear),T))
+             )
+             ,
+             mainPanel(width=9,
+                       #fluidRow(plotlyOutput('wqc_annual'))
+                       
+             ))
+             
+           )),
            fluidRow(column(12, br()))
-  ), 
+  ),
+  
+  
   tabPanel('All Data',value='all_data',
            column(12,h1("All Data Viewer")),
            column(12, hr()),
             sidebarLayout(
               sidebarPanel(width = 3,
-                selectInput('main_site3','Select Site',sites_list),
-                selectInput('data_parm','Select Parameter',parm_list),
-                selectInput('data_year2','Select Year to Highlight',sort(unique(streams_wq_dat$WaterYear),T)),
+                 selectInput('main_site2','Select Site',sites_list),
+                 selectInput('data_year','Select Year to Highlight',sort(unique(streams_wq_dat$WaterYear),T)),
+                 selectInput('trend_parm','Select Parameter',parm_list),
+                 sliderInput('trend_years','Select Year Range for Trend',value=c(2000,2020),
+                             min=2000,max=2020,
+                             step=1)
+                #selectInput('main_site3','Select Site',sites_list),
+                #selectInput('data_parm','Select Parameter',parm_list),
+                #selectInput('data_year2','Select Year to Highlight',sort(unique(streams_wq_dat$WaterYear),T)),
               ),
               mainPanel(width = 9,
-                plotlyOutput('data_plot')
+                plotlyOutput('data_plot'),
+                textOutput('trend_text'),
+                plotlyOutput('trend_plot')
               )),
            fluidRow(column(12, br()))
   ),
@@ -262,6 +299,8 @@ server<-function(input,output,session){
                       selected = click$id)
     updateSelectInput(session, "main_site4", 
                       selected = click$id)
+    updateSelectInput(session, "main_site5", 
+                      selected = click$id)
   })
   # MAP 2 updates all variables
   observeEvent(input$wqi_map_marker_click, {
@@ -274,6 +313,8 @@ server<-function(input,output,session){
                       selected = click$id)
     updateSelectInput(session, "main_site4", 
                       selected = click$id)
+    updateSelectInput(session, "main_site5", 
+                      selected = click$id)
   })
   # Dropdown 1 updates all variables
   observeEvent(input$main_site, {
@@ -282,6 +323,8 @@ server<-function(input,output,session){
     updateSelectInput(session, "main_site3",
                       selected = input$main_site)
     updateSelectInput(session, "main_site4",
+                      selected = input$main_site)
+    updateSelectInput(session, "main_site5",
                       selected = input$main_site)
   })
   # Dropdown 2 updates all variables
@@ -292,6 +335,8 @@ server<-function(input,output,session){
                       selected = input$main_site2)
     updateSelectInput(session, "main_site4",
                       selected = input$main_site2)
+    updateSelectInput(session, "main_site5",
+                      selected = input$main_site2)
   })
   # Dropdown 3 updates all variables
   observeEvent(input$main_site3, {
@@ -300,6 +345,8 @@ server<-function(input,output,session){
     updateSelectInput(session, "main_site2",
                       selected = input$main_site3)
     updateSelectInput(session, "main_site4",
+                      selected = input$main_site3)
+    updateSelectInput(session, "main_site5",
                       selected = input$main_site3)
   })
   # Dropdown 4 updates all variables
@@ -310,6 +357,19 @@ server<-function(input,output,session){
                       selected = input$main_site4)
     updateSelectInput(session, "main_site3",
                       selected = input$main_site4)
+    updateSelectInput(session, "main_site5",
+                      selected = input$main_site4)
+  })
+  # Dropdown 5 updates all variables - WQC
+  observeEvent(input$main_site5, {
+    updateSelectInput(session, "main_site",
+                      selected = input$main_site5)
+    updateSelectInput(session, "main_site2",
+                      selected = input$main_site5)
+    updateSelectInput(session, "main_site3",
+                      selected = input$main_site5)
+    updateSelectInput(session, "main_site4",
+                      selected = input$main_site5)
   })
 
   
@@ -326,7 +386,8 @@ server<-function(input,output,session){
       geom_point(data=~filter(.x,WaterYear==input$data_year),col='red',size=4)+
       geom_point()+
       geom_smooth(data=~filter(.x,WaterYear>=input$trend_years[1]&WaterYear<=input$trend_years[2]))+
-      theme_bw()
+      theme_bw()+
+      scale_y_continuous(input$trend_parm)
     ggplotly(trendplot)
   })
   output$trend_text<-renderText({
@@ -367,8 +428,8 @@ server<-function(input,output,session){
     dataplot<-dataSubset() %>%
       ggplot(aes(x=WY_FakeDate,y=value,group=WaterYear))+
       geom_point(alpha=.2)+
-      geom_line(data=~.x %>% filter(WaterYear==input$data_year2))+
-      geom_point(data=~.x %>% filter(WaterYear==input$data_year2))+
+      geom_line(data=~.x %>% filter(WaterYear==input$data_year))+
+      geom_point(data=~.x %>% filter(WaterYear==input$data_year))+
       theme_bw()+
       scale_x_date('',date_breaks = '2 months',date_labels = '%b',
                    #limits=as.Date(c('1999-9-25','2000-10-05')),
@@ -460,7 +521,7 @@ server<-function(input,output,session){
   output$downloadData <- downloadHandler(
   
     filename = function() { 
-        paste(input$main_site,"_", as.character(Sys.Date()), ".csv", sep="")
+        paste(dataout_data()$SITE_NAME[1],"_", as.character(Sys.Date()), ".csv", sep="")
       },
       content = function(file) {
         write.csv(dataout_data(), file, row.names = F)
