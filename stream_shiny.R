@@ -4,6 +4,7 @@ library(ggplot2)
 library(plotly)
 library(shiny)
 library(leaflet)
+library(bslib)
 #Develop shiny tools for stream data viz
 #basic ui
 #Tab 1 - MAP - Display all sites, select site (nice if would update select on other tabs,popup feeds you to other tabs)
@@ -24,15 +25,20 @@ sites_list_df <- streams_sites[,c(2,3)]
 streams_wq_dat <- merge(streams_wq_dat, sites_list_df, by="SITE_CODE")
 
 
-ui<-tagList(
+ui<-
+  tagList(
   tags$head(tags$link(includeScript("func.js"))),
   tags$head(tags$style("a{cursor:pointer;}")),
  
 #UI
   navbarPage(
+    theme = bs_theme(version = 4, bootswatch = "yeti"),
   paste0('Thurston County Streams Water Quality Data Dashboard - BETA (', Sys.Date(),')'),
   tabPanel('Map',value='map',
-           fluidRow(column(11,leafletOutput('map',height="90vh",width="70vh"))),
+           fluidRow(column(12,h1("Water Quality Station Map"))),
+           fluidRow(column(12, hr())),
+           fluidRow(column(8,h4("Below are all stations, active and inactive, used to monitor water quality in Thurston County. To learn more about a station, click on the icon and follow the prompts to various data tabs."))),
+           fluidRow(column(12,leafletOutput('map',height="800",width="1200"))),
            #column(1,
           #        sidebarLayout(
           #   sidebarPanel(width=1,
@@ -50,51 +56,72 @@ ui<-tagList(
                  #fluidRow(plotlyOutput('data_plot'))
                   ),
   tabPanel('Water Quality Index',value='wqi',
-           column(6,leafletOutput('wqi_map',height=800,width=800)),
-           column(6,sidebarLayout(
-           sidebarPanel(width=6,
-                        selectInput('main_site','Select Site',sites_list)
-           )
-           ,
-           mainPanel(width=6,
-                     selectInput('wqi_year','Select Year to Highlight',sort(unique(annual_wqi$WaterYear),T)),
-                     sliderInput('wqi_trend_years','Select Year Range for Trend',value=c(min(annual_wqi$WaterYear),max(annual_wqi$WaterYear)),
-                                 min=min(annual_wqi$WaterYear),max=max(annual_wqi$WaterYear),
-                                 step=1,sep='')
-           )),
-           fluidRow(plotlyOutput('wqi_annual')),
-           fluidRow(plotlyOutput('wqi_monthly'))
-           )),
+           column(12,h1("Water Quality Index")),
+           column(12, hr()),
+           fluidRow(column(6,leafletOutput('wqi_map',height=800,width=800)),
+                    column(6,sidebarLayout(
+                     sidebarPanel(width=6,
+                                  selectInput('main_site','Select Site',sites_list)
+                     )
+                     ,
+                     mainPanel(width=6,
+                               selectInput('wqi_year','Select Year to Highlight',sort(unique(annual_wqi$WaterYear),T)),
+                               sliderInput('wqi_trend_years','Select Year Range for Trend',value=c(min(annual_wqi$WaterYear),max(annual_wqi$WaterYear)),
+                                           min=min(annual_wqi$WaterYear),max=max(annual_wqi$WaterYear),
+                                           step=1,sep='')
+                     )),
+                     fluidRow(plotlyOutput('wqi_annual')),
+                     fluidRow(plotlyOutput('wqi_monthly'))
+                     ))
+           ),
   
-  tabPanel('WQ Trends',value='trends',
+  tabPanel('Water Quality Trends',value='trends',
+           column(12,h1("Water Quality Trends")),
+           column(12, hr()),
             sidebarLayout(
-              sidebarPanel(
+              sidebarPanel(width = 3,
                 selectInput('main_site2','Select Site',sites_list),
                 selectInput('trend_parm','Select Parameter',parm_list),
                 sliderInput('trend_years','Select Year Range for Trend',value=c(2000,2020),
                            min=2000,max=2020,
                            step=1)
             ),
-            mainPanel(
+            mainPanel(width = 9,
                 plotlyOutput('trend_plot'),
-                textOutput('trend_text'),
-                tableOutput('trend_table')
+                textOutput('trend_text')
             ))
   ), 
   tabPanel('Detailed Data',value='data_tab',
+           column(12,h1("Detailed Water Quality Data")),
+           column(12, hr()),
             sidebarLayout(
-              sidebarPanel(
+              sidebarPanel(width = 3,
                selectInput('main_site3','Select Site',sites_list),
                 selectInput('data_parm','Select Parameter',parm_list),
                 selectInput('data_year','Select Year to Highlight',2000)
               ),
-              mainPanel(
+              mainPanel(width = 9,
                 plotlyOutput('data_plot')
               ))
   ),
-  tabPanel('All Data', value = 'all_data'),
+  tabPanel('All Data', value = 'all_data',
+           column(12,h1("All Data Viewer")),
+           column(12, hr())),
   tabPanel('Data Download', value = 'data_download',
-           column(6, ))
+           column(12,h1("Data Download")),
+           column(12, hr()),
+           sidebarLayout(
+             sidebarPanel(width = 3,
+                          selectInput('main_site4','Select Site to Download',sites_list),
+                          selectInput('data_type', "Select Data Type for Download", c("Annual WQI",
+                                                                                      "Monthly WQI",
+                                                                                      "All Water Quality Data"))
+             ),
+             mainPanel(width = 9,
+                      h4("Data Preview"),
+                      tableOutput('data_view_table')
+             ))
+  )
   
  ,id='navbarpanel')
 )
@@ -311,6 +338,44 @@ server<-function(input,output,session){
       scale_y_continuous('Water Quality Index',limits = c(0,100))
     ggplotly(monthly_wqi_plot)
   })
+  
+  output$data_view_table <- renderTable({
+    if(input$data_type == "Annual WQI"){
+      my_output <- head(annual_wqi[annual_wqi$site == input$main_site,])
+    }
+    if(input$data_type == "Monthly WQI"){
+      my_output <- head(monthly_wqi[monthly_wqi$site == input$main_site,])
+    }
+    if(input$data_type == "All Water Quality Data"){
+      my_output <- head(streams_wq_dat %>%
+                      filter(SITE_CODE == input$main_site))
+    }
+    my_output
+  })
 }
 
+  
+  
+
+
 shinyApp(ui,server)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
