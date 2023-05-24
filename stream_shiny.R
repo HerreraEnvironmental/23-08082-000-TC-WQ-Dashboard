@@ -6,6 +6,8 @@ library(shiny)
 library(leaflet)
 library(bslib)
 library(DT)
+library(purrr)
+library(tidyr)
 #Develop shiny tools for stream data viz
 #basic ui
 #Tab 1 - MAP - Display all sites, select site (nice if would update select on other tabs,popup feeds you to other tabs)
@@ -60,6 +62,23 @@ ui<-
                      fluidRow(plotlyOutput('wqi_monthly'))
                      ))
            ),
+tabPanel('Trend Summary',value='wqi',
+         column(12,h1("Trend Summary")),
+         column(12, hr()),
+         sidebarLayout(
+                    sidebarPanel(width=4,
+                                 sliderInput('trend_summary_years','Select Year Range for Trend',
+                                             value=c(min(streams_wq_dat$WaterYear),max(streams_wq_dat$WaterYear)),
+                                             min=min(streams_wq_dat$WaterYear),max=max(streams_wq_dat$WaterYear),
+                                             step=1,sep=''),
+                                 selectInput('trend_summary_parm','Select Parameter for Table and Plot',
+                                            parm_list)
+                    ),
+                    mainPanel(plotlyOutput('trend_summary_plot'),
+                         #     tableOutput('trend_summary_table'),
+                              plotlyOutput('trend_summary_parm_plot'))
+                  )
+),
   
   tabPanel('Water Quality Trends',value='trends',
            column(12,h1("Water Quality Trends")),
@@ -257,18 +276,90 @@ server<-function(input,output,session){
       theme_bw()
     ggplotly(trendplot)
   })
+  
+  trend_out<-reactive({
+    dataSubset() %>%
+      filter(WaterYear>=input$trend_years[1]&WaterYear<=input$trend_years[2]) %>%
+      with(.,rkt::rkt(WaterYear,newResultValue,Month,rep='a'))
+  })
+  
   output$trend_text<-renderText({
 
     
-    pos_lik=.65
-    neg_lik=.35
-    
-    
-    paste('Between water years',input$trend_years[1],'and',input$trend_years[2],
-          'there is a ',pos_lik*100,'% likelihood that',input$trend_parm,'is increasing at',input$main_site,"\n",
+    sigStatement<-ifelse(trend_out()$sl<=0.05,'a  significant trend','insufficient evidence of a trend')
+    slopeStatement<-ifelse(trend_out()$sl<=0.05,paste('The trend slope is',trend_out()$B,'per year'),'')
+    paste('Mann-Kendall Trend Test:','\n',
           'Between water years',input$trend_years[1],'and',input$trend_years[2],
-          'there is a ',neg_lik*100,'% likelihood that',input$trend_parm,'is decreasing at',input$main_site)
+          'at',input$trend_site,'there is',sigStatement,'in',input$trend_parm,'\n',
+          slopeStatement)
 
+  })
+  
+  trend_summary<-reactive({
+    #set a limit for number of samples for selected time period
+    #let's go for 4
+    #if((input$trend_summary_years[2]-input$trend_summary_years[1])<4) "Please select at least 4 years" else{
+    streams_wq_dat %>%
+      filter(WaterYear>=input$trend_summary_years[1]&WaterYear<=input$trend_summary_years[2]&
+               parameter==input$trend_summary_parm) %>%
+      group_by(SITE_CODE,parameter) %>%
+      nest() %>%
+      mutate(MK_Out=map(.x=data,.f=~{
+        mk_out<-with(.x,rkt::rkt(WaterYear,newResultValue,Month,rep='a'))
+        tibble(p=mk_out$sl,
+               Slope=mk_out$B) %>%
+          mutate(Statement=ifelse(is.na(Slope),'Test Not Run - insufficient data',
+                   ifelse(p>0.05|Slope==0,'No Significant Trend',ifelse(Slope>0,'Increasing Trend','Decreasing Trend'))))
+        })) %>%
+      select(-data) %>%
+      unnest(MK_Out)%>%
+        mutate(Statement=factor(Statement,levels=rev(c('Decreasing Trend','Test Not Run - insufficient data',
+                                                       'No Significant Trend','Increasing Trend'))))
+ #   }
+  })
+  
+  output$trend_summary_plot<-renderPlotly({
+    # validate(
+    #   need( (input$trend_summary_years[2]-input$trend_summary_years[1])<4, "Please select at least 4 years")
+    # )
+    plot<-trend_summary() %>%
+      ggplot(aes(x=parameter,fill=Statement))+
+      geom_bar(position='stack')+
+      scale_fill_manual(values=c('Decreasing Trend'='blue','Test Not Run - insufficient data'='darkgrey',
+                                 'No Significant Trend'='lightgrey','Increasing Trend'='red'))+
+      theme_bw()+
+      theme(#axis.text.x = element_text(angle=45,hjust=1),
+            legend.position = 'bottom')+
+      coord_flip()+xlab('')
+    
+    ggplotly(plot)
+  })
+  
+  output$trend_summary_table<-renderText({
+    paste('')
+
+  })
+  
+  output$trend_summary_parm_plot<-renderPlotly({
+    # validate(
+    #   need( (input$trend_summary_years[2]-input$trend_summary_years[1])<4, "Please select at least 4 years")
+    # )
+    plot<-streams_wq_dat %>%
+      filter(parameter==input$trend_summary_parm) %>%
+      group_by(WaterYear,SITE_CODE) %>%
+      summarise(MedianValue=median(newResultValue,na.rm=T)) %>%
+      ggplot(aes(x=WaterYear,y=MedianValue,col=SITE_CODE))+
+      geom_point()+
+     # geom_line()+
+      theme_bw()+
+      ylab(input$trend_summary_parm)+
+     geom_vline(xintercept=input$trend_summary_years[1])+
+      geom_vline(xintercept=input$trend_summary_years[2])
+      # annotate('rect',xmin=input$trend_summary_years[1],xmax = input$trend_summary_years[2],alpha=0.5,
+      #          ymin=-Inf,ymax=Inf)
+    
+    ggplotly(plot)
+    
   })
   
   ##data plots
