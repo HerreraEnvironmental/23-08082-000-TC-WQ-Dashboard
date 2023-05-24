@@ -5,6 +5,7 @@ library(plotly)
 library(shiny)
 library(leaflet)
 library(bslib)
+library(DT)
 #Develop shiny tools for stream data viz
 #basic ui
 #Tab 1 - MAP - Display all sites, select site (nice if would update select on other tabs,popup feeds you to other tabs)
@@ -115,11 +116,13 @@ ui<-
                           selectInput('main_site4','Select Site to Download',sites_list),
                           selectInput('data_type', "Select Data Type for Download", c("Annual WQI",
                                                                                       "Monthly WQI",
-                                                                                      "All Water Quality Data"))
+                                                                                      "All Water Quality Data")),
+                          downloadButton('downloadData', "Download Data")
              ),
              mainPanel(width = 9,
                       h4("Data Preview"),
-                      tableOutput('data_view_table')
+                      br(),
+                      DTOutput('data_view_table')
              ))
   )
   
@@ -199,6 +202,8 @@ server<-function(input,output,session){
                       selected = click$id)
     updateSelectInput(session, "main_site3", 
                       selected = click$id)
+    updateSelectInput(session, "main_site4", 
+                      selected = click$id)
   })
   # MAP 2 updates all variables
   observeEvent(input$wqi_map_marker_click, {
@@ -209,12 +214,16 @@ server<-function(input,output,session){
                       selected = click$id)
     updateSelectInput(session, "main_site3", 
                       selected = click$id)
+    updateSelectInput(session, "main_site4", 
+                      selected = click$id)
   })
   # Dropdown 1 updates all variables
   observeEvent(input$main_site, {
     updateSelectInput(session, "main_site2",
                       selected = input$main_site)
     updateSelectInput(session, "main_site3",
+                      selected = input$main_site)
+    updateSelectInput(session, "main_site4",
                       selected = input$main_site)
   })
   # Dropdown 2 updates all variables
@@ -223,6 +232,8 @@ server<-function(input,output,session){
                       selected = input$main_site2)
     updateSelectInput(session, "main_site3",
                       selected = input$main_site2)
+    updateSelectInput(session, "main_site4",
+                      selected = input$main_site2)
   })
   # Dropdown 3 updates all variables
   observeEvent(input$main_site3, {
@@ -230,6 +241,17 @@ server<-function(input,output,session){
                       selected = input$main_site3)
     updateSelectInput(session, "main_site2",
                       selected = input$main_site3)
+    updateSelectInput(session, "main_site4",
+                      selected = input$main_site3)
+  })
+  # Dropdown 4 updates all variables
+  observeEvent(input$main_site4, {
+    updateSelectInput(session, "main_site",
+                      selected = input$main_site4)
+    updateSelectInput(session, "main_site2",
+                      selected = input$main_site4)
+    updateSelectInput(session, "main_site3",
+                      selected = input$main_site4)
   })
 
   
@@ -339,7 +361,7 @@ server<-function(input,output,session){
     ggplotly(monthly_wqi_plot)
   })
   
-  output$data_view_table <- renderTable({
+  output$data_view_table <- renderDT({
     if(input$data_type == "Annual WQI"){
       my_output <- head(annual_wqi[annual_wqi$site == input$main_site,])
     }
@@ -350,8 +372,64 @@ server<-function(input,output,session){
       my_output <- head(streams_wq_dat %>%
                       filter(SITE_CODE == input$main_site))
     }
-    my_output
+    datatable(my_output, 
+    escape = FALSE,
+    options = list(
+      scrollX = TRUE,
+      dom = 't',
+      autoWidth = TRUE
+    ),
+    rownames= FALSE)
   })
+  
+  output_dataset <- reactive({
+    if(input$data_type == "Annual WQI"){
+      my_output <- annual_wqi[annual_wqi$site == input$main_site,]
+    }  
+    if(input$data_type == "Annual WQI"){
+      my_output <- annual_wqi[annual_wqi$site == input$main_site,]
+    }  
+    if(input$data_type == "Monthly WQI"){
+      my_output <- monthly_wqi[monthly_wqi$site == input$main_site,]
+    }  
+    if(input$data_type == "All Water Quality Data"){
+      my_output <- streams_wq_dat[streams_wq_dat$SITE_CODE == input$main_site,]
+    }  
+    my_output
+    
+  })  
+   
+  
+  output_type <- reactive({
+    if(input$data_type == "Annual WQI"){
+      my_type = "AnnualWQI"
+    }  
+    if(input$data_type == "Annual WQI"){
+      my_type = "AnnualWQI"
+    }  
+    if(input$data_type == "Monthly WQI"){
+      my_type = "MonthlyWQI"
+    }  
+    if(input$data_type == "All Water Quality Data"){
+      my_type = "AllData"
+    }  
+    my_type
+  })
+  
+  
+  output$downloadData <- downloadHandler(
+  
+    filename = function() { 
+        paste(output_type(),"_", input$main_site, ".csv", sep="")
+      },
+      content = function(file) {
+        write.csv(output_dataset(), file)
+      }
+  )  
+      
+      
+ 
+  
 }
 
   
