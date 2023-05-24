@@ -159,6 +159,7 @@ ui<-
                        
              ))
              
+
            )),
            fluidRow(column(12, br()))
   ),
@@ -316,6 +317,7 @@ server<-function(input,output,session){
     updateSelectInput(session, "main_site5", 
                       selected = click$id)
   })
+
   # Dropdown 1 updates all variables
   observeEvent(input$main_site, {
     updateSelectInput(session, "main_site2",
@@ -372,6 +374,7 @@ server<-function(input,output,session){
                       selected = input$main_site5)
   })
 
+
   
   dataSubset<-reactive({
     streams_wq_dat %>%
@@ -391,15 +394,7 @@ server<-function(input,output,session){
     ggplotly(trendplot)
   })
   output$trend_text<-renderText({
-    
-    pos_lik=.65
-    neg_lik=.35
-    
-    
-    paste('Between water years',input$trend_years[1],'and',input$trend_years[2],
-          'there is a ',pos_lik*100,'% likelihood that',input$trend_parm,'is increasing at',input$main_site,"\n",
-          'Between water years',input$trend_years[1],'and',input$trend_years[2],
-          'there is a ',neg_lik*100,'% likelihood that',input$trend_parm,'is decreasing at',input$main_site)
+
   })
   
   ##data plots

@@ -38,6 +38,7 @@ site_parm_medians<-streams_wq_dat %>%
 
 
 mk_out_monthly_overall<-streams_wq_dat %>%
+  filter(parameter=='Temperature, water') %>%
   filter(!is.na(newResultValue)) %>%
   #filter(SITE_CODE=='10a') %>%
   select(SITE_CODE,WaterYear,Parameter=parameter,Conc=newResultValue,Month=Month,nonDetectFlag) %>%
@@ -55,7 +56,7 @@ mk_out_monthly_overall<-streams_wq_dat %>%
     if(nrow(.x)>=4){
       tempData=.x 
       
-      imp_function_out<-with(tempData,imp_function(x=WaterYear,y=Conc,ycen=nonDetectFlag,iter=100))
+      imp_function_out<-with(tempData,imp_function(x=WaterYear,y=Conc,ycen=nonDetectFlag,iter=1000))
       slopes=imp_function_out$ave_slopes
       rank_slope_zero<-imp_function_out$rank_slope_zero
       z1a_zero<-imp_function_out$z1a_zero
@@ -71,10 +72,10 @@ mk_out_monthly_overall<-streams_wq_dat %>%
   select(-data) %>%
   unnest(MK_Out) %>%
   summarise(Slopes1=list(Slopes),
-            VarS=unique(VarS),
+            VarS=first(VarS),
             n_slopes=length(which(!is.na(Slopes))),
-            rank_slope_zero=unique(rank_slope_zero),
-            z1a_zero=unique(z1a_zero),
+            rank_slope_zero=first(rank_slope_zero),
+            z1a_zero=first(z1a_zero),
             neg.prob=round(1-pnorm(z1a_zero),4),
             pos.prob=round(pnorm(z1a_zero),4),
   ) %>%
