@@ -6,7 +6,7 @@ library(shiny)
 library(leaflet)
 library(bslib)
 library(DT)
-
+library(shinyWidgets)
 library(purrr)
 library(tidyr)
 
@@ -117,9 +117,10 @@ ui<-
             sidebarLayout(
               sidebarPanel(width = 3,
 
-                selectInput('main_sites','Select Site',sites_list, multiple = T),
+                pickerInput('main_sites','Select Site',sites_list, multiple = T,
+                            selected=sites_list[1:3]),
                 selectInput('trend_summary_parm','Select Parameter for Table and Plot',
-                                            parm_list)
+                                            parm_list),
                 sliderInput('trend_summary_years','Select Year Range for Trend',
                                              value=c(min(streams_wq_dat$WaterYear),max(streams_wq_dat$WaterYear)),
                                              min=min(streams_wq_dat$WaterYear),max=max(streams_wq_dat$WaterYear),
@@ -426,7 +427,8 @@ server<-function(input,output,session){
     #if((input$trend_summary_years[2]-input$trend_summary_years[1])<4) "Please select at least 4 years" else{
     streams_wq_dat %>%
       filter(WaterYear>=input$trend_summary_years[1]&WaterYear<=input$trend_summary_years[2]&
-               parameter==input$trend_summary_parm) %>%
+               parameter==input$trend_summary_parm&
+               SITE_CODE %in% input$main_sites) %>%
       group_by(SITE_CODE,parameter) %>%
       nest() %>%
       mutate(MK_Out=map(.x=data,.f=~{
@@ -470,7 +472,8 @@ server<-function(input,output,session){
     #   need( (input$trend_summary_years[2]-input$trend_summary_years[1])<4, "Please select at least 4 years")
     # )
     plot<-streams_wq_dat %>%
-      filter(parameter==input$trend_summary_parm) %>%
+      filter(parameter==input$trend_summary_parm&
+               SITE_CODE %in% input$main_sites) %>%
       group_by(WaterYear,SITE_CODE) %>%
       summarise(MedianValue=median(newResultValue,na.rm=T)) %>%
       ggplot(aes(x=WaterYear,y=MedianValue,col=SITE_CODE))+

@@ -5,10 +5,10 @@ account: herrerainc
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 9060286
-bundleId: 7191456
+bundleId: 7259825
 url: https://herrerainc.shinyapps.io/ThurstonWQDashboard_Streams_Dev/
-when: 1683588551.71144
-lastSyncTime: 1683588551.71145
+when: 1684973972.03246
+lastSyncTime: 1684973972.03246
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: data_prep.R|func.js|inputs/Herrera All Stream Data Dump 4 12 2023.csv|README.md|tda_function.R|WQI_ecology_v6.xlsm
+ignoredFiles: data_prep.R|inputs/Herrera All Stream Data Dump 4 12 2023.csv|README.md|TDA.R|TDA_helper_functions.R|ThurstonCo_WA.cpg|ThurstonCo_WA.dbf|ThurstonCo_WA.prj|ThurstonCo_WA.sbn|ThurstonCo_WA.sbx|ThurstonCo_WA.shp|ThurstonCo_WA.shp.xml|ThurstonCo_WA.shx|wq_summary.R|wqi_ecology_curves_v6.csv|WQI_ecology_v6.xlsm|wqi_function.R
