@@ -9,6 +9,7 @@ library(DT)
 library(shinyWidgets)
 library(purrr)
 library(tidyr)
+library(rkt)
 
 #library(sf)
 #library(rgdal)
@@ -22,7 +23,11 @@ library(tidyr)
 
 streams_wq_dat<-readRDS('outputs/streams_wq_dat.RDS')
 streams_sites<-readRDS('outputs/streams_sites.RDS')
-annual_wqi<-readRDS('outputs/annual_wqi.RDS')
+annual_wqi<-readRDS('outputs/annual_wqi.RDS') %>%
+  mutate(Rating=ifelse(WQI>=80,'Good',
+                       ifelse(WQI>=40,'Moderate','Poor')))
+
+
 monthly_wqi_by_parameter<-readRDS('outputs/monthly_wqi_by_parameter.RDS')
 monthly_wqi<-readRDS('outputs/monthly_wqi.RDS')
 
@@ -34,26 +39,32 @@ streams_wq_dat <- merge(streams_wq_dat, sites_list_df, by="SITE_CODE")
 
 
 #For recent stream data (sample time and WQI score)
-  streams <- merge(streams_wq_dat, streams_sites, by = "SITE_CODE")
-  streams <- merge(streams, annual_wqi, by.x = "SITE_CODE", by.y = "site")
-  streams <- streams[rev(order(streams$DateTime)),]
 
-  recent_streams_data <- streams %>% 
-    group_by(SITE_CODE) %>%
-    slice(which.max(as.Date(ymd_hms(DateTime))))
+recent_streams_data<-streams_wq_dat %>%
+  group_by(SITE_CODE) %>%
+  slice(which.max(as.Date(ymd_hms(DateTime)))) %>%
+  select(SITE_CODE,DateTime) %>%
+  left_join(.,
+            annual_wqi%>%
+              slice(which.max(WaterYear)),
+            by=c('SITE_CODE'='site')) %>%
+  left_join(streams_sites) %>%
+  arrange(desc(DateTime))
+
+
 #Rating WQI; Good, Moderate, Poor
-  annual_wqi$Rating <- "NA"
-  for(i in 1:nrow(annual_wqi)){
-    if(annual_wqi$WQI[i] >= 80){
-      annual_wqi$Rating[i] = "Good"
-    }
-    else if(annual_wqi$WQI[i] >= 40){
-      annual_wqi$Rating[i] = "Moderate"
-    }
-    else{
-      annual_wqi$Rating[i] = "Poor"
-    }
-  }
+  # annual_wqi$Rating <- "NA"
+  # for(i in 1:nrow(annual_wqi)){
+  #   if(annual_wqi$WQI[i] >= 80){
+  #     annual_wqi$Rating[i] = "Good"
+  #   }
+  #   else if(annual_wqi$WQI[i] >= 40){
+  #     annual_wqi$Rating[i] = "Moderate"
+  #   }
+  #   else{
+  #     annual_wqi$Rating[i] = "Poor"
+  #   }
+  # }
 
 #ThurstonCo_WA <- readOGR(dsn=getwd(), layer="ThurstonCo_WA")
 
@@ -224,7 +235,7 @@ ui<-
 server<-function(input,output,session){
   output$map<-renderLeaflet({
     leaflet(recent_streams_data) %>%
-      addMarkers(popup=~paste0("<h5>", "<b>", SITE_NAME.y,'<br>', "</b>","</h5>",
+      addMarkers(popup=~paste0("<h5>", "<b>", SITE_NAME,'<br>', "</b>","</h5>",
                                "<h6>", "<i>", "Last Sampled on ", as.Date(DateTime, "%Y-%M-%d"), "</i>","<br>",
                                "<br>",
                                '<img src="https://thumbs.dreamstime.com/z/deep-forest-stream-crystal-clear-water-sunshine-plitvice-lakes-croatia-41645592.jpg" width="250px" height="250px"/>',
