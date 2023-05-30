@@ -31,7 +31,7 @@ annual_wqi<-readRDS('outputs/annual_wqi.RDS') %>%
 monthly_wqi_by_parameter<-readRDS('outputs/monthly_wqi_by_parameter.RDS')
 monthly_wqi<-readRDS('outputs/monthly_wqi.RDS')
 
-sites_list<-setNames(streams_sites$SITE_CODE,streams_sites$SITE_NAME)
+sites_list<-setNames(streams_sites$SITE_CODE,paste0(streams_sites$SITE_NAME,' (',streams_sites$SITE_CODE,')'))
 parm_list<-unique(streams_wq_dat$parameter)
 
 sites_list_df <- streams_sites[,c(2,3)]
@@ -47,26 +47,12 @@ recent_streams_data<-streams_wq_dat %>%
   left_join(.,
             annual_wqi%>%
               slice(which.max(WaterYear)),
-            by=c('SITE_CODE'='site')) %>%
+            by=c('SITE_CODE'='site')
+            ) %>%
   left_join(streams_sites) %>%
   arrange(desc(DateTime))
 
 
-#Rating WQI; Good, Moderate, Poor
-  # annual_wqi$Rating <- "NA"
-  # for(i in 1:nrow(annual_wqi)){
-  #   if(annual_wqi$WQI[i] >= 80){
-  #     annual_wqi$Rating[i] = "Good"
-  #   }
-  #   else if(annual_wqi$WQI[i] >= 40){
-  #     annual_wqi$Rating[i] = "Moderate"
-  #   }
-  #   else{
-  #     annual_wqi$Rating[i] = "Poor"
-  #   }
-  # }
-
-#ThurstonCo_WA <- readOGR(dsn=getwd(), layer="ThurstonCo_WA")
 
 
 ui<-
@@ -238,9 +224,10 @@ server<-function(input,output,session){
       addMarkers(popup=~paste0("<h5>", "<b>", SITE_NAME,'<br>', "</b>","</h5>",
                                "<h6>", "<i>", "Last Sampled on ", as.Date(DateTime, "%Y-%M-%d"), "</i>","<br>",
                                "<br>",
-                               '<img src="https://thumbs.dreamstime.com/z/deep-forest-stream-crystal-clear-water-sunshine-plitvice-lakes-croatia-41645592.jpg" width="250px" height="250px"/>',
+                               #can insert photo
+                            #   '<img src="https://thumbs.dreamstime.com/z/deep-forest-stream-crystal-clear-water-sunshine-plitvice-lakes-croatia-41645592.jpg" width="250px" height="250px"/>',
                                "<hr>",
-                               "Most Recent WQI Score of ", "<b>", as.character(round(WQI,0)), "</b>", "</h6>",
+                               "Most Recent WQI Score of ", "<b>", as.character(round(WQI,0)),' in ',WaterYear,' (',Rating,')', "</b>", "</h6>",
                                "<hr>",
                                "<h6>", "<b>", "Click to do the following:", "</b>","<ul>","<br>",
                                "<li>", "<a onclick=","customHref('wqi')>",'View Recent Water Quality Index','</a>', "<br>","</li>",
@@ -265,7 +252,8 @@ server<-function(input,output,session){
       addCircleMarkers(color=~pal(Category),fillOpacity = 0.9,weight=1,
                        popup=~paste0("<h5>", "<b>", SITE_NAME,'<br>', "</b>","</h5>",
                                      "<hr>",
-                                     "For WY",WaterYear,  ", the WQI score was ", "<b>", round(WQI,0),"</b>"," and is considered ", "<b>", Rating, "</b>",".",  
+                                     "For WY",WaterYear,  ", the WQI score was ", "<b>", 
+                                     round(WQI,0),"</b>"," and is considered ", "<b>", Rating, "</b>",".",  
                                      "<br>"
                                  
       ),
