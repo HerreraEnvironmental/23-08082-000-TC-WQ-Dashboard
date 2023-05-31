@@ -114,7 +114,7 @@ ui<-
             sidebarLayout(
               sidebarPanel(width = 3,
 
-                pickerInput('main_sites','Select Site',sites_list, multiple = T,
+                pickerInput('main_site3','Select Site',sites_list, multiple = T,
                             selected=sites_list[1:3]),
                 selectInput('trend_summary_parm','Select Parameter for Table and Plot',
                                             parm_list),
@@ -157,7 +157,7 @@ ui<-
            column(12, hr()),
            fluidRow(column(12,sidebarLayout(
              sidebarPanel(width=3,
-                          selectInput('main_site5','Select Site',sites_list),
+                          pickerInput('main_site5','Select Site',sites_list, multiple = T),
                           #selectInput('wqc_year','Select Year to Highlight',sort(unique(annual_wqi$WaterYear),T))
              )
              ,
@@ -177,7 +177,7 @@ ui<-
            column(12, hr()),
             sidebarLayout(
               sidebarPanel(width = 3,
-                 selectInput('main_site2','Select Site',sites_list),
+                 pickerInput('main_site2','Select Site',sites_list, multiple = F),
                  selectInput('data_year','Select Year to Highlight',sort(unique(streams_wq_dat$WaterYear),T)),
                  selectInput('trend_parm','Select Parameter',parm_list),
                  sliderInput('trend_years','Select Year Range for Trend',value=c(2000,2020),
@@ -200,7 +200,7 @@ ui<-
            column(12, hr()),
            sidebarLayout(
              sidebarPanel(width = 3,
-                          selectInput('main_site4','Select Site to Download',sites_list),
+                          selectInput('main_site4','Select Site to Download',sites_list, multiple = T),
                           selectInput('params_out', "Select Parameter(s)", parm_list, multiple = TRUE),
                           sliderInput('years_out','Select Year Range for Download',value=c(2000,2020),
                                       min=2000,max=2020,
@@ -231,8 +231,7 @@ server<-function(input,output,session){
                                "<hr>",
                                "<h6>", "<b>", "Click to do the following:", "</b>","<ul>","<br>",
                                "<li>", "<a onclick=","customHref('wqi')>",'View Recent Water Quality Index','</a>', "<br>","</li>",
-                               "<li>", "<a onclick=","customHref('trends')>",'View Water Quality Trends','</a>', "<br>","</li>",
-                               "<li>", "<a onclick=","customHref('all_data')>",'View all data for this station','</a>', "<br>","</li>",
+                               "<li>", "<a onclick=","customHref('all_data')>",'View Water Quality trends and all data for this station','</a>', "<br>","</li>",
                                "<li>", "<a onclick=","customHref('data_download')>",'Download all data for this station', '</a>', "<br>","</li>",
                                "</ul>","</h6>"),
                  layerId= ~SITE_CODE,
@@ -243,7 +242,7 @@ server<-function(input,output,session){
   })
   
   output$wqi_map<-renderLeaflet({
-    pal<-colorFactor(c('green','yellow','red','grey'),levels=c('Good',"Moderate",'Poor',NA))
+    pal<-colorFactor(c('darkgreen','gold','darkred','grey'),levels=c('Good',"Moderate",'Poor',NA))
     
     streams_sites %>%
       left_join(annual_wqi %>%filter(WaterYear==input$wqi_sum_year),by=c('SITE_CODE'='site')) %>%
@@ -350,38 +349,38 @@ server<-function(input,output,session){
                       selected = input$main_site2)
   })
   # Dropdown 3 updates all variables
-  observeEvent(input$main_site3, {
-    updateSelectInput(session, "main_site",
-                      selected = input$main_site3)
-    updateSelectInput(session, "main_site2",
-                      selected = input$main_site3)
-    updateSelectInput(session, "main_site4",
-                      selected = input$main_site3)
-    updateSelectInput(session, "main_site5",
-                      selected = input$main_site3)
-  })
+  #observeEvent(input$main_site3, {
+  #  updateSelectInput(session, "main_site",
+  #                    selected = input$main_site3)
+  #  updateSelectInput(session, "main_site2",
+  #                    selected = input$main_site3)
+  #  updateSelectInput(session, "main_site4",
+  #                    selected = input$main_site3)
+  #  updateSelectInput(session, "main_site5",
+  #                    selected = input$main_site3)
+  #})
   # Dropdown 4 updates all variables
-  observeEvent(input$main_site4, {
-    updateSelectInput(session, "main_site",
-                      selected = input$main_site4)
-    updateSelectInput(session, "main_site2",
-                      selected = input$main_site4)
-    updateSelectInput(session, "main_site3",
-                      selected = input$main_site4)
-    updateSelectInput(session, "main_site5",
-                      selected = input$main_site4)
-  })
+  #observeEvent(input$main_site4, {
+  #  updateSelectInput(session, "main_site",
+  #                    selected = input$main_site4)
+  #  updateSelectInput(session, "main_site2",
+  #                    selected = input$main_site4)
+  #  updateSelectInput(session, "main_site3",
+  #                    selected = input$main_site4)
+  #  updateSelectInput(session, "main_site5",
+  #                    selected = input$main_site4)
+  #})
   # Dropdown 5 updates all variables - WQC
-  observeEvent(input$main_site5, {
-    updateSelectInput(session, "main_site",
-                      selected = input$main_site5)
-    updateSelectInput(session, "main_site2",
-                      selected = input$main_site5)
-    updateSelectInput(session, "main_site3",
-                      selected = input$main_site5)
-    updateSelectInput(session, "main_site4",
-                      selected = input$main_site5)
-  })
+  #observeEvent(input$main_site5, {
+  #  updateSelectInput(session, "main_site",
+  #                    selected = input$main_site5)
+  #  updateSelectInput(session, "main_site2",
+  #                    selected = input$main_site5)
+  #  updateSelectInput(session, "main_site3",
+  #                    selected = input$main_site5)
+  #  updateSelectInput(session, "main_site4",
+  #                    selected = input$main_site5)
+  #})
 
 
   
@@ -427,7 +426,7 @@ server<-function(input,output,session){
     streams_wq_dat %>%
       filter(WaterYear>=input$trend_summary_years[1]&WaterYear<=input$trend_summary_years[2]&
                parameter==input$trend_summary_parm&
-               SITE_CODE %in% input$main_sites) %>%
+               SITE_CODE %in% input$main_site3) %>%
       group_by(SITE_CODE,parameter) %>%
       nest() %>%
       mutate(MK_Out=map(.x=data,.f=~{
@@ -472,7 +471,7 @@ server<-function(input,output,session){
     # )
     plot<-streams_wq_dat %>%
       filter(parameter==input$trend_summary_parm&
-               SITE_CODE %in% input$main_sites) %>%
+               SITE_CODE %in% input$main_site3) %>%
       group_by(WaterYear,SITE_CODE) %>%
       summarise(MedianValue=median(newResultValue,na.rm=T)) %>%
       ggplot(aes(x=WaterYear,y=MedianValue,col=SITE_CODE))+
@@ -526,13 +525,15 @@ server<-function(input,output,session){
     ggplotly(dataplot)
   })
   
+  cols <- c("Good" = "darkgreen", "Moderate" = "gold", "Poor" = "darkred")
+  
   output$wqi_summary_plot<-renderPlotly({
     wqi_summary_plot<-annual_wqi %>%
     filter(WaterYear==input$wqi_sum_year) %>%
     ggplot(aes(x=Rating))+
     geom_bar(stat="count", aes(fill = Rating))+
     ylab("Number of stations")+
-    scale_fill_manual(values = c("darkgreen", "yellow", "red"))+
+    scale_fill_manual(values = cols)+
     theme_bw()
     ggplotly(wqi_summary_plot)
   })
@@ -610,7 +611,7 @@ server<-function(input,output,session){
   output$downloadData <- downloadHandler(
   
     filename = function() { 
-        paste(dataout_data()$SITE_NAME[1],"_", as.character(Sys.Date()), ".csv", sep="")
+        paste("ThurstonCoWQData_", as.character(Sys.Date()), ".csv", sep="")
       },
       content = function(file) {
         write.csv(dataout_data(), file, row.names = F)
