@@ -1,3 +1,14 @@
+### NEEDS
+#set up aquatic use look up table for each monitoring station
+#improve pop up for Water Quality trends
+#jump from trends pop up into "All Data"
+#rename "All Data" to "Data viz and Trends"
+#add Trend Summary donwload
+#trend picker (select all)
+#remove SE from WQI trend plots
+#fix the the just a bit of scroll issue
+
+
 library(dplyr)
 library(lubridate)
 library(ggplot2)
@@ -37,6 +48,118 @@ parm_list<-unique(streams_wq_dat$parameter)
 sites_list_df <- streams_sites[,c(2,3)]
 streams_wq_dat <- merge(streams_wq_dat, sites_list_df, by="SITE_CODE")
 
+wqc_function<-function(AquaticLifeUse=c("Char Spawning and Rearing", "Core Summer Salmonid Habitat", 
+                                        "Salmonid Spawning, Rearing, and Migration", "Salmonid Rearing and Migration Only", 
+                                        "Nonanadromous Interior Redband Trout", "Indigenous Warm Water Species"),
+                       Month,Parameter,Result){
+  AquaticLifeUse<-AquaticLifeUse[1]
+  #define look up table for designated aquatic life uses
+  #note that temperature and dissolved oxygen for lakes are not absolute thresholds are based on relative change from natty conditions
+  aquatic_life_uses<-tibble(
+    AquaticLifeUse=c('Char Spawning and Rearing',
+                     'Core Summer Salmonid Habitat',
+                     'Salmonid Spawning, Rearing, and Migration',
+                     'Salmonid Rearing and Migration Only',
+                     'Nonanadromous Interior Redband Trout',
+                     'Indigenous Warm Water Species'),
+    Temp_7DADMax_C=c(12,
+                     16,
+                     17.5,
+                     17.5,
+                     18,
+                     20),
+    DO_DailyMin_mgL=c(10,
+                      10,
+                      10,
+                      6.5,
+                      10,
+                      6.5),
+    DO_Saturation=c(90,
+                    95,
+                    90,
+                    NA,
+                    90,
+                    NA),
+    Turbidity=NA,
+    TotDissolvedGas=110,
+    pH_min=6.5,
+    pH_max=8.5
+  )
+  
+  bacteria_criteria<-tibble(
+    Parameter=c(
+      'E. coli',
+      'Fecal Coliform'
+    ),
+    GeoMean_Criteria=100,
+    #Ambient water quality samples: When averaging bacteria sample values for comparison to the geometric mean criteria, 
+    #it is preferable to average by season. The averaging period of bacteria sample data shall be 90 days or less.
+    STV_Criteria=c(320,
+                   200)
+    #STV no more than 10 percent of samples in averaging period (or maximum if less than 10 samples)
+  )
+  
+  if(!all(AquaticLifeUse %in% aquatic_life_uses$AquaticLifeUse)) stop('Must select Aquatic Life Use')
+  
+  wqc_out<-NA
+  
+  if(Parameter %in% c('Temperature','Temperature, water')){
+    wqc_out<- tibble(nViolation=length(which(Result>aquatic_life_uses$Temp_7DADMax_C[aquatic_life_uses$AquaticLifeUse==AquaticLifeUse]))) %>%
+      mutate(Notes=paste0(nViolation,' violations in ',length(Result), ' samples'))
+    
+  }
+  
+  if(Parameter %in% c('Dissolved Oxygen','Dissolved Oxygen, Field')){
+    wqc_out<-tibble(nViolation=length(which(Result<aquatic_life_uses$DO_DailyMin_mgL[aquatic_life_uses$AquaticLifeUse==AquaticLifeUse]))) %>%
+      mutate(Notes=paste0(nViolation,' violations in ',length(Result), ' samples'))
+    
+  }
+  
+  if(Parameter %in% c('Dissolved Oxygen Saturation')){
+    wqc_out<- tibble(nViolation=length(which(Result<aquatic_life_uses$DO_Saturation[aquatic_life_uses$AquaticLifeUse==AquaticLifeUse]))) %>%
+      mutate(Notes=paste0(nViolation,' violations in ',length(Result), ' samples'))
+    
+  }
+  
+  if(Parameter %in% c('pH')){
+    wqc_out<-tibble(nViolation=length(which(Result>aquatic_life_uses$pH_max[aquatic_life_uses$AquaticLifeUse==AquaticLifeUse]&
+                                              Result<aquatic_life_uses$pH_min[aquatic_life_uses$AquaticLifeUse==AquaticLifeUse]))) %>%
+      mutate(Notes=paste0(nViolation,' violations in ',length(Result), ' samples'))
+    
+  }
+  
+  if(Parameter %in% c('Total Dissolved Gas')){
+    wqc_out<-tibble(nViolation=length(which(Result>aquatic_life_uses$TotDissolvedGas[aquatic_life_uses$AquaticLifeUse==AquaticLifeUse]))) %>%
+      mutate(Notes=paste0(nViolation,' violations in ',length(Result), ' samples'))
+  }
+  
+  if(Parameter %in% c('E. coli','Fecal Coliform')){
+    wqc_out<-tibble(Month=Month,
+                    Result=Result,
+                    Parameter=Parameter) |>
+      mutate(Season=factor(
+        ifelse(Month<=3,'Winter',ifelse(Month<=6,'Spring',ifelse(Month<=9,'Summer','Fall'))),
+        levels=c('Fall','Winter','Spring','Summer')),
+        Result=ifelse(Result==0|is.na(Result),1,Result)) |> #assume 1 CFU/100 mL for non-detect for this summary
+      group_by(Parameter,Season) |>
+      summarise(GM=exp(mean(log(Result))),
+                p90=ifelse(n()<=10,max(Result),quantile(Result,p=.9)),.groups='drop') |>
+      left_join(bacteria_criteria,by='Parameter')|>
+      mutate(Season,
+             GM_Violation=GM>GeoMean_Criteria,
+             STV_Violation=p90>STV_Criteria) %>%
+      summarise(nViolation=length(which(GM_Violation|STV_Violation)),
+                Notes=ifelse(length(which(GM_Violation))==0&length(which(STV_Violation))==0,'No Violations',
+                             paste(ifelse(length(which(GM_Violation))==0,'No Geometric Mean Violations and',
+                                          paste('Geometric Mean Violations in',Season[GM_Violation],'and')),
+                                   ifelse(length(which(STV_Violation))==0,'No STV Violations',
+                                          paste('STV Violations in',Season[STV_Violation]))
+                             )
+                ))
+  }
+  
+  return(wqc_out)  
+}
 
 #For recent stream data (sample time and WQI score)
 
@@ -100,11 +223,12 @@ ui<-
   tabPanel('Summary of Water Quality Criteria',value='sum_wqc',
            column(12,h1("Summary of Water Quality Criteria")),
            column(12, hr()),
-           #fluidRow(column(8,leafletOutput('wqc_map',height=800,width=1200)),
-           #          column(4, 
-                           #selectInput('wqc_sum_year','Select Year to Highlight',sort(unique(annual_wqi$WaterYear),T)),
-                           #plotlyOutput('wqc_summary_plot')
-           #         )),
+             fluidRow(column(8,leafletOutput('wqc_map',height=800,width=1200)),
+                      column(4,
+             selectInput('wqc_sum_year','Select Year to Highlight',sort(unique(annual_wqi$WaterYear),T)),
+            # plotlyOutput('wqc_summary_plot'),
+             tableOutput('wqc_summary')
+                     )),
            fluidRow(column(12, br()))
   ),
   
@@ -152,24 +276,24 @@ ui<-
            fluidRow(column(12, br()))
   ),
   
-  tabPanel('WQC',value='wqc',
-           column(12,h1("Water Quality Criteria")),
-           column(12, hr()),
-           fluidRow(column(12,sidebarLayout(
-             sidebarPanel(width=3,
-                          pickerInput('main_site5','Select Site',sites_list, multiple = T),
-                          #selectInput('wqc_year','Select Year to Highlight',sort(unique(annual_wqi$WaterYear),T))
-             )
-             ,
-             mainPanel(width=9,
-                       #fluidRow(plotlyOutput('wqc_annual'))
-                       
-             ))
-             
-
-           )),
-           fluidRow(column(12, br()))
-  ),
+  # tabPanel('WQC',value='wqc',
+  #          column(12,h1("Water Quality Criteria")),
+  #          column(12, hr()),
+  #          fluidRow(column(12,sidebarLayout(
+  #            sidebarPanel(width=3,
+  #                         pickerInput('main_site5','Select Site',sites_list, multiple = T),
+  #                         #selectInput('wqc_year','Select Year to Highlight',sort(unique(annual_wqi$WaterYear),T))
+  #            )
+  #            ,
+  #            mainPanel(width=9,
+  #                      #fluidRow(plotlyOutput('wqc_annual'))
+  #                      
+  #            ))
+  #            
+  # 
+  #          )),
+  #          fluidRow(column(12, br()))
+  # ),
   
   
   tabPanel('All Data',value='all_data',
@@ -182,7 +306,7 @@ ui<-
                  selectInput('trend_parm','Select Parameter',parm_list),
                  sliderInput('trend_years','Select Year Range for Trend',value=c(2000,2020),
                              min=2000,max=2020,
-                             step=1)
+                             step=1,sep='')
                 #selectInput('main_site3','Select Site',sites_list),
                 #selectInput('data_parm','Select Parameter',parm_list),
                 #selectInput('data_year2','Select Year to Highlight',sort(unique(streams_wq_dat$WaterYear),T)),
@@ -204,7 +328,7 @@ ui<-
                           selectInput('params_out', "Select Parameter(s)", parm_list, multiple = TRUE),
                           sliderInput('years_out','Select Year Range for Download',value=c(2000,2020),
                                       min=2000,max=2020,
-                                      step=1),
+                                      step=1,sep=''),
                           downloadButton('downloadData', "Download Data")
              ),
              mainPanel(width = 9,
@@ -387,7 +511,8 @@ server<-function(input,output,session){
   dataSubset<-reactive({
     streams_wq_dat %>%
       filter(SITE_CODE==input$main_site&
-               parameter==input$trend_parm)
+               parameter==input$trend_parm)%>%
+      mutate(AquaticLifeUse='Core Summer Salmonid Habitat') ### need to pull from lookup table
   })
   
   
@@ -488,13 +613,71 @@ server<-function(input,output,session){
     
   })
   
-
-  ##data plots
-  dataSubset_data<-reactive({
-     streams_wq_dat %>%
-       filter(SITE_CODE==input$main_site&
-                parameter==input$`data_parm`)
+  wq_map_out<-reactive({
+    streams_wq_dat %>%
+    filter(WaterYear==input$wqc_sum_year&
+             parameter %in% c('Temperature, water','Dissolved Oxygen','pH','E. coli','Fecal Coliform'))%>%
+    mutate(AquaticLifeUse='Core Summer Salmonid Habitat') %>%
+    group_by(SITE_CODE,AquaticLifeUse,parameter) %>%
+    nest() %>%
+    mutate(WQC_Output=pmap(list(.x=data,parameter=parameter,AquaticLifeUse=AquaticLifeUse),.f=~{
+      wqc_function(AquaticLifeUse=AquaticLifeUse,
+                   Month=.x$Month,
+                   Parameter=parameter,
+                   Result=.x$value
+      )
+    })) %>%
+    select(-data) %>%
+    unnest(WQC_Output)
   })
+  
+  output$wqc_map<-renderLeaflet({
+
+    pal_WQC<-colorFactor(c('darkred','darkgreen','grey'),levels=c('TRUE',"FALSE",NA))
+    
+    wq_map_out() %>%
+      group_by(SITE_CODE) %>%
+      mutate(nViolation=sum(nViolation),
+             parameter=factor(parameter,levels=c('Temperature, water','Dissolved Oxygen','pH','E. coli','Fecal Coliform'))) %>%
+      pivot_wider(names_from=parameter,values_from = Notes,names_expand = T,
+                  values_fn=~ ifelse(is.na(.x),'',.x),
+                  values_fill='Not Measured') %>%
+      summarise(Violation=nViolation>0,
+                Text=paste0(unique(AquaticLifeUse),'<br>',
+                            'Temperature: ',`Temperature, water`,'<br>',
+                            'Dissolved Oxygen: ', `Dissolved Oxygen`,'<br>',
+                            'pH: ', `pH`,'<br>',
+                            'Fecal Coliform: ', `Fecal Coliform`,'<br>',
+                            'E. coli: ', `E. coli`)) %>%
+      left_join(streams_sites) %>%
+      leaflet() %>%
+      addCircleMarkers(color=~pal_WQC(Violation),fillOpacity = 0.9,weight=1,
+                       popup=~paste0("<h5>", "<b>", SITE_NAME,'<br>', "</b>","</h5>",'<br>',
+                                     SITE_CODE,'<br>',
+                                     Text),
+                       layerId= ~SITE_CODE,
+                       label = ~SITE_CODE) %>%
+      addProviderTiles('Esri.NatGeoWorldMap') 
+    
+  })
+  
+  output$wqc_summary<-renderTable({
+    wq_map_out() %>%
+      mutate(parameter=factor(parameter,levels=c('Temperature, water','Dissolved Oxygen','pH','E. coli','Fecal Coliform'))) %>%
+      group_by(parameter) %>%
+      summarise(`Number of Sites with Violations`=length(which(nViolation>0)),
+                `Number of Site Monitored`=length(nViolation)) %>%
+      complete(parameter,fill=list(`Number of Sites with Violations`=NA,`Number of Site Monitored`=0))
+      
+  })
+  
+  ##NOT USED
+  # ##data plots
+  # dataSubset_data<-reactive({
+  #    streams_wq_dat %>%
+  #      filter(SITE_CODE==input$main_site&
+  #               parameter==input$`data_parm`) 
+  # })
   
   observe({
     updateSelectInput(session,
@@ -522,6 +705,33 @@ server<-function(input,output,session){
                    #limits=as.Date(c('1999-9-25','2000-10-05')),
                    date_minor_breaks = '1 month')+
       scale_y_continuous(input$trend_parm)
+    
+    if(input$trend_parm=='Temperature, water'){
+      temp_criteria<-aquatic_life_uses$Temp_7DADMax_C[aquatic_life_uses$AquaticLifeUse==unique(dataSubset()$AquaticLifeUse)]
+      dataplot<-dataplot+
+        geom_hline(yintercept = temp_criteria)
+    }
+    
+    if(input$trend_parm=='Dissolved Oxygen'){
+      do_criteria<-aquatic_life_uses$DO_DailyMin_mgL[aquatic_life_uses$AquaticLifeUse==unique(dataSubset()$AquaticLifeUse)]
+      dataplot<-dataplot+
+        geom_hline(yintercept = do_criteria)
+    }
+    
+    if(input$trend_parm=='pH'){
+      dataplot<-dataplot+
+        geom_hline(yintercept = c(6.5,8.5))
+    }
+    
+    if(input$trend_parm=='Fecal Coliform'){
+      dataplot<-dataplot+
+        geom_hline(yintercept = c(100,200))
+    }
+    if(input$trend_parm=='E. coli'){
+      dataplot<-dataplot+
+        geom_hline(yintercept = c(100,320))
+    }
+    
     ggplotly(dataplot)
   })
   
