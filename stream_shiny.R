@@ -2,10 +2,10 @@
 #set up aquatic use look up table for each monitoring station
 #improve pop up for Water Quality trends
 #jump from trends pop up into "All Data"
-#rename "All Data" to "Data viz and Trends"
-#add Trend Summary donwload
-#trend picker (select all)
-#remove SE from WQI trend plots
+#DONE rename "All Data" to "Data viz and Trends"
+#DONE add Trend Summary donwload
+#DONE trend picker (select all)
+#DONE remove SE from WQI trend plots
 #fix the the just a bit of scroll issue
 
 
@@ -48,13 +48,13 @@ parm_list<-unique(streams_wq_dat$parameter)
 sites_list_df <- streams_sites[,c(2,3)]
 streams_wq_dat <- merge(streams_wq_dat, sites_list_df, by="SITE_CODE")
 
-wqc_function<-function(AquaticLifeUse=c("Char Spawning and Rearing", "Core Summer Salmonid Habitat", 
-                                        "Salmonid Spawning, Rearing, and Migration", "Salmonid Rearing and Migration Only", 
-                                        "Nonanadromous Interior Redband Trout", "Indigenous Warm Water Species"),
-                       Month,Parameter,Result){
+wqc_finder<-function(AquaticLifeUse=c('Char Spawning and Rearing',
+                                      'Core Summer Salmonid Habitat',
+                                      'Salmonid Spawning, Rearing, and Migration',
+                                      'Salmonid Rearing and Migration Only',
+                                      'Nonanadromous Interior Redband Trout',
+                                      'Indigenous Warm Water Species'),Parameter){
   AquaticLifeUse<-AquaticLifeUse[1]
-  #define look up table for designated aquatic life uses
-  #note that temperature and dissolved oxygen for lakes are not absolute thresholds are based on relative change from natty conditions
   aquatic_life_uses<-tibble(
     AquaticLifeUse=c('Char Spawning and Rearing',
                      'Core Summer Salmonid Habitat',
@@ -86,68 +86,91 @@ wqc_function<-function(AquaticLifeUse=c("Char Spawning and Rearing", "Core Summe
     pH_max=8.5
   )
   
-  bacteria_criteria<-tibble(
-    Parameter=c(
-      'E. coli',
-      'Fecal Coliform'
-    ),
-    GeoMean_Criteria=100,
-    #Ambient water quality samples: When averaging bacteria sample values for comparison to the geometric mean criteria, 
-    #it is preferable to average by season. The averaging period of bacteria sample data shall be 90 days or less.
-    STV_Criteria=c(320,
-                   200)
-    #STV no more than 10 percent of samples in averaging period (or maximum if less than 10 samples)
-  )
+  if(Parameter %in% c('Temperature','Temperature, water')){
+    return(aquatic_life_uses$Temp_7DADMax_C[AquaticLifeUse==aquatic_life_uses$AquaticLifeUse])
+  }
+  if(Parameter %in% c('Dissolved Oxygen','Dissolved Oxygen, Field')){
+    return(aquatic_life_uses$DO_DailyMin_mgL[AquaticLifeUse==aquatic_life_uses$AquaticLifeUse])
+  }
+  if(Parameter %in% c('Dissolved Oxygen Saturation')){
+    return(aquatic_life_uses$DO_Saturation[AquaticLifeUse==aquatic_life_uses$AquaticLifeUse])
+  }
+  if(Parameter %in% c('Total Dissolved Gas')){
+    return(aquatic_life_uses$TotDissolvedGas[AquaticLifeUse==aquatic_life_uses$AquaticLifeUse])
+  }
+  if(Parameter %in% c('pH')){
+    return(c(6.5,8.5))
+  }
+  #Ambient water quality samples: When averaging bacteria sample values for comparison to the geometric mean criteria, 
+  #it is preferable to average by season. The averaging period of bacteria sample data shall be 90 days or less.
+  #STV no more than 10 percent of samples in averaging period (or maximum if less than 10 samples)
+  if(Parameter %in% c('E. coli')){
+    return(c(100,320))
+  }
+  if(Parameter %in% c('Fecal Coliform')){
+    return(c(100,200))
+  }
+}
+
+
+wqc_function<-function(AquaticLifeUse=c("Char Spawning and Rearing", "Core Summer Salmonid Habitat", 
+                                        "Salmonid Spawning, Rearing, and Migration", "Salmonid Rearing and Migration Only", 
+                                        "Nonanadromous Interior Redband Trout", "Indigenous Warm Water Species"),
+                       Month,Parameter,Result){
+  AquaticLifeUse<-AquaticLifeUse[1]
+  #define look up table for designated aquatic life uses
+  #note that temperature and dissolved oxygen for lakes are not absolute thresholds are based on relative change from natty conditions
   
-  if(!all(AquaticLifeUse %in% aquatic_life_uses$AquaticLifeUse)) stop('Must select Aquatic Life Use')
+  
+  if(!all(AquaticLifeUse %in% c("Char Spawning and Rearing", "Core Summer Salmonid Habitat", 
+                                "Salmonid Spawning, Rearing, and Migration", "Salmonid Rearing and Migration Only", 
+                                "Nonanadromous Interior Redband Trout", "Indigenous Warm Water Species"))) stop('Must select Aquatic Life Use')
   
   wqc_out<-NA
   
   if(Parameter %in% c('Temperature','Temperature, water')){
-    wqc_out<- tibble(nViolation=length(which(Result>aquatic_life_uses$Temp_7DADMax_C[aquatic_life_uses$AquaticLifeUse==AquaticLifeUse]))) %>%
+    wqc_out<- tibble(nViolation=length(which(Result>wqc_finder(AquaticLifeUse,Parameter)))) %>%
       mutate(Notes=paste0(nViolation,' violations in ',length(Result), ' samples'))
     
   }
   
   if(Parameter %in% c('Dissolved Oxygen','Dissolved Oxygen, Field')){
-    wqc_out<-tibble(nViolation=length(which(Result<aquatic_life_uses$DO_DailyMin_mgL[aquatic_life_uses$AquaticLifeUse==AquaticLifeUse]))) %>%
+    wqc_out<-tibble(nViolation=length(which(Result<wqc_finder(AquaticLifeUse,Parameter)))) %>%
       mutate(Notes=paste0(nViolation,' violations in ',length(Result), ' samples'))
     
   }
   
   if(Parameter %in% c('Dissolved Oxygen Saturation')){
-    wqc_out<- tibble(nViolation=length(which(Result<aquatic_life_uses$DO_Saturation[aquatic_life_uses$AquaticLifeUse==AquaticLifeUse]))) %>%
+    wqc_out<- tibble(nViolation=length(which(Result<wqc_finder(AquaticLifeUse,Parameter)))) %>%
       mutate(Notes=paste0(nViolation,' violations in ',length(Result), ' samples'))
     
   }
   
   if(Parameter %in% c('pH')){
-    wqc_out<-tibble(nViolation=length(which(Result>aquatic_life_uses$pH_max[aquatic_life_uses$AquaticLifeUse==AquaticLifeUse]&
-                                              Result<aquatic_life_uses$pH_min[aquatic_life_uses$AquaticLifeUse==AquaticLifeUse]))) %>%
+    wqc_out<-tibble(nViolation=length(which(Result>wqc_finder(AquaticLifeUse,Parameter)[2]&
+                                              Result<wqc_finder(AquaticLifeUse,Parameter)[1]))) %>%
       mutate(Notes=paste0(nViolation,' violations in ',length(Result), ' samples'))
     
   }
   
   if(Parameter %in% c('Total Dissolved Gas')){
-    wqc_out<-tibble(nViolation=length(which(Result>aquatic_life_uses$TotDissolvedGas[aquatic_life_uses$AquaticLifeUse==AquaticLifeUse]))) %>%
+    wqc_out<-tibble(nViolation=length(which(Result>wqc_finder(AquaticLifeUse,Parameter)))) %>%
       mutate(Notes=paste0(nViolation,' violations in ',length(Result), ' samples'))
   }
   
   if(Parameter %in% c('E. coli','Fecal Coliform')){
     wqc_out<-tibble(Month=Month,
-                    Result=Result,
-                    Parameter=Parameter) |>
+                    Result=Result) |>
       mutate(Season=factor(
         ifelse(Month<=3,'Winter',ifelse(Month<=6,'Spring',ifelse(Month<=9,'Summer','Fall'))),
         levels=c('Fall','Winter','Spring','Summer')),
         Result=ifelse(Result==0|is.na(Result),1,Result)) |> #assume 1 CFU/100 mL for non-detect for this summary
-      group_by(Parameter,Season) |>
+      group_by(Season) |>
       summarise(GM=exp(mean(log(Result))),
                 p90=ifelse(n()<=10,max(Result),quantile(Result,p=.9)),.groups='drop') |>
-      left_join(bacteria_criteria,by='Parameter')|>
       mutate(Season,
-             GM_Violation=GM>GeoMean_Criteria,
-             STV_Violation=p90>STV_Criteria) %>%
+             GM_Violation=GM>wqc_finder(AquaticLifeUse,Parameter)[1],
+             STV_Violation=p90>wqc_finder(AquaticLifeUse,Parameter)[2]) %>%
       summarise(nViolation=length(which(GM_Violation|STV_Violation)),
                 Notes=ifelse(length(which(GM_Violation))==0&length(which(STV_Violation))==0,'No Violations',
                              paste(ifelse(length(which(GM_Violation))==0,'No Geometric Mean Violations and',
@@ -160,7 +183,6 @@ wqc_function<-function(AquaticLifeUse=c("Char Spawning and Rearing", "Core Summe
   
   return(wqc_out)  
 }
-
 #For recent stream data (sample time and WQI score)
 
 recent_streams_data<-streams_wq_dat %>%
@@ -239,13 +261,19 @@ ui<-
               sidebarPanel(width = 3,
 
                 pickerInput('main_site3','Select Site',sites_list, multiple = T,
-                            selected=sites_list[1:3]),
+                            selected=sites_list[1:3],
+                            options = pickerOptions(
+                              actionsBox = TRUE, 
+                              size = 10,
+                              selectedTextFormat = "count > 3"
+                            )),
                 selectInput('trend_summary_parm','Select Parameter for Table and Plot',
                                             parm_list),
                 sliderInput('trend_summary_years','Select Year Range for Trend',
                                              value=c(min(streams_wq_dat$WaterYear),max(streams_wq_dat$WaterYear)),
                                              min=min(streams_wq_dat$WaterYear),max=max(streams_wq_dat$WaterYear),
-                                             step=1,sep='')
+                                             step=1,sep=''),
+                downloadButton('trends_download',label='Download Trend Statistics')
             ),
             mainPanel(width = 9,
                     mainPanel(plotlyOutput('trend_summary_plot'),
@@ -296,7 +324,7 @@ ui<-
   # ),
   
   
-  tabPanel('All Data',value='all_data',
+  tabPanel('Data Visualization and Trends',value='all_data',
            column(12,h1("All Data Viewer")),
            column(12, hr()),
             sidebarLayout(
@@ -324,10 +352,21 @@ ui<-
            column(12, hr()),
            sidebarLayout(
              sidebarPanel(width = 3,
-                          selectInput('main_site4','Select Site to Download',sites_list, multiple = T),
-                          selectInput('params_out', "Select Parameter(s)", parm_list, multiple = TRUE),
-                          sliderInput('years_out','Select Year Range for Download',value=c(2000,2020),
-                                      min=2000,max=2020,
+                          pickerInput('main_site4','Select Site to Download',sites_list, multiple = T,
+                                      options = pickerOptions(
+                                          actionsBox = TRUE, 
+                                          size = 10,
+                                          selectedTextFormat = "count > 3"
+                          )),
+                          pickerInput('params_out', "Select Parameter(s)", parm_list, multiple = TRUE,
+                                      options = pickerOptions(
+                                          actionsBox = TRUE, 
+                                          size = 10,
+                                          selectedTextFormat = "count > 3"
+                          )),
+                          sliderInput('years_out','Select Year Range for Download', 
+                                      value=c(min(streams_wq_dat$WaterYear),max(streams_wq_dat$WaterYear)),
+                                      min=min(streams_wq_dat$WaterYear),max=max(streams_wq_dat$WaterYear),
                                       step=1,sep=''),
                           downloadButton('downloadData', "Download Data")
              ),
@@ -521,9 +560,36 @@ server<-function(input,output,session){
       ggplot(aes(x=DateTime,y=value))+
       geom_point(data=~filter(.x,WaterYear==input$data_year),col='red',size=4)+
       geom_point()+
-      geom_smooth(data=~filter(.x,WaterYear>=input$trend_years[1]&WaterYear<=input$trend_years[2]))+
+      geom_smooth(data=~filter(.x,WaterYear>=input$trend_years[1]&WaterYear<=input$trend_years[2]),se=F)+
       theme_bw()+
       scale_y_continuous(input$trend_parm)
+    
+    if(input$trend_parm=='Temperature, water'){
+      temp_criteria<-wqc_finder(unique(dataSubset()$AquaticLifeUse),input$trend_parm)
+      trendplot<-trendplot+
+        geom_hline(yintercept = temp_criteria)
+    }
+    
+    if(input$trend_parm=='Dissolved Oxygen'){
+      do_criteria<-wqc_finder(unique(dataSubset()$AquaticLifeUse),input$trend_parm)
+      trendplot<-trendplot+
+        geom_hline(yintercept = do_criteria)
+    }
+    
+    if(input$trend_parm=='pH'){
+      trendplot<-trendplot+
+        geom_hline(yintercept = c(6.5,8.5))
+    }
+    
+    if(input$trend_parm=='Fecal Coliform'){
+      trendplot<-trendplot+
+        geom_hline(yintercept = c(100,200))
+    }
+    if(input$trend_parm=='E. coli'){
+      trendplot<-trendplot+
+        geom_hline(yintercept = c(100,320))
+    }
+    
     ggplotly(trendplot)
   })
   
@@ -548,10 +614,11 @@ server<-function(input,output,session){
     #set a limit for number of samples for selected time period
     #let's go for 4
     #if((input$trend_summary_years[2]-input$trend_summary_years[1])<4) "Please select at least 4 years" else{
-    streams_wq_dat %>%
+    temp_trend_data<-streams_wq_dat %>%
       filter(WaterYear>=input$trend_summary_years[1]&WaterYear<=input$trend_summary_years[2]&
                parameter==input$trend_summary_parm&
-               SITE_CODE %in% input$main_site3) %>%
+               SITE_CODE %in% input$main_site3) 
+    temp_trend_data %>%
       group_by(SITE_CODE,parameter) %>%
       nest() %>%
       mutate(MK_Out=map(.x=data,.f=~{
@@ -564,7 +631,9 @@ server<-function(input,output,session){
       select(-data) %>%
       unnest(MK_Out)%>%
         mutate(Statement=factor(Statement,levels=rev(c('Decreasing Trend','Test Not Run - insufficient data',
-                                                       'No Significant Trend','Increasing Trend'))))
+                                                       'No Significant Trend','Increasing Trend'))),
+               StartYear=max(input$trend_summary_years[1],min(temp_trend_data$WaterYear[SITE_CODE==temp_trend_data$SITE_CODE])),
+               EndYear=min(input$trend_summary_years[2],max(temp_trend_data$WaterYear[SITE_CODE==temp_trend_data$SITE_CODE]))) 
  #   }
   })
   
@@ -589,6 +658,16 @@ server<-function(input,output,session){
     paste('')
 
   })
+  
+  output$trends_download <- downloadHandler(
+    filename = function() {
+      paste('trends-', Sys.Date(), '.csv', sep='')
+    },
+    content = function(con) {
+      write.csv(trend_summary() %>% select(SITE_CODE,parameter,StartYear,EndYear,`p-value`=p,`Slope (units/years)`=Slope),
+                con,row.names = F)
+    }
+  )
   
   output$trend_summary_parm_plot<-renderPlotly({
     # validate(
@@ -707,13 +786,13 @@ server<-function(input,output,session){
       scale_y_continuous(input$trend_parm)
     
     if(input$trend_parm=='Temperature, water'){
-      temp_criteria<-aquatic_life_uses$Temp_7DADMax_C[aquatic_life_uses$AquaticLifeUse==unique(dataSubset()$AquaticLifeUse)]
+      temp_criteria<-wqc_finder(unique(dataSubset()$AquaticLifeUse),input$trend_parm)
       dataplot<-dataplot+
         geom_hline(yintercept = temp_criteria)
     }
     
     if(input$trend_parm=='Dissolved Oxygen'){
-      do_criteria<-aquatic_life_uses$DO_DailyMin_mgL[aquatic_life_uses$AquaticLifeUse==unique(dataSubset()$AquaticLifeUse)]
+      do_criteria<-wqc_finder(unique(dataSubset()$AquaticLifeUse),input$trend_parm)
       dataplot<-dataplot+
         geom_hline(yintercept = do_criteria)
     }
@@ -756,7 +835,7 @@ server<-function(input,output,session){
       ggplot(aes(x=WaterYear,y=WQI))+
       geom_point(data=~filter(.x,WaterYear==input$wqi_year),col='red',size=4)+
       geom_point()+
-      geom_smooth(data=~filter(.x,WaterYear>=input$wqi_trend_years[1]&WaterYear<=input$wqi_trend_years[2]))+
+      geom_smooth(data=~filter(.x,WaterYear>=input$wqi_trend_years[1]&WaterYear<=input$wqi_trend_years[2]),se=F)+
       theme_bw()+
       xlab('Water year')+
       scale_y_continuous('Water Quality Index',limits = c(0,100))
@@ -798,15 +877,16 @@ server<-function(input,output,session){
   
   dataout_data<-reactive({
     streams_wq_dat %>%
-      filter(SITE_CODE==input$main_site4&
+      filter(SITE_CODE %in% input$main_site4&
                parameter==input$params_out&
-               WaterYear>=input$years_out[1]&WaterYear<=input$years_out[2])
+               WaterYear>=input$years_out[1]&WaterYear<=input$years_out[2])%>% 
+      select(SITE_CODE,SITE_NAME,DateTime,parameter,value,unit,mdl)
   })
   
   output$data_view_table <- renderDT({
     if(is.null(input$params_out)){
     } else{
-      datatable(head(dataout_data()), 
+      datatable(head(dataout_data(),20), 
       escape = FALSE,
       options = list(
         scrollX = TRUE,
@@ -824,7 +904,8 @@ server<-function(input,output,session){
         paste("ThurstonCoWQData_", as.character(Sys.Date()), ".csv", sep="")
       },
       content = function(file) {
-        write.csv(dataout_data(), file, row.names = F)
+        write.csv(dataout_data() ,
+                  file, row.names = F)
       }
   )  
       
