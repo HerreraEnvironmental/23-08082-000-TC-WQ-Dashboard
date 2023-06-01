@@ -32,6 +32,10 @@ library(rkt)
 ###produce automated text for "There is a X% likliehood that Y is decreasing
 #Tab 3 - Data Deep Dive (water year plots) - select site, water year, parameter
 
+
+# Data Load ---------------------------------------------------------------
+
+
 streams_wq_dat<-readRDS('outputs/streams_wq_dat.RDS')
 streams_sites<-readRDS('outputs/streams_sites.RDS')
 annual_wqi<-readRDS('outputs/annual_wqi.RDS') %>%
@@ -47,6 +51,22 @@ parm_list<-unique(streams_wq_dat$parameter)
 
 sites_list_df <- streams_sites[,c(2,3)]
 streams_wq_dat <- merge(streams_wq_dat, sites_list_df, by="SITE_CODE")
+
+log10_minor_break = function (...){
+  function(x) {
+    minx         = floor(min(log10(x), na.rm=T))-1;
+    maxx         = ceiling(max(log10(x), na.rm=T))+1;
+    n_major      = maxx-minx+1;
+    major_breaks = seq(minx, maxx, by=1)
+    minor_breaks = 
+      rep(log10(seq(1, 9, by=1)), times = n_major)+
+      rep(major_breaks, each = 9)
+    return(10^(minor_breaks))
+  }
+}
+# WQ Criteria Functions ---------------------------------------------------
+
+
 
 wqc_finder<-function(AquaticLifeUse=c('Char Spawning and Rearing',
                                       'Core Summer Salmonid Habitat',
@@ -199,6 +219,8 @@ recent_streams_data<-streams_wq_dat %>%
 
 
 
+# User Interface ----------------------------------------------------------
+
 
 ui<-
   tagList(
@@ -273,6 +295,7 @@ ui<-
                                              value=c(min(streams_wq_dat$WaterYear),max(streams_wq_dat$WaterYear)),
                                              min=min(streams_wq_dat$WaterYear),max=max(streams_wq_dat$WaterYear),
                                              step=1,sep=''),
+                materialSwitch(inputId = "trend_summary_log_scale", label = "Log-scale?", status = "default",value=F),
                 downloadButton('trends_download',label='Download Trend Statistics')
             ),
             mainPanel(width = 9,
@@ -304,26 +327,6 @@ ui<-
            fluidRow(column(12, br()))
   ),
   
-  # tabPanel('WQC',value='wqc',
-  #          column(12,h1("Water Quality Criteria")),
-  #          column(12, hr()),
-  #          fluidRow(column(12,sidebarLayout(
-  #            sidebarPanel(width=3,
-  #                         pickerInput('main_site5','Select Site',sites_list, multiple = T),
-  #                         #selectInput('wqc_year','Select Year to Highlight',sort(unique(annual_wqi$WaterYear),T))
-  #            )
-  #            ,
-  #            mainPanel(width=9,
-  #                      #fluidRow(plotlyOutput('wqc_annual'))
-  #                      
-  #            ))
-  #            
-  # 
-  #          )),
-  #          fluidRow(column(12, br()))
-  # ),
-  
-  
   tabPanel('Data Visualization and Trends',value='all_data',
            column(12,h1("All Data Viewer")),
            column(12, hr()),
@@ -334,7 +337,11 @@ ui<-
                  selectInput('trend_parm','Select Parameter',parm_list),
                  sliderInput('trend_years','Select Year Range for Trend',value=c(2000,2020),
                              min=2000,max=2020,
-                             step=1,sep='')
+                             step=1,sep=''),
+                 materialSwitch(inputId = "data_log_scale", label = "Log-scale?", status = "default",value=F),
+                 hr(),
+                 h2('Water Quality Criteria Comparison for Selected Year'),
+                 tableOutput('wqc_site')
                 #selectInput('main_site3','Select Site',sites_list),
                 #selectInput('data_parm','Select Parameter',parm_list),
                 #selectInput('data_year2','Select Year to Highlight',sort(unique(streams_wq_dat$WaterYear),T)),
@@ -380,6 +387,10 @@ ui<-
   
  ,id='navbarpanel')
 )
+
+
+# Server ------------------------------------------------------------------
+
 
 server<-function(input,output,session){
   output$map<-renderLeaflet({
@@ -547,68 +558,7 @@ server<-function(input,output,session){
 
 
   
-  dataSubset<-reactive({
-    streams_wq_dat %>%
-      filter(SITE_CODE==input$main_site&
-               parameter==input$trend_parm)%>%
-      mutate(AquaticLifeUse='Core Summer Salmonid Habitat') ### need to pull from lookup table
-  })
-  
-  
-  output$trend_plot<-renderPlotly({
-    trendplot<-dataSubset() %>%
-      ggplot(aes(x=DateTime,y=value))+
-      geom_point(data=~filter(.x,WaterYear==input$data_year),col='red',size=4)+
-      geom_point()+
-      geom_smooth(data=~filter(.x,WaterYear>=input$trend_years[1]&WaterYear<=input$trend_years[2]),se=F)+
-      theme_bw()+
-      scale_y_continuous(input$trend_parm)
-    
-    if(input$trend_parm=='Temperature, water'){
-      temp_criteria<-wqc_finder(unique(dataSubset()$AquaticLifeUse),input$trend_parm)
-      trendplot<-trendplot+
-        geom_hline(yintercept = temp_criteria)
-    }
-    
-    if(input$trend_parm=='Dissolved Oxygen'){
-      do_criteria<-wqc_finder(unique(dataSubset()$AquaticLifeUse),input$trend_parm)
-      trendplot<-trendplot+
-        geom_hline(yintercept = do_criteria)
-    }
-    
-    if(input$trend_parm=='pH'){
-      trendplot<-trendplot+
-        geom_hline(yintercept = c(6.5,8.5))
-    }
-    
-    if(input$trend_parm=='Fecal Coliform'){
-      trendplot<-trendplot+
-        geom_hline(yintercept = c(100,200))
-    }
-    if(input$trend_parm=='E. coli'){
-      trendplot<-trendplot+
-        geom_hline(yintercept = c(100,320))
-    }
-    
-    ggplotly(trendplot)
-  })
-  
-  trend_out<-reactive({
-    dataSubset() %>%
-      filter(WaterYear>=input$trend_years[1]&WaterYear<=input$trend_years[2]) %>%
-      with(.,rkt::rkt(WaterYear,newResultValue,Month,rep='a'))
-  })
-  
-  output$trend_text<-renderText({
-   
-    sigStatement<-ifelse(trend_out()$sl<=0.05,'a  significant trend','insufficient evidence of a trend')
-    slopeStatement<-ifelse(trend_out()$sl<=0.05,paste('The trend slope is',trend_out()$B,'per year'),'')
-    paste('Mann-Kendall Trend Test:','\n',
-          'Between water years',input$trend_years[1],'and',input$trend_years[2],
-          'at',input$trend_site,'there is',sigStatement,'in',input$trend_parm,'\n',
-          slopeStatement)
 
-  })
   
   trend_summary<-reactive({
     #set a limit for number of samples for selected time period
@@ -688,6 +638,15 @@ server<-function(input,output,session){
       # annotate('rect',xmin=input$trend_summary_years[1],xmax = input$trend_summary_years[2],alpha=0.5,
       #          ymin=-Inf,ymax=Inf)
     
+    if(input$trend_summary_log_scale){
+      plot<-plot+
+        scale_y_log10(input$trend_summary_parm,breaks=10^(-4:4))#+#,
+                      #minor_breaks=log10_minor_break()
+                     # minor_breaks=0.5*10^(-4:4))
+       # annotation_logticks(sides='l')
+      #no way to add log ticks or minor breaks to plotly, kinda annoying
+    }
+    
     ggplotly(plot)
     
   })
@@ -696,7 +655,7 @@ server<-function(input,output,session){
     streams_wq_dat %>%
     filter(WaterYear==input$wqc_sum_year&
              parameter %in% c('Temperature, water','Dissolved Oxygen','pH','E. coli','Fecal Coliform'))%>%
-    mutate(AquaticLifeUse='Core Summer Salmonid Habitat') %>%
+      mutate(AquaticLifeUse='Core Summer Salmonid Habitat') %>% ### NEED TO UPDATE WITH LOOKUP TABLE
     group_by(SITE_CODE,AquaticLifeUse,parameter) %>%
     nest() %>%
     mutate(WQC_Output=pmap(list(.x=data,parameter=parameter,AquaticLifeUse=AquaticLifeUse),.f=~{
@@ -773,6 +732,96 @@ server<-function(input,output,session){
      )
   })
   
+  output$wqc_site<-renderTable({
+    streams_wq_dat %>%
+      filter(SITE_CODE==input$main_site&
+               WaterYear==input$data_year) %>%
+      mutate(AquaticLifeUse='Core Summer Salmonid Habitat') %>% ### NEED TO UPDATE WITH LOOKUP TABLE
+      filter(parameter %in% c('Temperature, water','Dissolved Oxygen','pH','E. coli','Fecal Coliform'))%>%
+      group_by(AquaticLifeUse,parameter) %>%
+      nest() %>%
+      mutate(WQC_Output=pmap(list(.x=data,parameter=parameter,AquaticLifeUse=AquaticLifeUse),.f=~{
+        wqc_function(AquaticLifeUse=AquaticLifeUse,
+                     Month=.x$Month,
+                     Parameter=parameter,
+                     Result=.x$value
+        )
+      })) %>%
+      ungroup() %>%
+      select(-data,-AquaticLifeUse) %>%
+      unnest(WQC_Output)%>%
+      mutate(parameter=factor(parameter,levels=c('Temperature, water','Dissolved Oxygen','pH','E. coli','Fecal Coliform'))) %>%
+      complete(parameter,fill=list(nViolation=NA,Notes='No Data'))
+  })
+
+  dataSubset<-reactive({
+    streams_wq_dat %>%
+      filter(SITE_CODE==input$main_site&
+               parameter==input$trend_parm)%>%
+      mutate(AquaticLifeUse='Core Summer Salmonid Habitat') ### need to pull from lookup table
+  })
+  
+  
+  output$trend_plot<-renderPlotly({
+    trendplot<-dataSubset() %>%
+      ggplot(aes(x=DateTime,y=value))+
+      geom_point(data=~filter(.x,WaterYear==input$data_year),col='red',size=4)+
+      geom_point()+
+      geom_smooth(data=~filter(.x,WaterYear>=input$trend_years[1]&WaterYear<=input$trend_years[2]),se=F)+
+      theme_bw()+
+      scale_y_continuous(input$trend_parm)
+    
+    if(input$trend_parm=='Temperature, water'){
+      temp_criteria<-wqc_finder(unique(dataSubset()$AquaticLifeUse),input$trend_parm)
+      trendplot<-trendplot+
+        geom_hline(yintercept = temp_criteria)
+    }
+    
+    if(input$trend_parm=='Dissolved Oxygen'){
+      do_criteria<-wqc_finder(unique(dataSubset()$AquaticLifeUse),input$trend_parm)
+      trendplot<-trendplot+
+        geom_hline(yintercept = do_criteria)
+    }
+    
+    if(input$trend_parm=='pH'){
+      trendplot<-trendplot+
+        geom_hline(yintercept = c(6.5,8.5))
+    }
+    
+    if(input$trend_parm=='Fecal Coliform'){
+      trendplot<-trendplot+
+        geom_hline(yintercept = c(100,200))
+    }
+    if(input$trend_parm=='E. coli'){
+      trendplot<-trendplot+
+        geom_hline(yintercept = c(100,320))
+    }
+    
+    if(input$data_log_scale){
+      trendplot<-trendplot+
+        scale_y_log10(input$trend_parm,breaks=10^(-4:4),minor_breaks=log10_minor_break())
+    }
+    
+    ggplotly(trendplot)
+  })
+  
+  trend_out<-reactive({
+    dataSubset() %>%
+      filter(WaterYear>=input$trend_years[1]&WaterYear<=input$trend_years[2]) %>%
+      with(.,rkt::rkt(WaterYear,newResultValue,Month,rep='a'))
+  })
+  
+  output$trend_text<-renderText({
+    
+    sigStatement<-ifelse(trend_out()$sl<=0.05,'a  significant trend','insufficient evidence of a trend')
+    slopeStatement<-ifelse(trend_out()$sl<=0.05,paste('The trend slope is',trend_out()$B,'per year'),'')
+    paste('Mann-Kendall Trend Test:','\n',
+          'Between water years',input$trend_years[1],'and',input$trend_years[2],
+          'at',input$trend_site,'there is',sigStatement,'in',input$trend_parm,'\n',
+          slopeStatement)
+    
+  })
+     
   output$data_plot<-renderPlotly({
     dataplot<-dataSubset() %>%
       ggplot(aes(x=WY_FakeDate,y=value,group=WaterYear))+
@@ -809,6 +858,11 @@ server<-function(input,output,session){
     if(input$trend_parm=='E. coli'){
       dataplot<-dataplot+
         geom_hline(yintercept = c(100,320))
+    }
+    
+    if(input$data_log_scale){
+      dataplot<-dataplot+
+        scale_y_log10(input$trend_parm,breaks=10^(-4:4),minor_breaks=log10_minor_break())
     }
     
     ggplotly(dataplot)
