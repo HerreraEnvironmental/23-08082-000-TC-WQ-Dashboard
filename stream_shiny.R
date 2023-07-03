@@ -37,6 +37,7 @@ library(rkt)
 
 
 streams_wq_dat<-readRDS('outputs/streams_wq_dat.RDS')
+streams_wq_dat["parameter"][streams_wq_dat["parameter"] == "Temperature, water"] <- "Water Temperature (C°)"
 streams_sites<-readRDS('outputs/streams_sites.RDS')
 annual_wqi<-readRDS('outputs/annual_wqi.RDS') %>%
   mutate(Rating=ifelse(WQI>=80,'Good',
