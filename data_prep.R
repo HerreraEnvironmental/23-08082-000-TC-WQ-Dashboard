@@ -30,7 +30,17 @@ streams_wq_dat<-read.csv('inputs/Herrera All Stream Data Dump 4 12 2023.csv') %>
          FakeDate=as.Date(paste(2000,Month,day(DateTime),sep='-')),
          WY_FakeDate=as.Date(if_else(Month>=10,FakeDate-years(1),FakeDate)))
 
+streams_wq_dat["parameter"][streams_wq_dat["parameter"] == "Temperature, water"] <- "Water Temperature (C°)"
+
 saveRDS(streams_wq_dat,'outputs/streams_wq_dat.RDS')
+
+sites_list<-setNames(streams_sites$SITE_CODE,paste0(streams_sites$SITE_NAME,' (',streams_sites$SITE_CODE,')'))
+parm_list<-unique(streams_wq_dat$parameter)
+years_list<-sort(unique(streams_wq_dat$WaterYear),T)
+
+saveRDS(sites_list,'outputs/sites_list.RDS')
+saveRDS(parm_list,'outputs/parm_list.RDS')
+saveRDS(years_list,'outputs/years_list.RDS')
 
 unique(streams_wq_dat$depth_m) #all 0 or NA
 unique(streams_wq_dat$dup) #there are dups
@@ -127,3 +137,4 @@ streams_wq_dat %>%
                 period='Monthly'
        )) %>%
   saveRDS('outputs/monthly_wqi.RDS')
+

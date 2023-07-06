@@ -11,33 +11,6 @@ library(purrr)
 library(tidyr)
 library(rkt)
 
-# Data Load ---------------------------------------------------------------
-source('functions/wqc_functions.R')
-source('functions/site_map.R')
-source('functions/trend_summary_and_plot.R')
-source('functions/wqc_map.R')
-source('functions/wqc_site.R')
-source('functions/trend_shiny_functions.R')
-source('functions/withinYear_plot.R')
-source('functions/wqi_site_plot.R')
-source('functions/wqi_map.R')
-
-streams_wq_dat<-readRDS('outputs/streams_wq_dat.RDS')
-streams_sites<-readRDS('outputs/streams_sites.RDS')
-annual_wqi<-readRDS('outputs/annual_wqi.RDS') %>%
-  mutate(Rating=ifelse(WQI>=80,'Good',
-                       ifelse(WQI>=40,'Moderate','Poor')))
-
-
-monthly_wqi_by_parameter<-readRDS('outputs/monthly_wqi_by_parameter.RDS')
-streams_wq_dat["parameter"][streams_wq_dat["parameter"] == "Temperature, water"] <- "Water Temperature (C°)"
-monthly_wqi<-readRDS('outputs/monthly_wqi.RDS')
-
-sites_list<-setNames(streams_sites$SITE_CODE,paste0(streams_sites$SITE_NAME,' (',streams_sites$SITE_CODE,')'))
-parm_list<-unique(streams_wq_dat$parameter)
-
-sites_list_df <- streams_sites[,c(2,3)]
-streams_wq_dat <- merge(streams_wq_dat, sites_list_df, by="SITE_CODE")
 
 log10_minor_break = function (...){
   function(x) {
@@ -51,6 +24,33 @@ log10_minor_break = function (...){
     return(10^(minor_breaks))
   }
 }
+# Data Load ---------------------------------------------------------------
+source('functions/wqc_functions.R',local=T)
+source('functions/site_map.R',local=T)
+source('functions/trend_summary_and_plot.R',local=T)
+source('functions/wqc_map.R',local=T)
+source('functions/wqc_site.R',local=T)
+source('functions/trend_shiny_functions.R',local=T)
+source('functions/withinYear_plot.R',local=T)
+source('functions/wqi_site_plot.R',local=T)
+source('functions/wqi_map.R',local=T)
+
+streams_wq_dat<-readRDS('outputs/streams_wq_dat.RDS')
+streams_sites<-readRDS('outputs/streams_sites.RDS')
+annual_wqi<-readRDS('outputs/annual_wqi.RDS') %>%
+  mutate(Rating=ifelse(WQI>=80,'Good',
+                       ifelse(WQI>=40,'Moderate','Poor')))
+
+
+monthly_wqi_by_parameter<-readRDS('outputs/monthly_wqi_by_parameter.RDS')
+monthly_wqi<-readRDS('outputs/monthly_wqi.RDS')
+
+sites_list<-readRDS('outputs/sites_list.RDS')
+parm_list<-readRDS('outputs/parm_list.RDS')
+years_list<-readRDS('outputs/years_list.RDS')
+
+sites_list_df <- streams_sites[,c(2,3)]
+streams_wq_dat <- merge(streams_wq_dat, sites_list_df, by="SITE_CODE")
 
 #For recent stream data (sample time and WQI score)
 

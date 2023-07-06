@@ -1,4 +1,6 @@
-#wqi site plot
+#Water Quality Index plot for individual site. 
+#Annual plot of summary WQI over time
+#Monthly Plot for a selected year broken out by parameter
 
 wqi_annual_plot<-function(annual_wqi,input){
 annual_wqi %>%

@@ -1,4 +1,7 @@
 
+#functions to compare to water quality criteria and map results
+#also a summary table
+
 wqc_comparison<-function(streams_wq_dat,input){
   streams_wq_dat %>%
     filter(WaterYear==input$wqc_sum_year&

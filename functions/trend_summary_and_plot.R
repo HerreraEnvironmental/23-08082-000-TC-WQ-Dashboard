@@ -1,3 +1,8 @@
+
+#summary of Water quality trends for a selected parameter
+# To Do - Change Display to a Map
+# maybe include start year and end year to avoid confusions
+
 #set a limit for number of samples for selected time period
 #let's go for 4
 #if((input$trend_summary_years[2]-input$trend_summary_years[1])<4) "Please select at least 4 years" else{
@@ -44,9 +49,9 @@ plot<-trend_summary %>%
 
 ggplotly(plot)
 }
-trend_summary_plot(
-  trend_summary = trend_summary_func(streams_wq_dat,
-                                     input=list(trend_summary_years=c(2000,2020),
-                                                trend_summary_parm='Total Phosphorus',
-                                                main_site3='05b'))
-)
+# trend_summary_plot(
+#   trend_summary = trend_summary_func(streams_wq_dat,
+#                                      input=list(trend_summary_years=c(2000,2020),
+#                                                 trend_summary_parm='Total Phosphorus',
+#                                                 main_site3='05b'))
+# )

@@ -1,3 +1,5 @@
+#compare to water quality criteria for selected site
+
 wqc_site<-function(streams_wq_data,input){
 streams_wq_dat %>%
   filter(SITE_CODE==input$main_site&

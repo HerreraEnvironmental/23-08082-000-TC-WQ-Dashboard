@@ -1,3 +1,8 @@
+#Trend Plot and text summary for water quality data
+
+## NEED TO ADD OPTION FOR SERIAL CORRELATION AND SELECTING INDIVIDUAL SEASONS
+
+
 trend_plot<-function(dataSubset,input){
   
   trendplot<-dataSubset %>%

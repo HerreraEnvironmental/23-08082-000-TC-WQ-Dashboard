@@ -11,11 +11,12 @@ library(purrr)
 library(tidyr)
 library(rkt)
 
-
 # User Interface ----------------------------------------------------------
+sites_list<-readRDS('outputs/sites_list.RDS')
+parm_list<-readRDS('outputs/parm_list.RDS')
+years_list<-readRDS('outputs/years_list.RDS')
 
-ui<-
-  tagList(
+ui<-tagList(
     tags$head(tags$link(includeScript("func.js"))),
     tags$head(tags$style("a{cursor:pointer;}")),
     
@@ -51,7 +52,7 @@ ui<-
                column(12, hr()),
                fluidRow(column(8,leafletOutput('wqi_map',height=800,width=1200)),
                         column(4, 
-                               selectInput('wqi_sum_year','Select Year to Highlight',sort(unique(annual_wqi$WaterYear),T)),
+                               selectInput('wqi_sum_year','Select Year to Highlight',years_list),
                                plotlyOutput('wqi_summary_plot')
                         )),
                fluidRow(column(12, br()))
@@ -61,14 +62,14 @@ ui<-
                column(12, hr()),
                fluidRow(column(8,leafletOutput('wqc_map',height=800,width=1200)),
                         column(4,
-                               selectInput('wqc_sum_year','Select Year to Highlight',sort(unique(annual_wqi$WaterYear),T)),
+                               selectInput('wqc_sum_year','Select Year to Highlight',years_list),
                                # plotlyOutput('wqc_summary_plot'),
                                tableOutput('wqc_summary')
                         )),
                fluidRow(column(12, br()))
       ),
       
-      tabPanel('Water Quality Trends',value='trends',
+      tabPanel('Summary of Water Quality Trends',value='trends',
                column(12,h1("Water Quality Trends")),
                column(12, hr()),
                sidebarLayout(
@@ -84,8 +85,8 @@ ui<-
                               selectInput('trend_summary_parm','Select Parameter for Table and Plot',
                                           parm_list),
                               sliderInput('trend_summary_years','Select Year Range for Trend',
-                                          value=c(min(streams_wq_dat$WaterYear),max(streams_wq_dat$WaterYear)),
-                                          min=min(streams_wq_dat$WaterYear),max=max(streams_wq_dat$WaterYear),
+                                          value=c(min(years_list),max(years_list)),
+                                          min=min(years_list),max=max(years_list),
                                           step=1,sep=''),
                               materialSwitch(inputId = "trend_summary_log_scale", label = "Log-scale?", status = "default",value=F),
                               downloadButton('trends_download',label='Download Trend Statistics')
@@ -103,9 +104,9 @@ ui<-
                fluidRow(column(12,sidebarLayout(
                  sidebarPanel(width=3,
                               selectInput('main_site','Select Site',sites_list),
-                              selectInput('wqi_year','Select Year to Highlight',sort(unique(annual_wqi$WaterYear),T)),
-                              sliderInput('wqi_trend_years','Select Year Range for Trend',value=c(min(annual_wqi$WaterYear),max(annual_wqi$WaterYear)),
-                                          min=min(annual_wqi$WaterYear),max=max(annual_wqi$WaterYear),
+                              selectInput('wqi_year','Select Year to Highlight',years_list),
+                              sliderInput('wqi_trend_years','Select Year Range for Trend',value=c(min(years_list),max(years_list)),
+                                          min=min(years_list),max=max(years_list),
                                           step=1,sep='')
                  )
                  ,
@@ -125,7 +126,7 @@ ui<-
                sidebarLayout(
                  sidebarPanel(width = 3,
                               pickerInput('main_site2','Select Site',sites_list, multiple = F),
-                              selectInput('data_year','Select Year to Highlight',sort(unique(streams_wq_dat$WaterYear),T)),
+                              selectInput('data_year','Select Year to Highlight',years_list),
                               selectInput('trend_parm','Select Parameter',parm_list),
                               sliderInput('trend_years','Select Year Range for Trend',value=c(2000,2020),
                                           min=2000,max=2020,
@@ -134,9 +135,7 @@ ui<-
                               hr(),
                               h2('Water Quality Criteria Comparison for Selected Year'),
                               tableOutput('wqc_site')
-                              #selectInput('main_site3','Select Site',sites_list),
-                              #selectInput('data_parm','Select Parameter',parm_list),
-                              #selectInput('data_year2','Select Year to Highlight',sort(unique(streams_wq_dat$WaterYear),T)),
+                   
                  ),
                  mainPanel(width = 9,
                            plotlyOutput('data_plot'),
@@ -164,8 +163,8 @@ ui<-
                                             selectedTextFormat = "count > 3"
                                           )),
                               sliderInput('years_out','Select Year Range for Download', 
-                                          value=c(min(streams_wq_dat$WaterYear),max(streams_wq_dat$WaterYear)),
-                                          min=min(streams_wq_dat$WaterYear),max=max(streams_wq_dat$WaterYear),
+                                          value=c(min(years_list),max(years_list)),
+                                          min=min(years_list),max=max(years_list),
                                           step=1,sep=''),
                               downloadButton('downloadData', "Download Data")
                  ),

@@ -1,3 +1,5 @@
+#plot of  data for a given parameter normalized across a water year
+
 withinYear_plot<-function(dataSubset,input){
   dataplot<-dataSubset %>%
     ggplot(aes(x=WY_FakeDate,y=value,group=WaterYear))+
@@ -44,10 +46,10 @@ withinYear_plot<-function(dataSubset,input){
   ggplotly(dataplot)
 }
 
-withinYear_plot(dataSubset=
-             streams_wq_dat %>%
-             filter(SITE_CODE=='05b'&
-                      parameter=='Total Phosphorus')%>%
-             mutate(AquaticLifeUse='Core Summer Salmonid Habitat'),
-           input=list(data_log_scale=F,trend_parm='Total Phosphorus',data_year=2022,
-                      trend_years=c(2000,2022)))
+# withinYear_plot(dataSubset=
+#              streams_wq_dat %>%
+#              filter(SITE_CODE=='05b'&
+#                       parameter=='Total Phosphorus')%>%
+#              mutate(AquaticLifeUse='Core Summer Salmonid Habitat'),
+#            input=list(data_log_scale=F,trend_parm='Total Phosphorus',data_year=2022,
+#                       trend_years=c(2000,2022)))
