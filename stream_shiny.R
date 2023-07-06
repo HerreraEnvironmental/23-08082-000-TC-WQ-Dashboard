@@ -44,6 +44,7 @@ annual_wqi<-readRDS('outputs/annual_wqi.RDS') %>%
 
 
 monthly_wqi_by_parameter<-readRDS('outputs/monthly_wqi_by_parameter.RDS')
+streams_wq_dat["parameter"][streams_wq_dat["parameter"] == "Temperature, water"] <- "Water Temperature (C°)"
 monthly_wqi<-readRDS('outputs/monthly_wqi.RDS')
 
 sites_list<-setNames(streams_sites$SITE_CODE,paste0(streams_sites$SITE_NAME,' (',streams_sites$SITE_CODE,')'))
