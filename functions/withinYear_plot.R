@@ -3,9 +3,13 @@
 withinYear_plot<-function(dataSubset,input){
   dataplot<-dataSubset %>%
     ggplot(aes(x=WY_FakeDate,y=value,group=WaterYear))+
-    geom_point(alpha=.2)+
+    geom_point(alpha=.2,
+               aes(text=paste0('Date: ',as.Date(DateTime),'\n',
+                               'Value: ', ifelse(nonDetectFlag,'<',''),value,' ',unit,' ',qualifier)))+
     geom_path(data=~.x %>% filter(WaterYear==input$data_year))+
-    geom_point(data=~.x %>% filter(WaterYear==input$data_year))+
+    geom_point(data=~.x %>% filter(WaterYear==input$data_year),
+               aes(text=paste0('Date: ',as.Date(DateTime),'\n',
+                               'Value: ', ifelse(nonDetectFlag,'<',''),value,' ',unit,' ',qualifier)))+
     theme_bw()+
     scale_x_date('',date_breaks = '2 months',date_labels = '%b',
                  #limits=as.Date(c('1999-9-25','2000-10-05')),
@@ -43,7 +47,7 @@ withinYear_plot<-function(dataSubset,input){
       scale_y_log10(input$trend_parm,breaks=10^(-4:4),minor_breaks=log10_minor_break())
   }
   
-  ggplotly(dataplot)
+  ggplotly(dataplot,tooltip = 'text')
 }
 
 # withinYear_plot(dataSubset=
@@ -51,5 +55,5 @@ withinYear_plot<-function(dataSubset,input){
 #              filter(SITE_CODE=='05b'&
 #                       parameter=='Total Phosphorus')%>%
 #              mutate(AquaticLifeUse='Core Summer Salmonid Habitat'),
-#            input=list(data_log_scale=F,trend_parm='Total Phosphorus',data_year=2022,
+#            input=list(data_log_scale=F,trend_parm='Total Phosphorus',data_year=2011,
 #                       trend_years=c(2000,2022)))

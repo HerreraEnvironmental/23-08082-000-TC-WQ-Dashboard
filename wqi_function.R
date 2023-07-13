@@ -180,7 +180,7 @@ parm_table<-data.frame(rbind(c('FC','Fecal Coliform'),
                              c('pH','pH'),
                              c('TP_P','Total Phosphorus'),
                              c('SUSSOL','Total Suspended Solids'),
-                             c('Temp','Temperature, water'),
+                             c('Temp',"Water Temperature (°C)"),
                              #c('TPN','Total Nitrogen'),
                              #for the sake of this example let's use nitate
                              c('TPN','Nitrate-Nitrite as N'),

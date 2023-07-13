@@ -86,9 +86,22 @@ server<-function(input,output,session){
   trend_summary<-reactive({
     trend_summary_func(streams_wq_dat,input)
   })
-  
+  output$trend_summary_map<-renderLeaflet({
+    trend_summary_map(trend_summary(),streams_sites,input)
+  })
+  output$trend_summary_trend_plot<-renderPlotly({
+    trend_summary_trend_plot(streams_wq_dat,input)
+  })
   output$trend_summary_plot<-renderPlotly({
     trend_summary_plot(trend_summary(),input)
+  })
+  
+  observeEvent(input$trend_summary_map_marker_click, {
+    p <- input$trend_summary_map_marker_click
+    if(!is.null(p$id)){
+    updateSelectInput(session, "trend_summary_site", 
+                      selected =p$id)
+    }
   })
   
   output$trend_summary_table<-renderText({
@@ -101,7 +114,8 @@ server<-function(input,output,session){
       paste('trends-', Sys.Date(), '.csv', sep='')
     },
     content = function(con) {
-      write.csv(trend_summary() %>% select(SITE_CODE,parameter,StartYear,EndYear,`p-value`=p,`Slope (units/years)`=Slope),
+      write.csv(trend_summary() %>% select(SITE_CODE,parameter,StartYear,EndYear,Season,CorrectedForAutocorrelation,
+                                           `p-value`=p,`Slope (units/years)`=Slope),
                 con,row.names = F)
     }
   )
@@ -141,9 +155,11 @@ server<-function(input,output,session){
     trend_plot(dataSubset(),input)
   })
   
-  output$trend_text<-renderText({
+  output$trend_text<-renderUI({
     trend_text(dataSubset(),input)
   })
+  
+
   
   #Individual WQI Plot
 
