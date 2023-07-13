@@ -70,4 +70,4 @@ wqc_table<-function(wqc_map_out,input){
   complete(parameter,fill=list(`Number of Sites with Violations`=NA,`Number of Site Monitored`=0))
 }
 
-wqc_table(wqc_map_out = wqc_comparison(streams_wq_dat,input=list(wqc_sum_year=2022)))
+#wqc_table(wqc_map_out = wqc_comparison(streams_wq_dat,input=list(wqc_sum_year=2022)))

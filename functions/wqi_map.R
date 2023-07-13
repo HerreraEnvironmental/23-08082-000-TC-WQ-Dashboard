@@ -24,7 +24,7 @@ wqi_map<-function(streams_sites,annual_wqi,input){
                title='Water Quality Index Score')
 }
 
-wqi_map(streams_sites,annual_wqi,input=list(wqi_sum_year=2017))
+#wqi_map(streams_sites,annual_wqi,input=list(wqi_sum_year=2017))
 
 wqi_summary_plot<-function(annual_wqi,input){
   cols <- c("Good" = "darkgreen", "Moderate" = "gold", "Poor" = "darkred")
