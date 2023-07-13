@@ -74,27 +74,41 @@ ui<-tagList(
                column(12, hr()),
                sidebarLayout(
                  sidebarPanel(width = 3,
-                              
-                              pickerInput('main_site3','Select Site',sites_list, multiple = T,
-                                          selected=sites_list[1:3],
-                                          options = pickerOptions(
-                                            actionsBox = TRUE, 
-                                            size = 10,
-                                            selectedTextFormat = "count > 3"
-                                          )),
+                              selectInput('trend_summary_site','Select Site',sites_list),
+
+                              # pickerInput('main_site3','Select Site',sites_list, multiple = T,
+                              #             selected=sites_list[1:3],
+                              #             options = pickerOptions(
+                              #               actionsBox = TRUE,
+                              #               size = 10,
+                              #               selectedTextFormat = "count > 3"
+                              #             )),
                               selectInput('trend_summary_parm','Select Parameter for Table and Plot',
                                           parm_list),
                               sliderInput('trend_summary_years','Select Year Range for Trend',
                                           value=c(min(years_list),max(years_list)),
                                           min=min(years_list),max=max(years_list),
                                           step=1,sep=''),
+                              checkboxInput('rktAuto','Correct for Autocorrelation? (requires 10+ years data)?'),
+                              selectInput('rktSeason','Select Seasons for Mann-Kendall Test',
+                                          c('All','Winter (Jan-Mar)'='winter','Spring (Apr-Jun)'='spring',
+                                            'Summer (Jul-Sep)'='summer','Fall (Oct-Dec)'='fall')),
                               materialSwitch(inputId = "trend_summary_log_scale", label = "Log-scale?", status = "default",value=F),
                               downloadButton('trends_download',label='Download Trend Statistics')
                  ),
                  mainPanel(width = 9,
-                           mainPanel(plotlyOutput('trend_summary_plot'),
+                           mainPanel(
+                             #fluidRow(
+                            # column(6,
+                              leafletOutput('trend_summary_map'),
+                             # column(6,
+                             #  plotlyOutput('trend_summary_plot'))
+                             # ),
+                             h2('Trend for Selected Sited'),
+                             plotlyOutput('trend_summary_trend_plot')
                                      #     tableOutput('trend_summary_table'),
-                                     plotlyOutput('trend_summary_parm_plot'))
+                                    # plotlyOutput('trend_summary_parm_plot')
+                                    )
                  )),
                fluidRow(column(12, br()))
       ), 

@@ -30,7 +30,7 @@ streams_wq_dat<-read.csv('inputs/Herrera All Stream Data Dump 4 12 2023.csv') %>
          FakeDate=as.Date(paste(2000,Month,day(DateTime),sep='-')),
          WY_FakeDate=as.Date(if_else(Month>=10,FakeDate-years(1),FakeDate)))
 
-streams_wq_dat["parameter"][streams_wq_dat["parameter"] == "Temperature, water"] <- "Water Temperature (C°)"
+streams_wq_dat["parameter"][streams_wq_dat["parameter"] == "Temperature, water"] <- "Water Temperature (°C)"
 
 saveRDS(streams_wq_dat,'outputs/streams_wq_dat.RDS')
 
@@ -69,7 +69,7 @@ parm_table<-data.frame(rbind(c('FC','Fecal Coliform'),
                              c('pH','pH'),
                              c('TP_P','Total Phosphorus'),
                              c('SUSSOL','Total Suspended Solids'),
-                             c('Temp','Temperature, water'),
+                             c('Temp','Water Temperature (°C)'),
                              #c('TPN','Total Nitrogen'),
                              #for the sake of this example let's use nitate
                              c('TPN','Nitrate-Nitrite as N'),
