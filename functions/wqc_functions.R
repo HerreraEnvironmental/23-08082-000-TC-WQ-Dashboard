@@ -40,7 +40,7 @@ wqc_finder<-function(AquaticLifeUse=c('Char Spawning and Rearing',
     pH_max=8.5
   )
   
-  if(Parameter %in% c('Temperature','Temperature, water')){
+  if(Parameter %in% c('Temperature','Temperature, water','Water Temperature (°C)')){
     return(aquatic_life_uses$Temp_7DADMax_C[AquaticLifeUse==aquatic_life_uses$AquaticLifeUse])
   }
   if(Parameter %in% c('Dissolved Oxygen','Dissolved Oxygen, Field')){
@@ -82,7 +82,7 @@ wqc_function<-function(AquaticLifeUse=c("Char Spawning and Rearing", "Core Summe
   
   wqc_out<-NA
   
-  if(Parameter %in% c('Temperature','Temperature, water')){
+  if(Parameter %in% c('Temperature','Temperature, water','Water Temperature (°C)')){
     wqc_out<- tibble(nViolation=length(which(Result>wqc_finder(AquaticLifeUse,Parameter)))) %>%
       mutate(Notes=paste0(nViolation,' violations in ',length(Result), ' samples'))
     

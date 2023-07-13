@@ -114,7 +114,8 @@ server<-function(input,output,session){
       paste('trends-', Sys.Date(), '.csv', sep='')
     },
     content = function(con) {
-      write.csv(trend_summary() %>% select(SITE_CODE,parameter,StartYear,EndYear,`p-value`=p,`Slope (units/years)`=Slope),
+      write.csv(trend_summary() %>% select(SITE_CODE,parameter,StartYear,EndYear,Season,CorrectedForAutocorrelation,
+                                           `p-value`=p,`Slope (units/years)`=Slope),
                 con,row.names = F)
     }
   )
@@ -154,7 +155,7 @@ server<-function(input,output,session){
     trend_plot(dataSubset(),input)
   })
   
-  output$trend_text<-renderText({
+  output$trend_text<-renderUI({
     trend_text(dataSubset(),input)
   })
   

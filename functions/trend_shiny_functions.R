@@ -58,13 +58,13 @@ trend_text<-function(dataSubset,input){
   trend_out<-dataSubset %>%
     filter(WaterYear>=input$trend_years[1]&WaterYear<=input$trend_years[2]) %>%
     with(.,rkt::rkt(WaterYear,newResultValue,Month,rep='a'))
-  
+  trend_unit<-unique(dataSubset$unit)[1]
   sigStatement<-ifelse(trend_out$sl<=0.05,'a  significant trend','insufficient evidence of a trend')
-  slopeStatement<-ifelse(trend_out$sl<=0.05,paste('The trend slope is',trend_out$B,'per year'),'')
-  paste('Mann-Kendall Trend Test:','\n',
-        'Between water years',input$trend_years[1],'and',input$trend_years[2],
-        'at',input$trend_site,'there is',sigStatement,'in',input$trend_parm,'\n',
-        slopeStatement)
+  slopeStatement<-ifelse(trend_out$sl<=0.05,paste('The trend slope is',trend_out$B,trend_unit,'per year'),'')
+  HTML(paste0('<u>Mann-Kendall Trend Test:</u>','<br/>',
+        'Between water years <b>',input$trend_years[1],'</b> and <b>',input$trend_years[2],'</b>',
+        ' at ',input$main_site2,', there is ','<b>',sigStatement,"</b>",' in <b>',input$trend_parm,'</b><br/>',
+        slopeStatement))
 }
 # 
 # trend_text(dataSubset=

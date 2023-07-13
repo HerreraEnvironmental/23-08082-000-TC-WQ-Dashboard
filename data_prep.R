@@ -9,7 +9,8 @@ library(ggplot2)
 
 streams_sites<-read.csv('inputs/Herrera All Stream Data Dump 4 12 2023.csv') %>%
   select(gid,SITE_CODE,SITE_NAME,Metro_ID,LAT,LON)%>%
-  distinct()
+  distinct() %>%
+  arrange(SITE_NAME)
 
 saveRDS(streams_sites,'outputs/streams_sites.RDS')
 

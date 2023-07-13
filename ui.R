@@ -62,8 +62,14 @@ ui<-tagList(
                column(12, hr()),
                fluidRow(column(8,leafletOutput('wqc_map',height=800,width=1200)),
                         column(4,
+                               p('The map to the left displays if a water quality montitoring site had an ',
+                                        'exceedance for any water quality criteria during the highlighted year.',br(),
+                                        'You may also select an individual parameter for comparison below'),
                                selectInput('wqc_sum_year','Select Year to Highlight',years_list),
-                               # plotlyOutput('wqc_summary_plot'),
+                               selectInput('wqc_sum_parm','Select All or Individual Parameters for Mapping',
+                                           c('All','Water Temperature (°C)','Dissolved Oxygen','pH','E. coli','Fecal Coliform')),
+                               p(paste0('The table below summarizes the number of sites with a violation for each of',
+                                        'the monitoring parameters relative to the total number of sites.')),
                                tableOutput('wqc_summary')
                         )),
                fluidRow(column(12, br()))
@@ -74,6 +80,10 @@ ui<-tagList(
                column(12, hr()),
                sidebarLayout(
                  sidebarPanel(width = 3,
+                              p('Explore trends across the landscape. Click on a site on the map to view the long-term',
+                                'dataset for that site. You may select individual water quality parameters and set the period',
+                                'of analysis. You may also correct for serial autocorrelation in the Mann-Kendall Trend test and',
+                                ' select individual seasons for analysis.'),
                               selectInput('trend_summary_site','Select Site',sites_list),
 
                               # pickerInput('main_site3','Select Site',sites_list, multiple = T,
@@ -104,7 +114,7 @@ ui<-tagList(
                              # column(6,
                              #  plotlyOutput('trend_summary_plot'))
                              # ),
-                             h2('Trend for Selected Sited'),
+                             h2('Trend for Selected Site'),
                              plotlyOutput('trend_summary_trend_plot')
                                      #     tableOutput('trend_summary_table'),
                                     # plotlyOutput('trend_summary_parm_plot')
@@ -153,8 +163,8 @@ ui<-tagList(
                  ),
                  mainPanel(width = 9,
                            plotlyOutput('data_plot'),
-                           textOutput('trend_text'),
-                           plotlyOutput('trend_plot')
+                           plotlyOutput('trend_plot'),
+                           htmlOutput('trend_text')
                  )),
                fluidRow(column(12, br()))
       ),
@@ -170,7 +180,7 @@ ui<-tagList(
                                             size = 10,
                                             selectedTextFormat = "count > 3"
                                           )),
-                              pickerInput('params_out', "Select Parameter(s)", parm_list, multiple = TRUE,
+                              pickerInput('params_out', "Select Parameter(s)", parm_list,selected=parm_list, multiple = TRUE,
                                           options = pickerOptions(
                                             actionsBox = TRUE, 
                                             size = 10,

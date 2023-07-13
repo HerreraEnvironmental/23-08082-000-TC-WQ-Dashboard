@@ -34,7 +34,9 @@ temp_trend_data %>%
   mutate(Statement=factor(Statement,levels=rev(c('Decreasing Trend','Test Not Run - insufficient data',
                                                  'No Significant Trend','Increasing Trend'))),
          StartYear=max(input$trend_summary_years[1],min(temp_trend_data$WaterYear[SITE_CODE==temp_trend_data$SITE_CODE])),
-         EndYear=min(input$trend_summary_years[2],max(temp_trend_data$WaterYear[SITE_CODE==temp_trend_data$SITE_CODE]))) 
+         EndYear=min(input$trend_summary_years[2],max(temp_trend_data$WaterYear[SITE_CODE==temp_trend_data$SITE_CODE])),
+         Season=input$rktSeason,
+         CorrectedForAutocorrelation=input$rktAuto) 
 }
 
 # trend_summary_func(streams_wq_dat,
@@ -51,8 +53,9 @@ trend_summary_map<-function(trend_summary,stream_sites,input){
   trend_summary %>%
     left_join(streams_sites) %>%
     leaflet() %>%
-    addCircleMarkers(color=~pal_trend(Statement),fillOpacity = 0.9,weight=1,
-                     popup=~paste0("<h5>", "<b>", SITE_NAME,'<br>', "</b>",#"</h5>",'<br>',
+    addCircleMarkers(fillColor=~pal_trend(Statement),fillOpacity = 0.9,weight=1,
+                     color='black',
+                     popup=~paste0("<h6>", "<b>", SITE_NAME,'<br>', "</b>","</h6>",'<br>',
                                    SITE_CODE,'<br>',
                                    'Season: ',input$rktSeason,'<br>',
                                    'Corrected for Autocorrelation? ', input$rktAuto, '<br>',
@@ -60,7 +63,10 @@ trend_summary_map<-function(trend_summary,stream_sites,input){
                                    StartYear,' to ', EndYear),
                      layerId= ~SITE_CODE,
                      label = ~SITE_CODE) %>%
-    addProviderTiles('Esri.NatGeoWorldMap') 
+    addProviderTiles('Esri.NatGeoWorldMap')  %>%
+    addLegend(pal=pal_trend,values=factor(c('Decreasing Trend','Test Not Run - insufficient data',
+                                                   'No Significant Trend','Increasing Trend')),
+              title='Long-term Trend',opacity  = 1)
 }
 # trend_summary_map(
 #   trend_summary = trend_summary_func(streams_wq_dat,
