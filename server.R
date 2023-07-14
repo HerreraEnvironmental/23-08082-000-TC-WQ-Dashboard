@@ -245,7 +245,8 @@ server<-function(input,output,session){
   observe({
     updateSelectInput(session,
                       'trend_parm',
-                      choices=streams_wq_dat %>% filter(SITE_CODE==input$main_site) %>% pull(parameter) %>% unique()
+                      choices=parm_list[
+                        parm_list %in% (streams_wq_dat %>% filter(SITE_CODE==input$main_site) %>% pull(parameter) %>% unique())]
     )
   })
   observe({
@@ -266,7 +267,8 @@ server<-function(input,output,session){
   observe({
     updateSelectInput(session,
                       'data_parm',
-                      choices=streams_wq_dat %>% filter(SITE_CODE==input$main_site) %>% pull(parameter) %>% unique()
+                      choices=parm_list[
+                        parm_list %in% (streams_wq_dat %>% filter(SITE_CODE==input$main_site) %>% pull(parameter) %>% unique())]
     )
   })
   # MAP 1 updates all variables

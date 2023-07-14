@@ -3,6 +3,11 @@
 
 trend_plot<-function(dataSubset,input){
   
+  if(input$rktSeason_oneSite=='winter') dataSubset<-dataSubset %>% filter(Month>=1&Month<=3)
+  if(input$rktSeason_oneSite=='spring') dataSubset<-dataSubset %>% filter(Month>=4&Month<=6)
+  if(input$rktSeason_oneSite=='summer') dataSubset<-dataSubset %>% filter(Month>=7&Month<=9)
+  if(input$rktSeason_oneSite=='fall') dataSubset<-dataSubset %>% filter(Month>=10&Month<=12)
+  
   trendplot<-dataSubset %>%
       ggplot(aes(x=DateTime,y=value))+
       geom_point(data=~filter(.x,WaterYear==input$data_year),col='red',size=4)+
@@ -11,14 +16,14 @@ trend_plot<-function(dataSubset,input){
       theme_bw()+
       scale_y_continuous(input$trend_parm)
 
-if(input$trend_parm=='Temperature, water'){
-  temp_criteria<-wqc_finder(unique(dataSubset()$AquaticLifeUse),input$trend_parm)
+if(input$trend_parm=='Water Temperature (°C)'){
+  temp_criteria<-wqc_finder(unique(dataSubset$AquaticLifeUse),input$trend_parm)
   trendplot<-trendplot+
     geom_hline(yintercept = temp_criteria)
 }
 
 if(input$trend_parm=='Dissolved Oxygen'){
-  do_criteria<-wqc_finder(unique(dataSubset()$AquaticLifeUse),input$trend_parm)
+  do_criteria<-wqc_finder(unique(dataSubset$AquaticLifeUse),input$trend_parm)
   trendplot<-trendplot+
     geom_hline(yintercept = do_criteria)
 }
@@ -55,14 +60,28 @@ ggplotly(trendplot)
 #            trend_years=c(2000,2022)))
 
 trend_text<-function(dataSubset,input){
+  
+  if(input$rktSeason_oneSite=='winter') dataSubset<-dataSubset %>% filter(Month>=1&Month<=3)
+  if(input$rktSeason_oneSite=='spring') dataSubset<-dataSubset %>% filter(Month>=4&Month<=6)
+  if(input$rktSeason_oneSite=='summer') dataSubset<-dataSubset %>% filter(Month>=7&Month<=9)
+  if(input$rktSeason_oneSite=='fall') dataSubset<-dataSubset %>% filter(Month>=10&Month<=12)
+  
   trend_out<-dataSubset %>%
     filter(WaterYear>=input$trend_years[1]&WaterYear<=input$trend_years[2]) %>%
-    with(.,rkt::rkt(WaterYear,newResultValue,Month,rep='a'))
+    with(.,rkt::rkt(WaterYear,newResultValue,Month,correct=input$rktAuto_oneSite,rep='a'))
+  
   trend_unit<-unique(dataSubset$unit)[1]
-  sigStatement<-ifelse(trend_out$sl<=0.05,'a  significant trend','insufficient evidence of a trend')
-  slopeStatement<-ifelse(trend_out$sl<=0.05,paste('The trend slope is',trend_out$B,trend_unit,'per year'),'')
+  
+  p.value<-ifelse(input$rktAuto_oneSite,trend_out$sl.corrected,trend_out$sl)
+  
+  sigStatement<-paste0(ifelse(p.value<=0.05,'a  significant trend','insufficient evidence of a trend'),
+                       ' (p',ifelse(p.value<0.001,'<0.001)',paste0('=',round(p.value,3),')')))
+  
+  slopeStatement<-ifelse(p.value<=0.05,paste('The trend slope is',round(trend_out$B,4),trend_unit,'per year'),'')
+  
   HTML(paste0('<u>Mann-Kendall Trend Test:</u>','<br/>',
         'Between water years <b>',input$trend_years[1],'</b> and <b>',input$trend_years[2],'</b>',
+        ifelse(input$rktSeason_oneSite=='All','',paste0(' (',input$rktSeason_oneSite,')')),
         ' at ',input$main_site2,', there is ','<b>',sigStatement,"</b>",' in <b>',input$trend_parm,'</b><br/>',
         slopeStatement))
 }

@@ -84,15 +84,6 @@ ui<-tagList(
                                 'dataset for that site. You may select individual water quality parameters and set the period',
                                 'of analysis. You may also correct for serial autocorrelation in the Mann-Kendall Trend test and',
                                 ' select individual seasons for analysis.'),
-                              selectInput('trend_summary_site','Select Site',sites_list),
-
-                              # pickerInput('main_site3','Select Site',sites_list, multiple = T,
-                              #             selected=sites_list[1:3],
-                              #             options = pickerOptions(
-                              #               actionsBox = TRUE,
-                              #               size = 10,
-                              #               selectedTextFormat = "count > 3"
-                              #             )),
                               selectInput('trend_summary_parm','Select Parameter for Table and Plot',
                                           parm_list),
                               sliderInput('trend_summary_years','Select Year Range for Trend',
@@ -114,7 +105,9 @@ ui<-tagList(
                              # column(6,
                              #  plotlyOutput('trend_summary_plot'))
                              # ),
-                             h2('Trend for Selected Site'),
+                             fluidRow(h2('Trend for Selected Site'),
+                                      column(2),
+                                      pickerInput('trend_summary_site','Select Site',sites_list)),
                              plotlyOutput('trend_summary_trend_plot')
                                      #     tableOutput('trend_summary_table'),
                                     # plotlyOutput('trend_summary_parm_plot')
@@ -127,7 +120,7 @@ ui<-tagList(
                column(12, hr()),
                fluidRow(column(12,sidebarLayout(
                  sidebarPanel(width=3,
-                              selectInput('main_site','Select Site',sites_list),
+                              pickerInput('main_site','Select Site',sites_list),
                               selectInput('wqi_year','Select Year to Highlight',years_list),
                               sliderInput('wqi_trend_years','Select Year Range for Trend',value=c(min(years_list),max(years_list)),
                                           min=min(years_list),max=max(years_list),
@@ -155,6 +148,10 @@ ui<-tagList(
                               sliderInput('trend_years','Select Year Range for Trend',value=c(2000,2020),
                                           min=2000,max=2020,
                                           step=1,sep=''),
+                              checkboxInput('rktAuto_oneSite','Correct for Autocorrelation? (requires 10+ years data)?'),
+                              selectInput('rktSeason_oneSite','Select Seasons for Mann-Kendall Test',
+                                          c('All','Winter (Jan-Mar)'='winter','Spring (Apr-Jun)'='spring',
+                                            'Summer (Jul-Sep)'='summer','Fall (Oct-Dec)'='fall')),
                               materialSwitch(inputId = "data_log_scale", label = "Log-scale?", status = "default",value=F),
                               hr(),
                               h2('Water Quality Criteria Comparison for Selected Year'),
