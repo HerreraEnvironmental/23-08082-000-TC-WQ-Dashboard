@@ -29,7 +29,7 @@ ui<-tagList(
                fluidRow(column(12, hr())),
                fluidRow(column(8,h5("Below are all stations, active and inactive, used to monitor water quality in Thurston County. To learn more about a station, click on the icon and follow the prompts to various data tabs."))),
                fluidRow(column(12, br())),
-               fluidRow(column(12,leafletOutput('map',height=700,width=1600))),
+               fluidRow(column(12,leafletOutput('map',height=700,width="100%"))),
                fluidRow(column(12, br())),
                #column(1,
                #        sidebarLayout(
@@ -50,7 +50,7 @@ ui<-tagList(
       tabPanel('Summary of Water Quality Index',value='sum_wqi',
                column(12,h1("Summary of Water Quality Index")),
                column(12, hr()),
-               fluidRow(column(8,leafletOutput('wqi_map',height=800,width=1200)),
+               fluidRow(column(8,leafletOutput('wqi_map',height=800,width="100%")),
                         column(4, 
                                selectInput('wqi_sum_year','Select Year to Highlight',years_list),
                                plotlyOutput('wqi_summary_plot')
@@ -60,7 +60,7 @@ ui<-tagList(
       tabPanel('Summary of Water Quality Criteria',value='sum_wqc',
                column(12,h1("Summary of Water Quality Criteria")),
                column(12, hr()),
-               fluidRow(column(8,leafletOutput('wqc_map',height=800,width=1200)),
+               fluidRow(column(8,leafletOutput('wqc_map',height=800,width="100%")),
                         column(4,
                                p('The map to the left displays if a water quality montitoring site had an ',
                                         'exceedance for any water quality criteria during the highlighted year.',br(),
@@ -101,7 +101,7 @@ ui<-tagList(
                            mainPanel(
                              #fluidRow(
                             # column(6,
-                              leafletOutput('trend_summary_map'),
+                              leafletOutput('trend_summary_map',width='100%'),
                              # column(6,
                              #  plotlyOutput('trend_summary_plot'))
                              # ),
