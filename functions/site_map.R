@@ -16,7 +16,7 @@ leaflet(recent_streams_data) %>%
                            "<li>", "<a onclick=","customHref('data_download')>",'Download all data for this station', '</a>', "<br>","</li>",
                            "</ul>","</h6>"),
              layerId= ~SITE_CODE,
-             label = ~SITE_CODE) %>%
+             label = ~paste0(SITE_CODE, '<br>', SITE_NAME)) %>% 
   #addPolygons(data = ThurstonCo_WA,
   #            fillColor = "")%>%
   addProviderTiles('Esri.NatGeoWorldMap')
