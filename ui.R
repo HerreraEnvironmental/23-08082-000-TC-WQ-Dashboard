@@ -101,6 +101,17 @@ ui<-tagList(
       tabPanel('WQI',value='wqi',
                column(12,h1("Water Quality Index")),
                column(12, hr()),
+               fluidRow(column(12, "The Water Quality Index (WQI) is a quantitative means
+                               of assessing the relative health of a water body. 
+                               It provides a single number that expresses overall water quality
+                               at a given location and time. Parameters include but are not 
+                               limited to temperature, turbidity, pH, dissolved oxygen, nutrient levels, 
+                               and bioindicators. Each parameter is given a weight based on its 
+                               importance for water quality. The final WQI is calculated by 
+                               aggregating the individual index scores, and the resulting score 
+                               usually falls on a scale from 0 to 100, with higher values indicating 
+                               better water quality.")),
+               column(12, hr()),
                fluidRow(column(12,sidebarLayout(
                  sidebarPanel(width=3,
                               selectInput('main_site','Select Site',sites_list),
