@@ -24,7 +24,7 @@ parm_list<-readRDS('outputs/parm_list.RDS')
 years_list<-readRDS('outputs/years_list.RDS')
 
 tagList(
-    #tags$head(tags$link(includeScript("func.js"))),
+   # tags$head(tags$link(includeScript("func.js"))),
     tags$head(tags$style("a{cursor:pointer;}")))
 
 
@@ -84,6 +84,15 @@ ui<-
       )
     ),
     dashboardBody(
+      tags$script(HTML("
+        var openTab = function(tabName){
+          $('a', $('.sidebar')).each(function() {
+            if(this.getAttribute('data-value') == tabName) {
+              this.click()
+            };
+          });
+        }
+      ")),
      tags$head(
         tags$link(
           rel = "stylesheet", 
@@ -198,7 +207,8 @@ ui<-
                  fluidRow(column(12, br()))
         ), 
         tabItem(tabName ='wqi',
-                 column(12,h2("Water Quality Index")),
+                 column(12,h2("Water Quality Index"),
+                        a("Return to Map",href="#",onclick='openTab("map")')),
                  fluidRow(column(12,sidebarLayout(
                    sidebarPanel(width=3,
                                 pickerInput('main_site','Select Site',sites_list),
@@ -219,7 +229,8 @@ ui<-
         ),
         
         tabItem(tabName ='all_data',
-                 column(12,h2("All Data Viewer")),
+                 column(12,h2("All Data Viewer"),
+                        a("Return to Map",href="#",onclick='openTab("map")')),
                  sidebarLayout(
                    sidebarPanel(width = 3,
                                 pickerInput('main_site2','Select Site',sites_list, multiple = F),
@@ -247,7 +258,8 @@ ui<-
         ),
         
         tabItem(tabName = 'data_download',
-                 column(12,h2("Data Download")),
+                 column(12,h2("Data Download"),
+                        a("Return to Map",href="#",onclick='openTab("map")')),
                  sidebarLayout(
                    sidebarPanel(width = 3,
                                 pickerInput('main_site4','Select Site to Download',sites_list, multiple = T,
