@@ -7,7 +7,7 @@
 }
 
 .skin-blue .main-sidebar {
-    background-color: #d3d8e6;
+    background-color: white;
 }
 
 .btn-success {
@@ -19,7 +19,7 @@
     margin: 0px 10px 14px 20px;
     text-align: left;
     color: white;
-    background:  #d3d8e6;
+    background:  white;
     text-indent: 4px;
     vertical-align: middle;
     border-radius: 0px;
@@ -126,7 +126,7 @@ section.sidebar .shiny-bound-input.action-button, section.sidebar .shiny-bound-i
      height:55px; 
 }
 .bg-black {
-    background-color:  #d3d8e6 !important;
+    background-color:  #fff !important;
     height: 55px;
     line-height:55px;
 
@@ -197,17 +197,17 @@ section.sidebar .shiny-bound-input.action-button, section.sidebar .shiny-bound-i
      background-color:#214873 
 }
  .nav-tabs-custom > .nav-tabs > li.active {
-     border-top-color:#616365 
+     border-top-color:white 
 }
  .nav-tabs-custom {
-     box-shadow:5px 5px 5px lightgrey 
+     box-shadow:5px 5px 5px #fff
 }
  .skin-blue .left-side, .skin-blue .main-sidebar, .skin-blue .wrapper {
      background-color: #d3d8e6;
 }
  .skin-blue .sidebar-menu > li.active > a, .skin-blue .sidebar-menu > li:hover > a {
-     color:#fff;
-     background: #d3d8e6;
+     color:black;
+     background: #9da6c1 ;
      border-left-color:#214873;
 }
  .skin-blue .sidebar-menu > li > .treeview-menu {
@@ -225,7 +225,7 @@ section.sidebar .shiny-bound-input.action-button, section.sidebar .shiny-bound-i
     margin: 10px;
     top: 100%;
     background-color: #fefefee6;
-    box-shadow: 10px 10px 10px white;
+    box-shadow: 10px 10px 10px #77281a;
 }
 .navbar-nav > .messages-menu > .dropdown-menu > li.header, .navbar-nav > .notifications-menu > .dropdown-menu > li.header, .navbar-nav > .tasks-menu > .dropdown-menu > li.header {
     border-top-left-radius: 0px;
@@ -253,25 +253,29 @@ section.sidebar .shiny-bound-input.action-button, section.sidebar .shiny-bound-i
  #coxreg {
      overflow-y: auto;
      max-height: 200px;
-     background-color: lightgrey;
+     background-color: white;
      box-shadow: inset 0px -5px 5px white 
 }
  #coxreg_aic {
-     background-color: lightgrey 
+     background-color: white
 }
  #logreg {
      overflow-y: auto;
      max-height: 200px;
-     background-color: lightgrey;
+     background-color: white;
      box-shadow: inset 0px -5px 5px white 
 }
  #logreg_aic {
-     background-color: lightgrey 
+     background-color: white
 }
 .shiny-output-error { 
     visibility: hidden; 
 }
 .shiny-output-error:before { 
     visibility: hidden; 
+}
+
+.content-wrapper, .right-side {
+  background-color: white;
 }
  
