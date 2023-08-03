@@ -7,13 +7,13 @@ leaflet(recent_streams_data) %>%
                            "<br>",
                            #can insert photo
                            #   '<img src="https://thumbs.dreamstime.com/z/deep-forest-stream-crystal-clear-water-sunshine-plitvice-lakes-croatia-41645592.jpg" width="250px" height="250px"/>',
-                         #  "<hr>",
-                           "Most Recent WQI Score of ", "<b>", as.character(round(WQI,0)),' in ',WaterYear,' (',Rating,')', "</b>", "</h6>",
                            "<hr>",
+                           "Most Recent WQI Score of ", "<b>", as.character(round(WQI,0)),' in ',WaterYear,' (',Rating,')', "</b>", "</h6>",
+                         #  "<hr>"),
                            "<h6>", "<b>", "Click to do the following:", "</b>","<ul>","<br>",
-                           "<li>", "<a onclick=","customHref('wqi')>",'View Recent Water Quality Index','</a>', "<br>","</li>",
-                           "<li>", "<a onclick=","customHref('all_data')>",'View Water Quality trends and all data for this station','</a>', "<br>","</li>",
-                           "<li>", "<a onclick=","customHref('data_download')>",'Download all data for this station', '</a>', "<br>","</li>",
+                           "<li>", "<a href='#' onclick=","openTab('wqi')>",'View Recent Water Quality Index','</a>', "<br>","</li>",
+                           "<li>", "<a href='#' onclick=","openTab('all_data')>",'View Water Quality trends and all data for this station','</a>', "<br>","</li>",
+                           "<li>", "<a href='#' onclick=","openTab('data_download')>",'Download all data for this station', '</a>', "<br>","</li>",
                            "</ul>","</h6>"),
              layerId= ~SITE_CODE,
              label = ~SITE_CODE) %>%
