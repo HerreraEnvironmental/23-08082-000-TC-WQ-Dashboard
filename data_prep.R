@@ -7,10 +7,22 @@ library(ggplot2)
 ##develop a lookup table for sites
 ##check for flags
 
+stream_use_designations<-readxl::read_xlsx('inputs/Stream Use Designations Herrera.xlsx') %>%
+  transmute(SITE_CODE=`Site Code`,
+            AquaticLifeUse=case_when(grepl('Spawn',`ALU (Temp. °C)`) ~'Salmonid Spawning, Rearing, and Migration',
+                                     grepl('Core',`ALU (Temp. °C)`) ~'Core Summer Salmonid Habitat',
+                                     grepl('13',`ALU (Temp. °C)`) ~'Marine',
+                                     T ~ 'ERROR')) %>%
+  filter(!is.na(SITE_CODE))
+
+
 streams_sites<-read.csv('inputs/Herrera All Stream Data Dump 4 12 2023.csv') %>%
   select(gid,SITE_CODE,SITE_NAME,Metro_ID,LAT,LON)%>%
   distinct() %>%
-  arrange(SITE_NAME)
+  arrange(SITE_NAME) %>%
+  left_join(stream_use_designations)
+
+
 
 saveRDS(streams_sites,'outputs/streams_sites.RDS')
 
@@ -79,6 +91,7 @@ colnames(parm_table)<-c('shortParmName','parameter')
 
 
 annual_wqi<-streams_wq_dat %>%
+  left_join(stream_use_designations) %>%
   left_join(parm_table) %>%
   filter(!is.na(shortParmName)) %>%
   with(.,
@@ -86,13 +99,16 @@ annual_wqi<-streams_wq_dat %>%
                 value=newResultValue,
                 shortParmName = shortParmName,
                 date=as.Date(DateTime),
-                TemperatureCode = 8, #assume core for no2
-                OxygenCode = 26, #assume core for now,
+                TemperatureCode = ifelse(AquaticLifeUse=='Core Summer Salmonid Habitat',8,
+                                         ifelse(AquaticLifeUse=='Salmonid Spawning, Rearing, and Migration',9,NA)), 
+                OxygenCode =  ifelse(AquaticLifeUse=='Core Summer Salmonid Habitat',26,
+                                         ifelse(AquaticLifeUse=='Salmonid Spawning, Rearing, and Migration',21,NA)), 
                 small_PS_stream = T #assume all puget sound small streams
        ))
 saveRDS(annual_wqi,'outputs/annual_wqi.RDS')
 
 streams_wq_dat %>%
+  left_join(stream_use_designations) %>%
   left_join(parm_table) %>%
   filter(!is.na(shortParmName)) %>%
   with(.,
@@ -100,14 +116,17 @@ streams_wq_dat %>%
                 value=newResultValue,
                 shortParmName = shortParmName,
                 date=as.Date(DateTime),
-                TemperatureCode = 8, #assume core for no2
-                OxygenCode = 26, #assume core for now,
+                TemperatureCode = ifelse(AquaticLifeUse=='Core Summer Salmonid Habitat',8,
+                                         ifelse(AquaticLifeUse=='Salmonid Spawning, Rearing, and Migration',9,NA)), 
+                OxygenCode =  ifelse(AquaticLifeUse=='Core Summer Salmonid Habitat',26,
+                                     ifelse(AquaticLifeUse=='Salmonid Spawning, Rearing, and Migration',21,NA)), 
                 small_PS_stream = T, #assume all puget sound small streams
                 summary_by = 'ByParameter'
        )) %>%
   saveRDS('outputs/annual_wqi_by_parameter.RDS')
 
 streams_wq_dat %>%
+  left_join(stream_use_designations) %>%
   left_join(parm_table) %>%
   filter(!is.na(shortParmName)) %>%
   with(.,
@@ -115,8 +134,10 @@ streams_wq_dat %>%
                 value=newResultValue,
                 shortParmName = shortParmName,
                 date=as.Date(DateTime),
-                TemperatureCode = 8, #assume core for no2
-                OxygenCode = 26, #assume core for now,
+                TemperatureCode = ifelse(AquaticLifeUse=='Core Summer Salmonid Habitat',8,
+                                         ifelse(AquaticLifeUse=='Salmonid Spawning, Rearing, and Migration',9,NA)), 
+                OxygenCode =  ifelse(AquaticLifeUse=='Core Summer Salmonid Habitat',26,
+                                     ifelse(AquaticLifeUse=='Salmonid Spawning, Rearing, and Migration',21,NA)), 
                 small_PS_stream = T, #assume all puget sound small streams
                 summary_by = 'ByParameter',
                 period='Monthly'
@@ -125,6 +146,7 @@ streams_wq_dat %>%
 
 
 streams_wq_dat %>%
+  left_join(stream_use_designations) %>%
   left_join(parm_table) %>%
   filter(!is.na(shortParmName)) %>%
   with(.,
@@ -132,8 +154,10 @@ streams_wq_dat %>%
                 value=newResultValue,
                 shortParmName = shortParmName,
                 date=as.Date(DateTime),
-                TemperatureCode = 8, #assume core for no2
-                OxygenCode = 26, #assume core for now,
+                TemperatureCode = ifelse(AquaticLifeUse=='Core Summer Salmonid Habitat',8,
+                                         ifelse(AquaticLifeUse=='Salmonid Spawning, Rearing, and Migration',9,NA)), 
+                OxygenCode =  ifelse(AquaticLifeUse=='Core Summer Salmonid Habitat',26,
+                                     ifelse(AquaticLifeUse=='Salmonid Spawning, Rearing, and Migration',21,NA)), 
                 small_PS_stream = T, #assume all puget sound small streams
                 period='Monthly'
        )) %>%

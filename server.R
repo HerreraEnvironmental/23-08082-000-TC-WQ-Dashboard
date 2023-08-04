@@ -123,7 +123,7 @@ server<-function(input,output,session){
   #Water Quality Criteria MAP
   
   wqc_map_out<-reactive({
-    wqc_comparison(streams_wq_dat,input)
+    wqc_comparison(streams_wq_dat,streams_sites,input)
     
   })
   
@@ -137,14 +137,14 @@ server<-function(input,output,session){
   
   #Individual  Site Water Quality 
   output$wqc_site<-renderTable({
-    wqc_site(streams_wq_dat,input)
+    wqc_site(streams_wq_dat,streams_sites,input)
   })
   
   dataSubset<-reactive({
     streams_wq_dat %>%
       filter(SITE_CODE==input$main_site&
                parameter==input$trend_parm)%>%
-      mutate(AquaticLifeUse='Core Summer Salmonid Habitat') ### need to pull from lookup table
+      left_join(streams_sites %>% select(SITE_CODE,AquaticLifeUse))
   })
   
   output$data_plot<-renderPlotly({

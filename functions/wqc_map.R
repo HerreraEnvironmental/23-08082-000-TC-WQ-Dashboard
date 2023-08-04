@@ -2,11 +2,11 @@
 #functions to compare to water quality criteria and map results
 #also a summary table
 
-wqc_comparison<-function(streams_wq_dat,input){
+wqc_comparison<-function(streams_wq_dat,streams_sites,input){
   streams_wq_dat %>%
     filter(WaterYear==input$wqc_sum_year&
              parameter %in% c('Water Temperature (°C)','Dissolved Oxygen','pH','E. coli','Fecal Coliform'))%>%
-    mutate(AquaticLifeUse='Core Summer Salmonid Habitat') %>% ### NEED TO UPDATE WITH LOOKUP TABLE
+    left_join(streams_sites %>% select(SITE_CODE,AquaticLifeUse)) %>%
     group_by(SITE_CODE,AquaticLifeUse,parameter) %>%
     nest() %>%
     mutate(WQC_Output=pmap(list(.x=data,parameter=parameter,AquaticLifeUse=AquaticLifeUse),.f=~{
@@ -58,7 +58,7 @@ wqc_map_out %>%
                           title='Legend')
 }
 
-# wqc_map(wqc_map_out = wqc_comparison(streams_wq_dat,input=list(wqc_sum_year=2022)),
+# wqc_map(wqc_map_out = wqc_comparison(streams_wq_dat,stream_sites,input=list(wqc_sum_year=2022)),
 #         stream_sites)
 
 wqc_table<-function(wqc_map_out,input){

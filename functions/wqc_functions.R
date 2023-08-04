@@ -7,7 +7,8 @@ wqc_finder<-function(AquaticLifeUse=c('Char Spawning and Rearing',
                                       'Salmonid Spawning, Rearing, and Migration',
                                       'Salmonid Rearing and Migration Only',
                                       'Nonanadromous Interior Redband Trout',
-                                      'Indigenous Warm Water Species'),Parameter){
+                                      'Indigenous Warm Water Species',
+                                      'Marine'),Parameter){
   AquaticLifeUse<-AquaticLifeUse[1]
   aquatic_life_uses<-tibble(
     AquaticLifeUse=c('Char Spawning and Rearing',
@@ -15,24 +16,28 @@ wqc_finder<-function(AquaticLifeUse=c('Char Spawning and Rearing',
                      'Salmonid Spawning, Rearing, and Migration',
                      'Salmonid Rearing and Migration Only',
                      'Nonanadromous Interior Redband Trout',
-                     'Indigenous Warm Water Species'),
+                     'Indigenous Warm Water Species',
+                     'Marine'),
     Temp_7DADMax_C=c(12,
                      16,
                      17.5,
                      17.5,
                      18,
-                     20),
+                     20,
+                     13),
     DO_DailyMin_mgL=c(10,
                       10,
                       10,
                       6.5,
                       10,
-                      6.5),
+                      6.5,
+                      7),
     DO_Saturation=c(90,
                     95,
                     90,
                     NA,
                     90,
+                    NA,
                     NA),
     Turbidity=NA,
     TotDissolvedGas=110,
@@ -69,7 +74,7 @@ wqc_finder<-function(AquaticLifeUse=c('Char Spawning and Rearing',
 
 wqc_function<-function(AquaticLifeUse=c("Char Spawning and Rearing", "Core Summer Salmonid Habitat", 
                                         "Salmonid Spawning, Rearing, and Migration", "Salmonid Rearing and Migration Only", 
-                                        "Nonanadromous Interior Redband Trout", "Indigenous Warm Water Species"),
+                                        "Nonanadromous Interior Redband Trout", "Indigenous Warm Water Species","Marine"),
                        Month,Parameter,Result){
   AquaticLifeUse<-AquaticLifeUse[1]
   #define look up table for designated aquatic life uses
@@ -78,7 +83,7 @@ wqc_function<-function(AquaticLifeUse=c("Char Spawning and Rearing", "Core Summe
   
   if(!all(AquaticLifeUse %in% c("Char Spawning and Rearing", "Core Summer Salmonid Habitat", 
                                 "Salmonid Spawning, Rearing, and Migration", "Salmonid Rearing and Migration Only", 
-                                "Nonanadromous Interior Redband Trout", "Indigenous Warm Water Species"))) stop('Must select Aquatic Life Use')
+                                "Nonanadromous Interior Redband Trout", "Indigenous Warm Water Species","Marine"))) stop('Must select Aquatic Life Use')
   
   wqc_out<-NA
   

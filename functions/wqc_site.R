@@ -1,10 +1,10 @@
 #compare to water quality criteria for selected site
 
-wqc_site<-function(streams_wq_data,input){
+wqc_site<-function(streams_wq_data,streams_sites,input){
 streams_wq_dat %>%
   filter(SITE_CODE==input$main_site&
            WaterYear==input$data_year) %>%
-  mutate(AquaticLifeUse='Core Summer Salmonid Habitat') %>% ### NEED TO UPDATE WITH LOOKUP TABLE
+  left_join(streams_sites %>% select(SITE_CODE,AquaticLifeUse)) %>%
   filter(parameter %in% c('Water Temperature (°C)','Dissolved Oxygen','pH','E. coli','Fecal Coliform'))%>%
   group_by(AquaticLifeUse,parameter) %>%
   nest() %>%
