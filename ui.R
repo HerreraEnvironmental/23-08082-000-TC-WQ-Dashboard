@@ -144,7 +144,17 @@ ui<-
         tabItem(tabName ='sum_wqi',
                  column(12,h2("Summary of Water Quality Index")),
                  fluidRow(column(8,leafletOutput('wqi_map',height=800,width="100%")),
-                          column(4, 
+                          column(4,
+                                 p("The Water Quality Index (WQI) is a quantitative means
+                               of assessing the relative health of a water body. 
+                               It provides a single number that expresses overall water quality
+                               at a given location and time. Parameters include but are not 
+                               limited to temperature, turbidity, pH, dissolved oxygen, nutrient levels, 
+                               and bioindicators. Each parameter is given a weight based on its 
+                               importance for water quality. The final WQI is calculated by 
+                               aggregating the individual index scores, and the resulting score 
+                               usually falls on a scale from 0 to 100, with higher values indicating 
+                               better water quality."),
                                  selectInput('wqi_sum_year','Select Year to Highlight',years_list),
                                  plotlyOutput('wqi_summary_plot')
                           )),
@@ -208,9 +218,20 @@ ui<-
         ), 
         tabItem(tabName ='wqi',
                  column(12,h2("Water Quality Index"),
+                         p("The Water Quality Index (WQI) is a quantitative means
+                               of assessing the relative health of a water body. 
+                               It provides a single number that expresses overall water quality
+                               at a given location and time. Parameters include but are not 
+                               limited to temperature, turbidity, pH, dissolved oxygen, nutrient levels, 
+                               and bioindicators. Each parameter is given a weight based on its 
+                               importance for water quality. The final WQI is calculated by 
+                               aggregating the individual index scores, and the resulting score 
+                               usually falls on a scale from 0 to 100, with higher values indicating 
+                               better water quality."),
                         a("Return to Map",href="#",onclick='openTab("map")')),
                  fluidRow(column(12,sidebarLayout(
                    sidebarPanel(width=3,
+                               
                                 pickerInput('main_site','Select Site',sites_list),
                                 selectInput('wqi_year','Select Year to Highlight',years_list),
                                 sliderInput('wqi_trend_years','Select Year Range for Trend',value=c(min(years_list),max(years_list)),
