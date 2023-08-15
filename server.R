@@ -167,6 +167,9 @@ server<-function(input,output,session){
     ggplotly(wqi_annual_plot(annual_wqi,input),
              source='wqi_year_select') %>% event_register("plotly_click")
   })
+  output$wqi_trend_text<-renderUI({
+    wqi_trend_text(annual_wqi,input)
+})
   
   output$wqi_monthly<-renderPlotly({
     monthly_wqi_plot(monthly_wqi_by_parameter,input)

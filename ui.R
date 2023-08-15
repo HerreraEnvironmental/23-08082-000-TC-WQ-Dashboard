@@ -241,7 +241,8 @@ ui<-
                    ,
                    mainPanel(width=9,
                              fluidRow(plotlyOutput('wqi_monthly')),
-                             fluidRow(plotlyOutput('wqi_annual'))
+                             fluidRow(plotlyOutput('wqi_annual')),
+                             htmlOutput('wqi_trend_text')
                              
                    ))
                    
