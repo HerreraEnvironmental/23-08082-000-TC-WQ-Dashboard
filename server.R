@@ -1,17 +1,3 @@
-library(dplyr)
-library(lubridate)
-library(ggplot2)
-library(plotly)
-library(shiny)
-library(leaflet)
-library(bslib)
-library(DT)
-library(shinyWidgets)
-library(purrr)
-library(tidyr)
-library(rkt)
-
-
 log10_minor_break = function (...){
   function(x) {
     minx         = floor(min(log10(x), na.rm=T))-1;
@@ -24,7 +10,9 @@ log10_minor_break = function (...){
     return(10^(minor_breaks))
   }
 }
+
 # Data Load ---------------------------------------------------------------
+source('functions/load_packages.R', local=T)
 source('functions/wqc_functions.R',local=T)
 source('functions/site_map.R',local=T)
 source('functions/trend_summary_and_plot.R',local=T)

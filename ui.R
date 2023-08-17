@@ -1,22 +1,4 @@
-library(dplyr)
-library(lubridate)
-library(ggplot2)
-library(plotly)
-library(shiny)
-library(leaflet)
-library(bslib)
-library(DT)
-library(shinyWidgets)
-library(purrr)
-library(tidyr)
-library(rkt)
-library(shinydashboard)
-library(fresh)
-library(shiny.router)
-library(shinyjs)
-library(shinyBS)
-library(rintrojs)
-
+source('functions/load_packages.R', local = T)
 
 # User Interface ----------------------------------------------------------
 sites_list<-readRDS('outputs/sites_list.RDS')
