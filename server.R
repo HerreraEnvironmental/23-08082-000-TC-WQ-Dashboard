@@ -237,6 +237,13 @@ server<-function(input,output,session){
   })
   
   observe({
+    updateSelectInput(session,
+                      'main_site3',
+                      selected = input$main_site
+    )
+  })
+  
+  observe({
     updateSliderInput(session,
                       'trend_years',
                       min=min(dataSubset()$Year),
@@ -252,6 +259,15 @@ server<-function(input,output,session){
                         parm_list %in% (streams_wq_dat %>% filter(SITE_CODE==input$main_site) %>% pull(parameter) %>% unique())]
     )
   })
+  
+  observe({
+    updateSelectInput(session,
+                      'trend_parm2',
+                      choices=parm_list[
+                        parm_list %in% (streams_wq_dat %>% filter(SITE_CODE==input$main_site) %>% pull(parameter) %>% unique())]
+    )
+  })
+  
   observe({
     updateSelectInput(session,
                       'data_year2',
@@ -267,6 +283,7 @@ server<-function(input,output,session){
   })
   
   
+  
   observe({
     updateSelectInput(session,
                       'data_parm',
@@ -274,6 +291,26 @@ server<-function(input,output,session){
                         parm_list %in% (streams_wq_dat %>% filter(SITE_CODE==input$main_site) %>% pull(parameter) %>% unique())]
     )
   })
+  
+  observeEvent(input$data_year, {
+    updateSelectInput(session, "data_year2",
+                      selected = input$data_year)
+  })
+  
+  observeEvent(input$data_year2, {
+    updateSelectInput(session, "data_year",
+                      selected = input$data_year2)
+  })
+  
+  observeEvent(input$trend_parm, {
+    updateSelectInput(session, "trend_parm2",
+                      selected = input$trend_parm)
+  })
+  observeEvent(input$trend_parm2, {
+    updateSelectInput(session, "trend_parm",
+                      selected = input$trend_parm2)
+  })
+  
   # MAP 1 updates all variables
   observeEvent(input$map_marker_click, {
     click <- input$map_marker_click
@@ -323,6 +360,18 @@ server<-function(input,output,session){
                       selected = input$main_site2)
     updateSelectInput(session, "main_site5",
                       selected = input$main_site2)
+  })
+  
+  # Dropdown 3 updates all variables
+  observeEvent(input$main_site3, {
+    updateSelectInput(session, "main_site",
+                      selected = input$main_site3)
+    updateSelectInput(session, "main_site2",
+                      selected = input$main_site3)
+    updateSelectInput(session, "main_site4",
+                      selected = input$main_site3)
+    updateSelectInput(session, "main_site5",
+                      selected = input$main_site3)
   })
   
 }

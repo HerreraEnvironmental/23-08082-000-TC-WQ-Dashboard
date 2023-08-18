@@ -2,6 +2,10 @@
 #Annual plot of summary WQI over time
 #Monthly Plot for a selected year broken out by parameter
 
+
+
+
+
 wqi_annual_plot<-function(annual_wqi,input){
 annual_wqi %>%
   filter(site==input$main_site) %>%
@@ -45,8 +49,10 @@ wqi_trend_text<-function(annual_wqi,input){
 
 monthly_wqi_plot<-function(monthly_wqi_by_parameter,input){
   monthly_wqi_ggplot<-monthly_wqi_by_parameter %>%
-  filter(site==input$main_site&WaterYear==input$wqi_year) %>%
-  tidyr::pivot_longer(cols=c(FC,Oxygen,pH,Temp,Sediment,Nutrient),names_to = 'shortParmName',values_to = 'WQI') %>%
+    filter(site==input$main_site&WaterYear==input$wqi_year) %>%
+  select(site, WaterYear, Month, FC, Oxygen, pH, Temp, Sediment, Nutrient) %>%
+    setNames(c("site", "WaterYear", "Month", "Bacteria", "Oxygen", "pH", "Temperature", "Sediment", "Nutrient")) %>%
+  tidyr::pivot_longer(cols=c(Bacteria,Oxygen,pH,Temperature,Sediment,Nutrient),names_to = 'shortParmName',values_to = 'WQI') %>%
   select(site,WaterYear,Month,shortParmName,WQI) %>%
   mutate(Month=factor(Month,c(10:12,1:9),labels=month.abb[c(10:12,1:9)])) %>%
   #ggplot()+
@@ -55,12 +61,17 @@ monthly_wqi_plot<-function(monthly_wqi_by_parameter,input){
   geom_point(alpha=.5)+
   geom_line(data=filter(monthly_wqi,site==input$main_site&WaterYear==input$wqi_year)%>%
               mutate(Month=factor(Month,c(10:12,1:9),labels=month.abb[c(10:12,1:9)])) ,
-            aes(x=Month,y=WQI),group=1,
-            col='black')+
+            aes(x=Month,y=WQI,
+            group = "Summary Score",
+            col = "Summary Score"),
+            #size = 1,
+            show.legend = T)+
   geom_point(data=filter(monthly_wqi,site==input$main_site&WaterYear==input$wqi_year)%>%
                mutate(Month=factor(Month,c(10:12,1:9),labels=month.abb[c(10:12,1:9)])) ,
-             aes(x=Month,y=WQI),
-             col='black')+
+             aes(x=Month,y=WQI,
+                 col = 'Summary Score'),
+             #size = 1.5,
+             show.legend = T)+
   theme_bw()+
   xlab('Month')+
   scale_y_continuous('Water Quality Index',limits = c(0,100))

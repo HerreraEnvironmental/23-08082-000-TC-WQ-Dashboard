@@ -71,8 +71,11 @@ ui<-
         menuItem(text = "WQI",
                  tabName = "wqi",
                  icon = icon("tint", lib = "glyphicon")),
-        menuItem(text = 'Data Visualization and Trends',
-                 tabName = "all_data",
+        menuItem(text = 'Data Visualization',
+                 tabName = "all_data_viz",
+                 icon = icon("signal", lib = "glyphicon")),
+        menuItem(text = 'Data Trends',
+                 tabName = "all_data_trends",
                  icon = icon("signal", lib = "glyphicon")),
         menuItem(text = 'Data Download',
                  tabName = "data_download",
@@ -250,33 +253,63 @@ ui<-
                  fluidRow(column(12, br()))
         ),
         
-        tabItem(tabName ='all_data',
-                 column(12,h2("All Data Viewer"),
+        tabItem(tabName ='all_data_viz',
+                 column(12,h2("Data Visualization Comparison"),
                         a("Return to Map",href="#",onclick='openTab("map")')),
                  sidebarLayout(
                    sidebarPanel(width = 3,
                                 pickerInput('main_site2','Select Site',sites_list, multiple = F),
                                 selectInput('data_year','Select Year to Highlight',years_list),
-                                selectInput('trend_parm','Select Parameter',parm_list),
-                                sliderInput('trend_years','Select Year Range for Trend',value=c(2000,2020),
-                                            min=2000,max=2020,
-                                            step=1,sep=''),
-                                checkboxInput('rktAuto_oneSite','Correct for Autocorrelation? (requires 10+ years data)?'),
-                                selectInput('rktSeason_oneSite','Select Seasons for Mann-Kendall Test',
-                                            c('All','Winter (Jan-Mar)'='winter','Spring (Apr-Jun)'='spring',
-                                              'Summer (Jul-Sep)'='summer','Fall (Oct-Dec)'='fall')),
+                                selectInput('trend_parm2','Select Parameter',parm_list),
+                                #sliderInput('trend_years','Select Year Range for Trend',value=c(2000,2020),
+                                #            min=2000,max=2020,
+                                #            step=1,sep=''),
+                                #checkboxInput('rktAuto_oneSite','Correct for Autocorrelation? (requires 10+ years data)?'),
+                                #selectInput('rktSeason_oneSite','Select Seasons for Mann-Kendall Test',
+                                #            c('All','Winter (Jan-Mar)'='winter','Spring (Apr-Jun)'='spring',
+                                #              'Summer (Jul-Sep)'='summer','Fall (Oct-Dec)'='fall')),
                                 materialSwitch(inputId = "data_log_scale", label = "Log-scale?", status = "default",value=F),
-                                hr(),
+                                #hr(),
                                 h3('Water Quality Criteria Comparison for Selected Year'),
                                 tableOutput('wqc_site')
                      
                    ),
                    mainPanel(width = 9,
                              plotlyOutput('data_plot'),
-                             plotlyOutput('trend_plot'),
-                             htmlOutput('trend_text')
+                             #plotlyOutput('trend_plot'),
+                             #htmlOutput('trend_text')
                    )),
                  fluidRow(column(12, br()))
+        ),
+        
+        tabItem(tabName ='all_data_trends',
+                column(12,h2("Individual Station Data Trends"),
+                       a("Return to Map",href="#",onclick='openTab("map")')),
+                sidebarLayout(
+                  sidebarPanel(width = 3,
+                               pickerInput('main_site3','Select Site',sites_list, multiple = F),
+                               selectInput('data_year2','Select Year to Highlight',years_list),
+                               selectInput('trend_parm','Select Parameter',parm_list),
+                               sliderInput('trend_years','Select Year Range for Trend',value=c(2000,2020),
+                                           min=2000,max=2020,
+                                           step=1,sep=''),
+                               checkboxInput('rktAuto_oneSite','Correct for Autocorrelation? (requires 10+ years data)?'),
+                               selectInput('rktSeason_oneSite','Select Seasons for Mann-Kendall Test',
+                                           c('All','Winter (Jan-Mar)'='winter','Spring (Apr-Jun)'='spring',
+                                             'Summer (Jul-Sep)'='summer','Fall (Oct-Dec)'='fall')),
+                               materialSwitch(inputId = "data_log_scale2", label = "Log-scale?", status = "default",value=F),
+                              # hr(),
+                              # h3('Water Quality Criteria Comparison for Selected Year')
+                               #,
+                               #tableOutput('wqc_site')
+                               
+                  ),
+                  mainPanel(width = 9,
+                            #plotlyOutput('data_plot'),
+                            plotlyOutput('trend_plot'),
+                            htmlOutput('trend_text')
+                  )),
+                fluidRow(column(12, br()))
         ),
         
         tabItem(tabName = 'data_download',

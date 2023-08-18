@@ -10,7 +10,7 @@ trend_plot<-function(dataSubset,input){
   
   trendplot<-dataSubset %>%
       ggplot(aes(x=DateTime,y=value))+
-      geom_point(data=~filter(.x,WaterYear==input$data_year),col='red',size=4)+
+      geom_point(data=~filter(.x,WaterYear==input$data_year2),col='red',size=4)+
       geom_point()+
       geom_smooth(data=~filter(.x,WaterYear>=input$trend_years[1]&WaterYear<=input$trend_years[2]),se=F)+
       theme_bw()+
@@ -42,7 +42,7 @@ if(input$trend_parm=='E. coli'){
     geom_hline(yintercept = c(100,320))
 }
 
-if(input$data_log_scale){
+if(input$data_log_scale2){
   trendplot<-trendplot+
     scale_y_log10(input$trend_parm,breaks=10^(-4:4),minor_breaks=log10_minor_break())
 }
