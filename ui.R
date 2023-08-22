@@ -272,10 +272,13 @@ ui<-
                      
                    ),
                    mainPanel(width = 9,
-                             plotlyOutput('data_plot'),
-                             plotlyOutput('trend_plot'),
-                             htmlOutput('trend_text')
-                   )),
+                             tabsetPanel(
+                               tabPanel("Data Visualization",
+                                        plotlyOutput('data_plot')),
+                               tabPanel("Data Trends",
+                                          plotlyOutput('trend_plot'),    
+                                          htmlOutput('trend_text'))
+                   ))),
                  fluidRow(column(12, br()))
         ),
         
