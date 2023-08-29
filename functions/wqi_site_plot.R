@@ -2,6 +2,7 @@
 #Annual plot of summary WQI over time
 #Monthly Plot for a selected year broken out by parameter
 
+
 wqi_annual_plot<-function(annual_wqi,input){
 annual_wqi %>%
   filter(site==input$main_site) %>%
@@ -43,27 +44,25 @@ wqi_trend_text<-function(annual_wqi,input){
               wqi_trend_out$slopeStatement))))
   }
 
-monthly_wqi_plot<-function(monthly_wqi_by_parameter,input){
+monthly_wqi_plot<-function(monthly_wqi_by_parameter,monthly_wqi,input){
   monthly_wqi_ggplot<-monthly_wqi_by_parameter %>%
-  filter(site==input$main_site&WaterYear==input$wqi_year) %>%
-  tidyr::pivot_longer(cols=c(FC,Oxygen,pH,Temp,Sediment,Nutrient),names_to = 'shortParmName',values_to = 'WQI') %>%
-  select(site,WaterYear,Month,shortParmName,WQI) %>%
-  mutate(Month=factor(Month,c(10:12,1:9),labels=month.abb[c(10:12,1:9)])) %>%
+    filter(site==input$main_site&WaterYear==input$wqi_year) %>%
+    left_join(monthly_wqi %>% rename(`Summary Score`=WQI)) %>%
+  select(site, WaterYear, Month,`Summary Score`, Bacteria=FC, Oxygen, pH, Temperature=Temp, Sediment, Nutrient) %>%
+  tidyr::pivot_longer(cols=-c(site:Month),names_to = 'Parameter',values_to = 'WQI') %>%
+  select(site,WaterYear,Month,Parameter,WQI) %>%
+  mutate(Parameter=factor(Parameter,levels=c('Summary Score','Temperature','Oxygen','pH','Bacteria',
+                                             'Sediment','Nutrient')),
+         Month=factor(Month,c(10:12,1:9),labels=month.abb[c(10:12,1:9)])) %>%
   #ggplot()+
-  ggplot(aes(x=Month,y=WQI,col=shortParmName))+
-  geom_line(alpha=.5,aes(group=shortParmName))+
-  geom_point(alpha=.5)+
-  geom_line(data=filter(monthly_wqi,site==input$main_site&WaterYear==input$wqi_year)%>%
-              mutate(Month=factor(Month,c(10:12,1:9),labels=month.abb[c(10:12,1:9)])) ,
-            aes(x=Month,y=WQI),group=1,
-            col='black')+
-  geom_point(data=filter(monthly_wqi,site==input$main_site&WaterYear==input$wqi_year)%>%
-               mutate(Month=factor(Month,c(10:12,1:9),labels=month.abb[c(10:12,1:9)])) ,
-             aes(x=Month,y=WQI),
-             col='black')+
+  ggplot(aes(x=Month,y=WQI,col=Parameter))+
+  geom_line(alpha=.75,aes(group=Parameter))+
+  geom_point(alpha=.75)+
   theme_bw()+
   xlab('Month')+
-  scale_y_continuous('Water Quality Index',limits = c(0,100))
+  scale_y_continuous('Water Quality Index',limits = c(0,100))+
+  scale_color_manual(values=c('Summary Score'='black','Temperature'='red','Oxygen'='blue','pH'='yellow',
+                              'Bacteria'='brown','Sediment','rosybrown','Nutrient'='green'))
 ggplotly(monthly_wqi_ggplot) %>%
-  layout(legend=list(title=list(text='')))
+  layout(legend=list(title=list(text='Parameter')))
 }
