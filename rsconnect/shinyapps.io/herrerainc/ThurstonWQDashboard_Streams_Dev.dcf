@@ -5,8 +5,10 @@ account: herrerainc
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 9060286
-bundleId: 7571222
+bundleId: 7622384
 url: https://herrerainc.shinyapps.io/ThurstonWQDashboard_Streams_Dev/
+when: 1693333190.59503
+lastSyncTime: 1693333190.59504
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: data_prep.R|inputs/Herrera All Stream Data Dump 4 12 2023.csv|README.md|wqi_ecology_curves_v6.csv|wqi_function.R
+ignoredFiles: .RData|data_prep.R|inputs/Herrera All Stream Data Dump 4 12 2023.csv|inputs/Stream Use Designations Herrera.xlsx|README.md|wqi_ecology_curves_v6.csv

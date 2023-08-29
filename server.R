@@ -172,7 +172,7 @@ server<-function(input,output,session){
 })
   
   output$wqi_monthly<-renderPlotly({
-    monthly_wqi_plot(monthly_wqi_by_parameter,input)
+    monthly_wqi_plot(monthly_wqi_by_parameter,monthly_wqi,input)
   })
   
   
