@@ -62,7 +62,7 @@ trend_summary_map<-function(trend_summary,stream_sites,input){
                                    Statement,' (p=',round(p,4),')','<br>',
                                    StartYear,' to ', EndYear),
                      layerId= ~SITE_CODE,
-                     label = ~SITE_CODE) %>%
+                     label = ~SITE_NAME) %>%
     addProviderTiles('Esri.NatGeoWorldMap')  %>%
     addLegend(pal=pal_trend,values=factor(c('Decreasing Trend','Test Not Run - insufficient data',
                                                    'No Significant Trend','Increasing Trend')),
