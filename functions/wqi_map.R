@@ -18,7 +18,7 @@ wqi_map<-function(streams_sites,annual_wqi,input){
                                    
                      ),
                      layerId= ~SITE_CODE,
-                     label = ~SITE_CODE) %>%
+                     label = ~SITE_NAME) %>%
     addProviderTiles('Esri.NatGeoWorldMap') %>%
      addLegend(pal=pal,values=factor(c('Good',"Moderate",'Poor'),levels=c('Good',"Moderate",'Poor')),
                title='Water Quality Index Score')

@@ -5,7 +5,8 @@
 wqc_comparison<-function(streams_wq_dat,streams_sites,input){
   streams_wq_dat %>%
     filter(WaterYear==input$wqc_sum_year&
-             parameter %in% c('Water Temperature (°C)','Dissolved Oxygen','pH','E. coli','Fecal Coliform'))%>%
+             parameter %in% c('Water Temperature (°C)','Dissolved Oxygen',
+                              'pH','E. coli','Fecal Coliform'))%>%
     left_join(streams_sites %>% select(SITE_CODE,AquaticLifeUse)) %>%
     group_by(SITE_CODE,AquaticLifeUse,parameter) %>%
     nest() %>%
@@ -51,7 +52,7 @@ wqc_map_out %>%
                                  SITE_CODE,'<br>',
                                  Text),
                    layerId= ~SITE_CODE,
-                   label = ~SITE_CODE) %>%
+                   label = ~SITE_NAME) %>%
   addProviderTiles('Esri.NatGeoWorldMap') %>%
   addLegend(pal=pal_WQC,
             values=factor(c('Violation(s)',"No Violation",'Not Measured'),levels=c('Violation(s)',"No Violation",'Not Measured')),
