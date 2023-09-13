@@ -188,7 +188,7 @@ server<-function(input,output,session){
   dataout_data<-reactive({
     streams_wq_dat %>%
       filter(SITE_CODE %in% input$main_site4&
-               parameter==input$params_out&
+               parameter %in% input$params_out&
                WaterYear>=input$years_out[1]&WaterYear<=input$years_out[2])%>% 
       select(SITE_CODE,SITE_NAME,DateTime,parameter,value,unit,mdl)
   })
@@ -201,7 +201,7 @@ server<-function(input,output,session){
                 options = list(
                   scrollX = TRUE,
                   dom = 't',
-                  autoWidth = TRUE
+                  autoWidth = F
                 ),
                 rownames= FALSE)
     }
