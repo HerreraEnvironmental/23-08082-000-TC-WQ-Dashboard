@@ -287,18 +287,22 @@ ui<-
                         a("Return to Map",href="#",onclick='openTab("map")')),
                  sidebarLayout(
                    sidebarPanel(width = 3,
-                                pickerInput('main_site4','Select Site to Download',sites_list, multiple = T,
-                                            options = pickerOptions(
-                                              actionsBox = TRUE, 
-                                              size = 10,
-                                              selectedTextFormat = "count > 3"
-                                            )),
-                                pickerInput('params_out', "Select Parameter(s)", parm_list,selected=parm_list, multiple = TRUE,
-                                            options = pickerOptions(
-                                              actionsBox = TRUE, 
-                                              size = 10,
-                                              selectedTextFormat = "count > 3"
-                                            )),
+                                virtualSelectInput('main_site4','Select Site to Download',sites_list, 
+                                                   multiple = T,search=T
+                                            # options = list(
+                                            #   actionsBox = TRUE, 
+                                            #   size = 10,
+                                            #   selectedTextFormat = "count > 3"
+                                            #)
+                                ),
+                                virtualSelectInput('params_out', "Select Parameter(s)", parm_list,selected=parm_list, 
+                                                   multiple = TRUE,search=T
+                                            # options = list(
+                                            #   actionsBox = TRUE, 
+                                            #   size = 10,
+                                            #   selectedTextFormat = "count > 3"
+                                            # )
+                                            ),
                                 sliderInput('years_out','Select Year Range for Download', 
                                             value=c(min(years_list),max(years_list)),
                                             min=min(years_list),max=max(years_list),
@@ -311,6 +315,10 @@ ui<-
                              DTOutput('data_view_table')
                    )),
                  fluidRow(column(12, br()))
+        ),
+        tabItem(tabName = 'disclaimer',
+                h2("Disclaimer"),
+                p(readLines('disclaimer.txt'))
         )
       ),
       tags$head(tags$style(HTML('* {font-family: "Helvetica Neue",Helvetica,Arial,sans-serif};')))

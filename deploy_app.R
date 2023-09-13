@@ -5,6 +5,7 @@ source('data_prep.R')
 
 rsconnect::deployApp(appFiles = c('ui.R',
                                   'server.R',
+                                  'disclaimer.txt',
                                   'functions/',
                                   'outputs/',
                                   'wqi_function.R',

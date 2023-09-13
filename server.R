@@ -99,8 +99,8 @@ server<-function(input,output,session){
   observeEvent(input$trend_summary_map_marker_click, {
     p <- input$trend_summary_map_marker_click
     if(!is.null(p$id)){
-    updateSelectInput(session, "trend_summary_site", 
-                      selected =p$id)
+      updateSelectInput(session, "trend_summary_site", 
+                        selected =p$id)
     }
   })
   
@@ -159,17 +159,31 @@ server<-function(input,output,session){
     trend_text(dataSubset(),input)
   })
   
-
+  
   
   #Individual WQI Plot
-
+  
   output$wqi_annual<-renderPlotly({
     ggplotly(wqi_annual_plot(annual_wqi,input),
              source='wqi_year_select') %>% event_register("plotly_click")
   })
   output$wqi_trend_text<-renderUI({
     wqi_trend_text(annual_wqi,input)
-})
+  })
+  
+  wqi_data_present <- reactive({
+    data_missing_test <- monthly_wqi_by_parameter %>%
+      filter(WaterYear == input$wqi_year)
+    input$wqi_year %in% data_missing_test$WaterYear & input$main_site %in% data_missing_test$site == TRUE
+  })
+  
+  output$data_missing_message <- renderUI({
+    if (wqi_data_present()) {
+      NULL
+    } else {
+      h4("There is not enough data to display the monthly WQI. Please adjust your selection to display the data.")
+    }
+  })
   
   output$wqi_monthly<-renderPlotly({
     monthly_wqi_plot(monthly_wqi_by_parameter,monthly_wqi,input)
@@ -188,7 +202,7 @@ server<-function(input,output,session){
   dataout_data<-reactive({
     streams_wq_dat %>%
       filter(SITE_CODE %in% input$main_site4&
-               parameter==input$params_out&
+               parameter %in% input$params_out&
                WaterYear>=input$years_out[1]&WaterYear<=input$years_out[2])%>% 
       select(SITE_CODE,SITE_NAME,DateTime,parameter,value,unit,mdl)
   })
@@ -201,7 +215,7 @@ server<-function(input,output,session){
                 options = list(
                   scrollX = TRUE,
                   dom = 't',
-                  autoWidth = TRUE
+                  autoWidth = F
                 ),
                 rownames= FALSE)
     }
