@@ -1,7 +1,10 @@
 library(dplyr)
 library(lubridate)
-
 library(ggplot2)
+
+## TODO
+# Did not check for new sites
+# Did not do any serious error checking or mistakes in the new data
 
 #streams data prep
 ##develop a lookup table for sites
@@ -15,20 +18,17 @@ stream_use_designations<-readxl::read_xlsx('inputs/Stream Use Designations Herre
                                      T ~ 'ERROR')) %>%
   filter(!is.na(SITE_CODE))
 
-
 streams_sites<-read.csv('inputs/Herrera All Stream Data Dump 4 12 2023.csv') %>%
   select(gid,SITE_CODE,SITE_NAME,Metro_ID,LAT,LON)%>%
   distinct() %>%
   arrange(SITE_NAME) %>%
   left_join(stream_use_designations)
 
-
-
 saveRDS(streams_sites,'outputs/streams_sites.RDS')
 
 
 streams_wq_dat<-read.csv('inputs/Herrera All Stream Data Dump 4 12 2023.csv') %>%
-  tibble()%>%
+  tibble() %>%
   mutate(DateTime=with_tz(as_datetime(date_time,format='%m/%d/%Y %H:%M',tz='UTC')+hours(sample_utc_offset),
                           tz='America/Los_Angeles')) %>%
   select(SITE_CODE,DateTime,parameter,value,unit,depth_m,dup,mdl,pql,qualifier) %>%
@@ -42,8 +42,32 @@ streams_wq_dat<-read.csv('inputs/Herrera All Stream Data Dump 4 12 2023.csv') %>
          WaterYear=ifelse(Month>=10,Year+1,Year),
          FakeDate=as.Date(paste(2000,Month,day(DateTime),sep='-')),
          WY_FakeDate=as.Date(if_else(Month>=10,FakeDate-years(1),FakeDate)))
-
 streams_wq_dat["parameter"][streams_wq_dat["parameter"] == "Temperature, water"] <- "Water Temperature (°C)"
+
+### TODO: RML Edits
+## Here is the new data that needs to be joined
+wqp_data <- read.csv("wqp_data.csv") %>%
+  tibble() %>%
+  mutate(sample_utc_offset = ifelse(dst(date_time), 7, 8)) %>%
+  mutate(DateTime=with_tz(as_datetime(date_time, tz='UTC')+hours(sample_utc_offset),
+                          tz='America/Los_Angeles')) %>%
+  mutate(unit=trimws(unit),
+         qualifier=trimws(qualifier),
+         nonDetectFlag=grepl('U',qualifier),
+         newResultValue=ifelse(nonDetectFlag,pql,value),
+         newResultValue=ifelse(parameter=='Turbidity'&newResultValue<=0,0.01,newResultValue),
+         Year=year(DateTime),
+         Month=month(DateTime),
+         WaterYear=ifelse(Month>=10,Year+1,Year),
+         FakeDate=as.Date(paste(2000,Month,day(DateTime),sep='-')),
+         WY_FakeDate=as.Date(if_else(Month>=10,FakeDate-years(1),FakeDate))) %>%
+  select(gid, SITE_CODE, SITE_NAME, Metro_ID, LAT, LON, DateTime, sample_utc_offset,
+         value, unit, parameter, method, mdl, pql, matrix, lab_batch, qualifier,
+         dup, depth_m) %>%
+  mutate(dup = if_else(dup == "Sample-Routine", 0, 1))
+
+streams_wq_dat <- streams_wq_dat %>%
+  left_join(wqp_data)
 
 saveRDS(streams_wq_dat,'outputs/streams_wq_dat.RDS')
 
