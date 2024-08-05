@@ -51,6 +51,7 @@ wqp_data <- read.csv("wqp_data.csv") %>%
   mutate(sample_utc_offset = ifelse(dst(date_time), 7, 8)) %>%
   mutate(DateTime=with_tz(as_datetime(date_time, tz='UTC')+hours(sample_utc_offset),
                           tz='America/Los_Angeles')) %>%
+  mutate(SITE_CODE = ) %>%
   mutate(unit=trimws(unit),
          qualifier=trimws(qualifier),
          nonDetectFlag=grepl('U',qualifier),
@@ -61,13 +62,24 @@ wqp_data <- read.csv("wqp_data.csv") %>%
          WaterYear=ifelse(Month>=10,Year+1,Year),
          FakeDate=as.Date(paste(2000,Month,day(DateTime),sep='-')),
          WY_FakeDate=as.Date(if_else(Month>=10,FakeDate-years(1),FakeDate))) %>%
-  select(gid, SITE_CODE, SITE_NAME, Metro_ID, LAT, LON, DateTime, sample_utc_offset,
-         value, unit, parameter, method, mdl, pql, matrix, lab_batch, qualifier,
-         dup, depth_m) %>%
-  mutate(dup = if_else(dup == "Sample-Routine", 0, 1))
+  select(SITE_CODE, DateTime, parameter, value, unit, depth_m, dup, mdl, pql,
+         qualifier, nonDetectFlag, newResultValue, Year, Month, WaterYear, FakeDate,
+         WY_FakeDate) %>%
+  mutate(dup = if_else(dup == "Sample-Routine", 0, 1)) %>%
+  mutate(
+    parameter = case_when(
+      parameter == "Phosphorus" ~ "Total Phosphorus",
+      parameter == "Nitrate + Nitrite" ~ "Nitrate-Nitrate as N"
+    )
+  )
 
-streams_wq_dat <- streams_wq_dat %>%
-  left_join(wqp_data)
+  
+  
+t <- streams_wq_dat %>% cbind(wqp_data)
+  
+## TODO test
+streams_wq_dat2 <- streams_wq_dat %>%
+  left_join(wqp_data, by = C("SITE_CODE"))
 
 saveRDS(streams_wq_dat,'outputs/streams_wq_dat.RDS')
 
@@ -126,7 +138,7 @@ annual_wqi<-streams_wq_dat %>%
                 TemperatureCode = ifelse(AquaticLifeUse=='Core Summer Salmonid Habitat',8,
                                          ifelse(AquaticLifeUse=='Salmonid Spawning, Rearing, and Migration',9,NA)), 
                 OxygenCode =  ifelse(AquaticLifeUse=='Core Summer Salmonid Habitat',26,
-                                         ifelse(AquaticLifeUse=='Salmonid Spawning, Rearing, and Migration',21,NA)), 
+                                     ifelse(AquaticLifeUse=='Salmonid Spawning, Rearing, and Migration',21,NA)), 
                 small_PS_stream = T #assume all puget sound small streams
        ))
 saveRDS(annual_wqi,'outputs/annual_wqi.RDS')
