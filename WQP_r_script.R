@@ -38,6 +38,8 @@ wqp_data <- readWQPdata(
   siteid = thurston_stream_sites_ids
 )
 
+unique(wqp_data$CharacteristicName)
+
 # Fetch other meta data from thurston_stream_sites to combine with hec_data
 gid_ref <- thurston_stream_sites %>%
   select(c(MonitoringLocationIdentifier,
@@ -74,6 +76,8 @@ hec_data <- wqp_data %>%
 # Merging hec_data with gid_ref
 
 hec_data_merged <- merge(hec_data, gid_ref, by = "MonitoringLocationIdentifier")
+
+unique(hec_data_merged$CharacteristicName)
 
 # Cleaning of hec_data_merged dataframe
 
@@ -133,7 +137,11 @@ colnames(hec_final) <- c("SITE_CODE",
                          "lab_batch",
                          "depth_m")
 
+
+hec_final$date_time <- str_replace(hec_final$date_time, "NA", "00:00:00")
+
 hec_final$date_time <- ymd_hms(hec_final$date_time)
+
 hec_final <- hec_final[!is.na(hec_final$date_time),]
 
 
