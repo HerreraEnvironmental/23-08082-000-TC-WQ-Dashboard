@@ -3,19 +3,7 @@ library(lubridate)
 library(ggplot2)
 
 
-#streams data prep
-##develop a lookup table for sites
-##check for flags
-
-## TODO:
-# - wqp data came with an empty utc_offset column; was that intentional?
-# - Definitely check the time zones for the DateTime column
-# - Many to many joins are not usually ideal; they are present in the original script
-#   but it should be checked. 
-
-## Replacing the original data with new data
-wqp_data <- read.csv("wqp_data.csv") %>%
-  filter(parameter != "Depth to water from rim of well casing")
+## This is the original script
 
 stream_use_designations<-readxl::read_xlsx('inputs/Stream Use Designations Herrera.xlsx') %>%
   transmute(SITE_CODE=`Site Code`,
@@ -25,15 +13,7 @@ stream_use_designations<-readxl::read_xlsx('inputs/Stream Use Designations Herre
                                      T ~ 'ERROR')) %>%
   filter(!is.na(SITE_CODE))
 
-## Original
-# streams_sites<-read.csv('inputs/Herrera All Stream Data Dump 4 12 2023.csv') %>%
-#   select(gid,SITE_CODE,SITE_NAME,Metro_ID,LAT,LON)%>%
-#   distinct() %>%
-#   arrange(SITE_NAME) %>%
-#   left_join(stream_use_designations)
-
-## Using wqp data
-streams_sites<-wqp_data %>%
+streams_sites<-read.csv('inputs/Herrera All Stream Data Dump 4 12 2023.csv') %>%
   select(gid,SITE_CODE,SITE_NAME,Metro_ID,LAT,LON)%>%
   distinct() %>%
   arrange(SITE_NAME) %>%
@@ -42,29 +22,10 @@ streams_sites<-wqp_data %>%
 saveRDS(streams_sites,'outputs/streams_sites.RDS')
 
 ## Original
-# streams_wq_dat<-read.csv('inputs/Herrera All Stream Data Dump 4 12 2023.csv') %>%
-#   tibble() %>%
-#   mutate(DateTime=with_tz(as_datetime(date_time,format='%m/%d/%Y %H:%M',tz='UTC')+hours(sample_utc_offset),
-#                           tz='America/Los_Angeles')) %>%
-#   select(SITE_CODE,DateTime,parameter,value,unit,depth_m,dup,mdl,pql,qualifier) %>%
-#   mutate(unit=trimws(unit),
-#          qualifier=trimws(qualifier),
-#          nonDetectFlag=grepl('U',qualifier),
-#          newResultValue=ifelse(nonDetectFlag,pql,value),
-#          newResultValue=ifelse(parameter=='Turbidity'&newResultValue<=0,0.01,newResultValue),
-#          Year=year(DateTime),
-#          Month=month(DateTime),
-#          WaterYear=ifelse(Month>=10,Year+1,Year),
-#          FakeDate=as.Date(paste(2000,Month,day(DateTime),sep='-')),
-#          WY_FakeDate=as.Date(if_else(Month>=10,FakeDate-years(1),FakeDate)))
-# streams_wq_dat["parameter"][streams_wq_dat["parameter"] == "Temperature, water"] <- "Water Temperature (°C)"
-
-## WQP data
-streams_wq_dat <- wqp_data %>%
+streams_wq_dat<-read.csv('inputs/Herrera All Stream Data Dump 4 12 2023.csv') %>%
   tibble() %>%
-  mutate(sample_utc_offset = ifelse(dst(date_time), 7, 8)) %>%
-  mutate(DateTime = with_tz(as_datetime(date_time, tz = "UTC") + hours(sample_utc_offset),
-         tz = "America/Los_Angeles")) %>%
+  mutate(DateTime=with_tz(as_datetime(date_time,format='%m/%d/%Y %H:%M',tz='UTC')+hours(sample_utc_offset),
+                          tz='America/Los_Angeles')) %>%
   select(SITE_CODE,DateTime,parameter,value,unit,depth_m,dup,mdl,pql,qualifier) %>%
   mutate(unit=trimws(unit),
          qualifier=trimws(qualifier),
