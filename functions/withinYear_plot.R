@@ -2,6 +2,7 @@
 
 withinYear_plot<-function(dataSubset,input){
   dataplot<-dataSubset %>%
+    arrange(WY_FakeDate) %>%
     ggplot(aes(x=WY_FakeDate,y=value,group=WaterYear))+
     geom_point(alpha=.2,
                aes(text=paste0('Date: ',as.Date(DateTime),'\n',
