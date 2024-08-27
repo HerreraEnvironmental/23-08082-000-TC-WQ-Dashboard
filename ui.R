@@ -240,9 +240,8 @@ ui<-
                    )
                    ,
                    mainPanel(width=9,
-                             p("TODO: TEST1"),
+                             uiOutput("data_missing_message"),
                              fluidRow(plotlyOutput('wqi_monthly')),
-                             p("TODO: test"),
                              fluidRow(plotlyOutput('wqi_annual')),
                              htmlOutput('wqi_trend_text')
                              
