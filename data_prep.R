@@ -40,6 +40,7 @@ streams_sites<-wqp_data %>%
   left_join(stream_use_designations)
 
 saveRDS(streams_sites,'outputs/streams_sites.RDS')
+write.csv(streams_sites, 'outputs/streams_sites.csv', row.names = F)
 
 ## Original
 # streams_wq_dat<-read.csv('inputs/Herrera All Stream Data Dump 4 12 2023.csv') %>%
