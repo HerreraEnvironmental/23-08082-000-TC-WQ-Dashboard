@@ -48,12 +48,13 @@ monthly_wqi_plot<-function(monthly_wqi_by_parameter,monthly_wqi,input){
   monthly_wqi_ggplot<-monthly_wqi_by_parameter %>%
     filter(site==input$main_site&WaterYear==input$wqi_year) %>%
     left_join(monthly_wqi %>% rename(`Summary Score`=WQI)) %>%
-  select(site, WaterYear, Month,`Summary Score`, Bacteria=FC, Oxygen, pH, Temperature=Temp, Sediment, Nutrient) %>%
+  #select(site, WaterYear, Month,`Summary Score`, Bacteria=FC, Oxygen, pH, Temperature=Temp, Sediment, Nutrient) %>%
   tidyr::pivot_longer(cols=-c(site:Month),names_to = 'Parameter',values_to = 'WQI') %>%
   select(site,WaterYear,Month,Parameter,WQI) %>%
   mutate(Parameter=factor(Parameter,levels=c('Summary Score','Temperature','Oxygen','pH','Bacteria',
                                              'Sediment','Nutrient')),
          Month=factor(Month,c(10:12,1:9),labels=month.abb[c(10:12,1:9)])) %>%
+    filter(!is.na(Parameter)) %>%
   #ggplot()+
   ggplot(aes(x=Month,y=WQI,col=Parameter))+
   geom_line(alpha=.75,aes(group=Parameter))+
