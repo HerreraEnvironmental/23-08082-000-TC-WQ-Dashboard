@@ -7,6 +7,7 @@ wqi_map<-function(streams_sites,annual_wqi,input){
   streams_sites %>%
     left_join(annual_wqi %>%filter(WaterYear==input$wqi_sum_year),by=c('SITE_CODE'='site')) %>%
     mutate(Category=ifelse(WQI>=80,'Good',ifelse(WQI>=40,"Moderate",'Poor'))) %>%
+    filter(!is.na(WQI)) %>%
     leaflet() %>%
     addCircleMarkers(fillColor = ~pal(Category),fillOpacity = 0.9,weight=1,
                      color='black',
