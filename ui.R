@@ -155,7 +155,7 @@ ui<-
                                aggregating the individual index scores, and the resulting score 
                                usually falls on a scale from 0 to 100, with higher values indicating 
                                better water quality."),
-                                 selectInput('wqi_sum_year','Select Year to Highlight',years_list),
+                                 selectInput('wqi_sum_year','Select Year to Highlight', rev(sort(unique(annual_wqi$WaterYear)))),
                                  plotlyOutput('wqi_summary_plot')
                           )),
                  fluidRow(column(12, br()))
@@ -167,7 +167,7 @@ ui<-
                                  p('The map to the left displays if a water quality montitoring site had an ',
                                           'exceedance for any water quality criteria during the highlighted year.',br(),
                                           'You may also select an individual parameter for comparison below'),
-                                 selectInput('wqc_sum_year','Select Year to Highlight',years_list),
+                                 selectInput('wqc_sum_year','Select Year to Highlight', years_list),
                                  selectInput('wqc_sum_parm','Select All or Individual Parameters for Mapping',
                                              c('All','Water Temperature (°C)','Dissolved Oxygen','pH','E. coli','Fecal Coliform')),
                                  p(paste0('The table below summarizes the number of sites with a violation for each of',
@@ -240,6 +240,7 @@ ui<-
                    )
                    ,
                    mainPanel(width=9,
+                             uiOutput("data_missing_message"),
                              fluidRow(plotlyOutput('wqi_monthly')),
                              fluidRow(plotlyOutput('wqi_annual')),
                              htmlOutput('wqi_trend_text')
