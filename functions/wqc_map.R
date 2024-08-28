@@ -60,18 +60,30 @@ wqc_map<-function(wqc_map_out,stream_sites,input){
     addLegend(pal=pal_WQC,
               values=factor(c('Violation(s)',"No Violation",'Not Measured'),levels=c('Violation(s)',"No Violation",'Not Measured')),
               title='Legend')
+  
 }
 
 # wqc_map(wqc_map_out = wqc_comparison(streams_wq_dat,stream_sites,input=list(wqc_sum_year=2022)),
 #         stream_sites)
 
 wqc_table<-function(wqc_map_out,input){
-  wqc_map_out %>%
-    mutate(parameter=factor(parameter,levels=c('Water Temperature (°C)','Dissolved Oxygen','pH','E. coli','Fecal Coliform'))) %>%
-    group_by(parameter) %>%
-    summarise(`Number of Sites with Violations`=length(which(nViolation>0)),
-              `Number of Site Monitored`=length(nViolation)) %>%
-    complete(parameter,fill=list(`Number of Sites with Violations`=NA,`Number of Site Monitored`=0))
+  if("nViolation" %in% colnames(wqc_map_out)) {
+    wqc_map_out %>%
+      mutate(parameter=factor(parameter,levels=c('Water Temperature (°C)','Dissolved Oxygen','pH','E. coli','Fecal Coliform'))) %>%
+      group_by(parameter) %>%
+      summarise(`Number of Sites with Violations`=length(which(nViolation>0)),
+                `Number of Site Monitored`=length(nViolation)) %>%
+      complete(parameter,fill=list(`Number of Sites with Violations`=NA,`Number of Site Monitored`=0))
+  } else {
+    wqc_map_out %>%
+      mutate(nViolation = NA) %>%
+      mutate(parameter=factor(parameter,levels=c('Water Temperature (°C)','Dissolved Oxygen','pH','E. coli','Fecal Coliform'))) %>%
+      group_by(parameter) %>%
+      summarise(`Number of Sites with Violations`=length(which(nViolation>0)),
+                `Number of Site Monitored`=length(nViolation)) %>%
+      complete(parameter,fill=list(`Number of Sites with Violations`=NA,`Number of Site Monitored`=0))
+  }
+
 }
 
 #wqc_table(wqc_map_out = wqc_comparison(streams_wq_dat,input=list(wqc_sum_year=2022)))
