@@ -11,20 +11,20 @@ STREAM_SITE_TYPES <- c("Other-Surface Water", "River/Stream", "Pipe, Unspecified
 # Fetch all sites in Thurston County
 # Result will contain sites that are not owned by Thurston County Gov but adding more filter params here do not work
 
-all_county_sites <- whatWQPsites(
-  countycode = WQP_COUNTY_CODE
-)
+# all_county_sites <- whatWQPsites(
+#   countycode = WQP_COUNTY_CODE
+# )
 
 # Filter list for:
 #   Thurston County owned sites
 #   Sites that capture stream data
+# add filter for only routine stream sites
 
-thurston_stream_sites <- all_county_sites %>%
-  filter(
-    OrganizationIdentifier == WQP_ORG_ID,
-    MonitoringLocationTypeName %in% STREAM_SITE_TYPES,
-    !is.na(MonitoringLocationDescriptionText)
-  )
+
+
+thurston_stream_sites <- readWQPdata(organization='THURSTONCOUNTY',
+                                     service='Station',
+                                     Project='Ambient_Water_Quality_Streams')
 
 # Select only the site ids to be used in next data fetch
 # This list of ids will likely not change very often so the previous steps may not be necessary each time only to update site id list

@@ -1,95 +1,22 @@
 "gid","SITE_CODE","SITE_NAME","Metro_ID","LAT","LON","AquaticLifeUse"
-1373,"Cougar_Mountain_Water_System_Spring","15150_01_SPRING","Cougar_Mountain_Water_System_Spring",46.828709,-122.546745,NA
 1202,"EH-BUDAD0000","Adams Creek South Fork @ Boston Harbor Road NE","EH-BUDAD0000",47.09789,-122.88697,NA
 1140,"EH-DESAY0400","Ayer (Elwanger) Creek @ near Sienna Dr SE","EH-DESAY0400",46.9741,-122.86115,NA
 1141,"EH-BLABE0700","Beaver Creek @ Littlerock Road SW","EH-BLABE0700",46.89754,-123.02002,"Salmonid Spawning, Rearing, and Migration"
 1142,"EH-BUDBD0000","Black Lake Ditch @  RW Johnson Blvd SW","EH-BUDBD0000",47.0273,-122.93936,"Salmonid Spawning, Rearing, and Migration"
 987,"Black River @ 128th Ave. SW (45b)","Black River @ 128th Ave SW 45b_gage","Black River @ 128th Ave. SW (45b)",46.90176,-123.02375,NA
+1143,"EH-BLABL0000","Black River @ Howanut Road","EH-BLABL0000",46.8217,-123.20855,NA
 1787,"EH-BLABL0020","Black River @ Johnsons dock nr fmr  Trestle Bridge Holm-Laymon Roads SW","EH-BLABL0020",46.83644,-123.12426,NA
 1144,"EH-BLABL0010","Black River @ Moon Road","EH-BLABL0010",46.83903,-123.13921,"Salmonid Spawning, Rearing, and Migration"
 1236,"EH-BLABL0040","Black River @ Shaner Creek mouth nr Canoe Club","EH-BLABL0040",46.85865,-123.03956,NA
 1194,"EH-BLABL0030","Black River RM 10.7 @ Swecker Salmon Farm Dock nr Wheat Street SW","EH-BLABL0030",46.84218,-123.10441,NA
-NA,"GAGE0306","Black River at  123rd Ave SW","GAGE0306",46.9091472,-123.0198984,NA
 1145,"EH-BLABM0910","Blooms Ditch @ 110th Ave SW","EH-BLABM0910",46.92797,-123.0005,"Salmonid Spawning, Rearing, and Migration"
 1139,"EH-TOTBU0010","Burns Creek @ Ellison Loop NW","EH-TOTBU0010",47.10797,-123.04776,NA
 1237,"EH-TOTBU0000","Burns Creek mouth @ Totten Inlet","EH-TOTBU0000",47.10784,-123.0469,NA
 1137,"EH-BUDBU0000","Butler Creek @ French Loop Road NW","EH-BUDBU0000",47.07856,-122.93869,NA
+1146,"EH-BUDCAL010","Capitol Lake @ Marathon Park Railroad Bridge","EH-BUDCAL010",47.03747,-122.90937,NA
 1147,"EH-DESCH0300","Chambers Creek @ End of 58th Ave SE","EH-DESCH0300",46.99604,-122.87791,"Salmonid Spawning, Rearing, and Migration"
 1148,"EH-CHECH0010","Chehalis River @ Independence Road SW","EH-CHECH0010",46.80704,-123.11949,"Salmonid Spawning, Rearing, and Migration"
 1234,"EH-CHECH0040","Chehalis River @ Prather Road SW","EH-CHECH0040",46.77542,-123.03561,NA
-2091,"Station_132_DOH","DOH_132_Totten Inlet","Station_132_DOH",47.1396,-122.98089,NA
-2092,"Station_133_DOH","DOH_133_Totten Inlet","Station_133_DOH",47.14937,-122.98382,NA
-2093,"Station_134_DOH","DOH_134_Totten Inlet","Station_134_DOH",47.13067,-123.00518,NA
-2094,"Station_135_DOH","DOH_135_Totten Inlet","Station_135_DOH",47.11197,-123.02418,NA
-2095,"Station_136_DOH","DOH_136_Totten Inlet","Station_136_DOH",47.11045,-123.04139,NA
-2096,"Station_137_DOH","DOH_137_Totten Inlet","Station_137_DOH",47.11094,-123.05039,NA
-2107,"Station_148_DOH","DOH_148_Totten Inlet","Station_148_DOH",47.14371,-123.00354,NA
-2207,"Station_151_DOH","DOH_151_Totten Inlet","Station_151_DOH",47.12046,-123.01304,NA
-2109,"Station_159_DOH","DOH_159_Eld Inlet","Station_159_DOH",47.05744,-123.00101,NA
-2110,"Station_160_DOH","DOH_160_Eld Inlet","Station_160_DOH",47.06159,-123.01037,NA
-2111,"Station_161_DOH","DOH_161_Eld Inlet","Station_161_DOH",47.06413,-123.01058,NA
-2112,"Station_162_DOH","DOH_162_Eld Inlet","Station_162_DOH",47.06916,-123.01494,NA
-2113,"Station_163_DOH","DOH_163_Eld Inlet","Station_163_DOH",47.06642,-123.0088,NA
-2114,"Station_164_DOH","DOH_164_Eld Inlet","Station_164_DOH",47.07331,-123.01101,NA
-2209,"Station_165_DOH","DOH_165_Eld Inlet","Station_165_DOH",47.07677,-123.01344,NA
-2115,"Station_166_DOH","DOH_166_Eld Inlet","Station_166_DOH",47.07404,-123.0068,NA
-2210,"Station_167_DOH","DOH_167_Eld Inlet","Station_167_DOH",47.08293,-123.00258,NA
-2116,"Station_168_DOH","DOH_168_Eld Inlet","Station_168_DOH",47.08268,-122.99065,NA
-2117,"Station_169_DOH","DOH_169_Eld Inlet","Station_169_DOH",47.07712,-122.99665,NA
-2118,"Station_170_DOH","DOH_170_Eld Inlet","Station_170_DOH",47.08683,-122.97373,NA
-2119,"Station_171_DOH","DOH_171_Eld Inlet","Station_171_DOH",47.103,-122.98237,NA
-2120,"Station_172_DOH","DOH_172_Eld Inlet","Station_172_DOH",47.09865,-122.95115,NA
-2121,"Station_173_DOH","DOH_173_Eld Inlet","Station_173_DOH",47.10623,-122.95624,NA
-2208,"Station_174_DOH","DOH_174_Eld Inlet","Station_174_DOH",47.11087,-122.93781,NA
-2122,"Station_175_DOH","DOH_175_Eld Inlet","Station_175_DOH",47.11453,-122.96352,NA
-2123,"Station_176_DOH","DOH_176_Eld Inlet","Station_176_DOH",47.12791,-122.94231,NA
-2124,"Station_177_DOH","DOH_177_Eld Inlet","Station_177_DOH",47.1388,-122.93281,NA
-2125,"Station_178_DOH","DOH_178_Eld Inlet","Station_178_DOH",47.13455,-122.95695,NA
-2126,"Station_179_DOH","DOH_179_Eld Inlet","Station_179_DOH",47.14851,-122.93624,NA
-2127,"Station_180_DOH","DOH_180_Eld Inlet","Station_180_DOH",47.12498,-122.96266,NA
-2206,"Station_181_DOH","DOH_181_Eld Inlet","Station_181_DOH",47.17268,-122.91809,NA
-2184,"Station_182_DOH","DOH_182_Eld Inlet","Station_182_DOH",47.15696,-122.92431,NA
-2128,"Station_183_DOH","DOH_183_Budd Inlet","Station_183_DOH",47.13091,-122.90546,NA
-2176,"Station_185_DOH","DOH_185_Henderson Inlet","Station_185_DOH",47.10258,-122.82629,NA
-2177,"Station_186_DOH","DOH_186_Henderson Inlet","Station_186_DOH",47.10741,-122.82593,NA
-2174,"Station_187_DOH","DOH_187_Henderson Inlet","Station_187_DOH",47.1109,-122.82827,NA
-2175,"Station_188_DOH","DOH_188_Henderson Inlet","Station_188_DOH",47.11335,-122.8256,NA
-2179,"Station_189_DOH","DOH_189_Henderson Inlet","Station_189_DOH",47.11455,-122.82782,NA
-2182,"Station_242_DOH","DOH_242_Nisqually Reach","Station_242_DOH",47.12112,-122.75572,NA
-2180,"Station_243_DOH","DOH_243_Nisqually Reach","Station_243_DOH",47.11804,-122.74443,NA
-2201,"Station_245_DOH","DOH_245_Nisqually Reach","Station_245_DOH",47.11301,-122.71407,NA
-2136,"Station_246_DOH","DOH_246_Nisqually Reach","Station_246_DOH",47.11228,-122.69815,NA
-2189,"Station_249_DOH","DOH_249_Nisqually Reach","Station_249_DOH",47.16589,-122.80608,NA
-2194,"Station_250_DOH","DOH_250_Nisqually Reach","Station_250_DOH",47.15437,-122.79544,NA
-2138,"Station_251_DOH","DOH_251_Nisqually Reach","Station_251_DOH",47.14416,-122.78708,NA
-2205,"Station_252_DOH","DOH_252_Nisqually Reach","Station_252_DOH",47.17636,-122.81209,NA
-2204,"Station_253_DOH","DOH_253_Nisqually Reach","Station_253_DOH",47.10487,-122.73298,NA
-2139,"Station_547_DOH","DOH_547_Totten Inlet","Station_547_DOH",47.15503,-122.96425,NA
-2141,"Station_593_DOH","DOH_593_Totten Inlet","Station_593_DOH",47.10772,-123.03453,NA
-2200,"Station_649_DOH","DOH_649_Totten Inlet","Station_649_DOH",47.10643,-123.07048,NA
-2142,"Station_669_DOH","DOH_669_Dana Passage","Station_669_DOH",47.14397,-122.89236,NA
-2191,"Station_670_DOH","DOH_670_Dana Passage","Station_670_DOH",47.14616,-122.88548,NA
-2143,"Station_680_DOH","DOH_680_Totten Inlet","Station_680_DOH",47.1844,-122.94255,NA
-2144,"Station_681_DOH","DOH_681_Totten Inlet","Station_681_DOH",47.17933,-122.94162,NA
-2188,"Station_698_DOH","DOH_698_Henderson Inlet","Station_698_DOH",47.16101,-122.84087,NA
-2199,"Station_700_DOH","DOH_700_Eld Inlet","Station_700_DOH",47.05908,-123.00254,NA
-2145,"Station_709_DOH","DOH_709_Nisqually Reach","Station_709_DOH",47.10196,-122.72826,NA
-2197,"Station_716_DOH","DOH_716_Dana Passage","Station_716_DOH",47.15357,-122.87931,NA
-2088,"Station_723_DOH","DOH_723_Henderson Inlet","Station_723_DOH",47.15,-122.83,NA
-2186,"Station_724_DOH","DOH_724_Henderson Inlet","Station_724_DOH",47.1515,-122.8285,NA
-2147,"Station_759_DOH","DOH_759_Nisqually Reach","Station_759_DOH",47.10738,-122.72201,NA
-2187,"Station_767_DOH","DOH_767_Henderson Inlet","Station_767_DOH",47.16428,-122.84573,NA
-2148,"Station_799_DOH","DOH_799_Totten Inlet","Station_799_DOH",47.10631,-123.04168,NA
-2203,"Station_800_DOH","DOH_800_Dana Passage","Station_800_DOH",47.14747,-122.89505,NA
-2198,"Station_818_DOH","DOH_818_Budd Inlet","Station_818_DOH",47.13124,-122.92647,NA
-2149,"Station_819_DOH","DOH_819_Budd Inlet","Station_819_DOH",47.14575,-122.92504,NA
-2196,"Station_820_DOH","DOH_820_Budd Inlet","Station_820_DOH",47.1436,-122.90985,NA
-2202,"Station_821_DOH","DOH_821_Budd Inlet","Station_821_DOH",47.14057,-122.90813,NA
-2150,"Station_822_DOH","DOH_822_Budd Inlet","Station_822_DOH",47.13109,-122.91637,NA
-2185,"Station_825_DOH","DOH_825_Henderson Inlet","Station_825_DOH",47.16282,-122.84808,NA
-2151,"Station_849_DOH","DOH_849_Eld Inlet","Station_849_DOH",47.1504,-122.9373,NA
-2152,"Station_873_DOH","DOH_873_Budd Inlet","Station_873_DOH",47.1243,-122.9176,NA
-2153,"Station_874_DOH","DOH_874_Budd Inlet","Station_874_DOH",47.1247,-122.9023,NA
 1149,"EH-BLADM1210","Dempsey Creek @ Delphi Road","EH-BLADM1210",46.96485,-123.02095,NA
 1150,"EH-DESDE0000","Deschutes @ Tumwater Falls Park","EH-DESDE0000",47.01412,-122.90334,"Salmonid Spawning, Rearing, and Migration"
 2270,"EH-DESDE0090","Deschutes River @ Deschutes Falls Park","EH-DESDE0090",46.802,-122.41,NA
@@ -102,37 +29,23 @@ NA,"GAGE0306","Black River at  123rd Ave SW","GAGE0306",46.9091472,-123.0198984,
 1155,"EH-DESDE0050","Deschutes River @ Weyerhaeuser 1000 Road","EH-DESDE0050",46.79865,-122.48729,NA
 1136,"EH-Dobbs_mainstem_RM_0.31","Dobbs (East) Creek @ Johnson Point Road NE","EH-Dobbs_mainstem_RM_0.31",47.0988,-122.82016,NA
 1208,"EH-HENDO0030","Dobbs Creek @ Pleasant Forest Campground","EH-HENDO0030",47.10629,-122.80925,NA
-2010,"EH-Dobbs_Foxhall_trib_RM_1.02","Dobbs_Creek_Foxhall_trib_RM_1.02","EH-Dobbs_Foxhall_trib_RM_1.02",47.10266,-122.81129,NA
-2011,"EH-Dobbs_Foxhall_trib_RM_1.06","Dobbs_Creek_Foxhall_trib_RM_1.06","EH-Dobbs_Foxhall_trib_RM_1.06",47.10226,-122.81106,NA
-2012,"EH-Dobbs_Foxhall_trib_RM_1.08_north","Dobbs_Creek_Foxhall_trib_RM_1.08_north","EH-Dobbs_Foxhall_trib_RM_1.08_north",47.10208,-122.81078,NA
-2013,"EH-Dobbs_Foxhall_trib_RM_1.08_south","Dobbs_Creek_Foxhall_trib_RM_1.08_south","EH-Dobbs_Foxhall_trib_RM_1.08_south",47.10205,-122.81078,NA
-2032,"EH-Dobbs_Creek_Foxhall_trib_RM_1.13_south","Dobbs_Creek_Foxhall_trib_RM_1.13_south","EH-Dobbs_Creek_Foxhall_trib_RM_1.13_south",47.10197,-122.80983,NA
-2019,"EH-Dobbs_Huck_Finn_trib_DS_RM_1.24","Dobbs_Creek_Huck_Finn_trib_DS_RM_1.24","EH-Dobbs_Huck_Finn_trib_DS_RM_1.24",47.1028,-122.80808,NA
-2020,"EH-Dobbs_Huck_Finn_trib_US_RM_1.24","Dobbs_Creek_Huck_Finn_trib_US_RM_1.24","EH-Dobbs_Huck_Finn_trib_US_RM_1.24",47.10277,-122.80797,NA
-2024,"EH-Dobbs_PF_Road_N_ditch_trib_RM_1.17","Dobbs_Creek_PF_Road_N_ditch_trib_RM_1.17","EH-Dobbs_PF_Road_N_ditch_trib_RM_1.17",47.10326,-122.80968,NA
-2025,"EH-Dobbs_PF_Road_N_ditch_trib_RM_1.22","Dobbs_Creek_PF_Road_N_ditch_trib_RM_1.22","EH-Dobbs_PF_Road_N_ditch_trib_RM_1.22",47.10328,-122.8087,NA
-2026,"EH-Dobbs_PF_Road_S_ditch_trib_RM_1.13","Dobbs_Creek_PF_Road_S_ditch_trib_RM_1.13","EH-Dobbs_PF_Road_S_ditch_trib_RM_1.13",47.10313,-122.81022,NA
-2027,"EH-Dobbs_Puget_trib_RM_1.27","Dobbs_Creek_Puget_trib_RM_1.27","EH-Dobbs_Puget_trib_RM_1.27",47.10297,-122.81619,NA
 2021,"EH-Dobbs_mainstem_RM_0.71","Dobbs_Creek_mainstem_RM_0.71","EH-Dobbs_mainstem_RM_0.71",47.10122,-122.81632,"Core Summer Salmonid Habitat"
-2022,"EH-Dobbs_mainstem_RM_1.11","Dobbs_Creek_mainstem_RM_1.11","EH-Dobbs_mainstem_RM_1.11",47.10312,-122.81075,NA
-2023,"EH-Dobbs_mainstem_RM_1.27","Dobbs_Creek_mainstem_RM_1.27","EH-Dobbs_mainstem_RM_1.27",47.10504,-122.80943,NA
 1219,"EH-HENWL0610","Eagle Creek @ nr Carpenter Road NE","EH-HENWL0610",47.06841,-122.80555,NA
 965,"Eaton Creek @ Yelm Hwy (10a)","Eaton Creek @ Yelm Hwy 10a_gage","Eaton Creek @ Yelm Hwy (10a)",46.98519,-122.73494,NA
 1204,"EH-BUDEL0000","Ellis Creek @ East Bay Drive","EH-BUDEL0000",47.07431,-122.89445,NA
 1183,"EH-ELDEV0000","Evergreen Creek @ Mouth","EH-ELDEV0000",47.08535,-122.97453,NA
 1211,"EH-HENGO0020","Fleming Creek @ Johnson Point road NE","EH-HENGO0020",47.11533,-122.81762,NA
 1210,"EH-HENGO0000","Fleming Creek mouth @ Henderson Inlet - Ecology","EH-HENGO0000",47.11412,-122.823,NA
-2030,"EH-Fleming_North_Branch_RM_0.24","Fleming_Creek_North_Branch_RM_0.24","EH-Fleming_North_Branch_RM_0.24",47.11572,-122.82274,NA
 2028,"EH-Fleming_mainstem_RM_0.39","Fleming_Creek_mainstem_RM_0.39","EH-Fleming_mainstem_RM_0.39",47.1147,-122.81915,"Core Summer Salmonid Habitat"
-2029,"EH-Fleming_mainstem_RM_1.22","Fleming_Creek_mainstem_RM_1.22","EH-Fleming_mainstem_RM_1.22",47.12306,-122.81035,NA
-2031,"EH-Fleming_trib_ditch@61st_RM_1.04","Fleming_Creek_trib_ditch@61st_RM_1.04","EH-Fleming_trib_ditch@61st_RM_1.04",47.11942,-122.80989,NA
 1213,"EH-HENGS0010","Goose Creek @ Sleater-Kinney Road NE","EH-HENGS0010",47.09188,-122.8336,NA
 1212,"EH-HENGS0000","Goose Creek mouth @ Woodland Creek","EH-HENGS0000",47.09756,-122.82598,NA
 1138,"EH-ELDGC0000","Green Cove Creek @ 43rd Lane NE","EH-ELDGC0000",47.09468,-122.94534,"Salmonid Spawning, Rearing, and Migration"
+1157,"EH-DESHD3700","Hard Creek mouth @ near 3410 Road at Deschutes River","EH-DESHD3700",46.71053,-122.38407,NA
 1790,"EH-ELDHO0000","Houston Creek mouth @ Houston Drive NW","EH-ELDHO0000",47.05724,-122.99176,NA
 1158,"EH-DESHU1900","Huckleberry_Creek @ Weyerhaeuser_Road_3000 SE","EH-DESHU1900",46.79111,-122.46064,NA
 1159,"EH-BUDIN0010","Indian Creek Mouth @ Quince Street SE","EH-BUDIN0010",47.0397,-122.88903,"Salmonid Spawning, Rearing, and Migration"
-1826,"EH-TOTSUL020","Lake: Summit Lake exit basin @ Summit Lake NW","EH-TOTSUL020",47.05315,-123.12348,NA
+1129,"EH-TOTKE0000","Kennedy Creek mouth @ W Old Olympia Hwy","EH-TOTKE0000",47.09506,-123.09135,"Core Summer Salmonid Habitat"
+1160,"EH-DESLI3100","Lincoln Creek at mouth @ Deschutes River near Weyerh 3000 Road","EH-DESLI3100",46.75114,-122.37261,NA
 1161,"EH-DESLD2700","Little Deschutes @ above confluence with Deschutes River","EH-DESLD2700",46.79182,-122.39062,NA
 1133,"EH-ELDMA0000","Madrona Creek @ Madrona Beach Road NW","EH-ELDMA0000",47.08117,-123.01206,NA
 1162,"EH-NISMC0000","McAllister Creek @ I-5 Southbound on-ramp","EH-NISMC0000",47.06869,-122.71997,"Marine"
@@ -183,11 +96,9 @@ NA,"GAGE0306","Black River at  123rd Ave SW","GAGE0306",46.9091472,-123.0198984,
 1217,"EH-HENWL0020","Woodland Creek @ Hawks Priairie Road NE","EH-HENWL0020",47.09026,-122.82263,NA
 1218,"EH-HENWL0040","Woodland Creek @ I-5_Interstate_5","EH-HENWL0040",47.05676,-122.80218,NA
 1189,"EH-HENWL0050","Woodland Creek @ Martin Way East","EH-HENWL0050",47.04977,-122.80334,NA
-1820,"EH-HENLOL065","Woodland Creek @ Mullen Road","EH-HENLOL065",47.00341,-122.76865,NA
 1190,"EH-HENWL0060","Woodland Creek @ Pacific Avenue SE","EH-HENWL0060",47.03902,-122.79663,NA
 970,"GAGE0039","Woodland Creek @ Pleasant Glade Road 18a_gage","GAGE0039",47.07177,-122.81722,NA
 1191,"EH-HENWL0099","Woodland Creek @ RR bridge nr Union Mills Road SE","EH-HENWL0099",47.03529,-122.78244,NA
 1216,"EH-HENWL0010","Woodland Creek @ upstream Quail Creek nr Hollywood Drive NE","EH-HENWL0010",47.07813,-122.82223,NA
 1192,"EH-HENWL0800","Woodland Creek Tanglewilde Outfall @ Martin Way","EH-HENWL0800",47.04972,-122.80167,NA
-994,"GAGE0034","Yelm Creek @ 103rd Ave SE - 05a_gage","GAGE0034",46.93822,-122.59005,NA
 995,"GAGE0035","Yelm Creek mouth @ Harry Peterson Farm 05b_gage","GAGE0035",46.9705,-122.62762,NA
