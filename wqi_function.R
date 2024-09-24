@@ -147,7 +147,11 @@ wqi_calc<-function(period=c('Annual','Monthly'),summary_by=c('Index','ByParamete
       mutate(Penalty=ifelse(Penalty<0,0,Penalty)) %>%
       mutate(Penalty=ifelse(shortParmName %in% c('Sediment','Nutrient')&Penalty>20,20,Penalty)) %>%
       mutate(Penalty=sum(Penalty)) %>%
-      tidyr::pivot_wider(values_from=WQI,names_from=shortParmName,values_fn=mean)
+      mutate(shortParmName=factor(shortParmName,
+                                  levels=c('Temp','Oxygen','pH','FC',
+                                           'TPN','TP_P','Nutrient',
+                                           'Turb','SUSSOL','Sediment'))) %>%
+      tidyr::pivot_wider(values_from=WQI,names_from=shortParmName,values_fn=mean,names_expand = T)
     return(monthly_wqi_by_parameter)
   } 
   if(period=='Annual'&summary_by=='ByParameter'){
@@ -157,7 +161,11 @@ wqi_calc<-function(period=c('Annual','Monthly'),summary_by=c('Index','ByParamete
       group_by(site,shortParmName,WaterYear) %>%
       summarise(WQI=ifelse(grepl('Oxygen|Temp|pH',shortParmName),sort(WQI)[1],mean(sort(WQI)[1:3],na.rm=T))) %>%
       summarise(WQI=mean(WQI,na.rm=T)) %>%
-      tidyr::pivot_wider(values_from=WQI,names_from=shortParmName,values_fn=mean) 
+      mutate(shortParmName=factor(shortParmName,
+                                  levels=c('Temp','Oxygen','pH','FC',
+                                           'TPN','TP_P','Nutrient',
+                                           'Turb','SUSSOL','Sediment'))) %>%
+      tidyr::pivot_wider(values_from=WQI,names_from=shortParmName,values_fn=mean,names_expand = T) 
     return(annual_wqi_by_parameter)
   } 
   if(period=='Annual'&summary_by=='Index'){
@@ -190,9 +198,12 @@ colnames(parm_table)<-c('shortParmName','parameter')
 
 tc_annual_wqi<-streams_wq_dat %>%
   left_join(parm_table) %>%
+  filter(shortParmName!='Temp') %>%
   filter(!is.na(shortParmName)) %>%
   with(.,
-       wqi_calc(site=SITE_CODE,
+       wqi_calc(period='Annual',
+                summary_by='Index',
+                site=SITE_CODE,
                 value=newResultValue,
                 shortParmName = shortParmName,
                 date=as.Date(DateTime),
