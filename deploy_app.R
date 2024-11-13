@@ -16,3 +16,4 @@ rsconnect::deployApp(appFiles = c('ui.R',
                      server= 'shinyapps.io',
                      appName= 'ThurstonWQDashboard_Streams_Dev',
                      appTitle= 'ThurstonWQDashboard_Streams_Dev')
+
