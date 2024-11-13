@@ -1,11 +1,11 @@
 name: ThurstonWQDashboard_Streams_Dev
-title: ThurstonWQDashboard_Streams_Dev
+title: 23-08082-000-TC-WQ-Dashboard
 username:
 account: herrerainc
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 9060286
-bundleId: 7681747
+bundleId: 9358660
 url: https://herrerainc.shinyapps.io/ThurstonWQDashboard_Streams_Dev/
-when: 1694649338.19761
-lastSyncTime: 1694649338.19762
+asMultiple: FALSE
+asStatic: FALSE
