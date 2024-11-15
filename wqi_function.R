@@ -175,40 +175,40 @@ wqi_calc<-function(period=c('Annual','Monthly'),summary_by=c('Index','ByParamete
     return(annual_wqi)
   }
 }
-
-##run example
-streams_wq_dat<-readRDS('outputs/streams_wq_dat.RDS')
-streams_sites<-readRDS('outputs/streams_sites.RDS')
-
-#let's make a lookup list for parameter names
-parm_table<-data.frame(rbind(c('FC','Fecal Coliform'),
-                             c('FC','E. coli'),
-                             c('FC','Fecal Bacteria'),
-                             c('Oxygen','Dissolved Oxygen'),
-                             c('pH','pH'),
-                             c('TP_P','Total Phosphorus'),
-                             c('SUSSOL','Total Suspended Solids'),
-                             c('Temp',"Water Temperature (°C)"),
-                             #c('TPN','Total Nitrogen'),
-                             #for the sake of this example let's use nitate
-                             c('TPN','Nitrate-Nitrite as N'),
-                             c('Turb','Turbidity')))
-colnames(parm_table)<-c('shortParmName','parameter')
-
-
-tc_annual_wqi<-streams_wq_dat %>%
-  left_join(parm_table) %>%
-  filter(shortParmName!='Temp') %>%
-  filter(!is.na(shortParmName)) %>%
-  with(.,
-       wqi_calc(period='Annual',
-                summary_by='Index',
-                site=SITE_CODE,
-                value=newResultValue,
-                shortParmName = shortParmName,
-                date=as.Date(DateTime),
-                TemperatureCode = 8, #assume core for no2
-                OxygenCode = 26, #assume core for now,
-                small_PS_stream = T #assume all puget sound small streams
-                ))
-
+# 
+# ##run example
+# streams_wq_dat<-readRDS('outputs/streams_wq_dat.RDS')
+# streams_sites<-readRDS('outputs/streams_sites.RDS')
+# 
+# #let's make a lookup list for parameter names
+# parm_table<-data.frame(rbind(c('FC','Fecal Coliform'),
+#                              c('FC','E. coli'),
+#                              c('FC','Fecal Bacteria'),
+#                              c('Oxygen','Dissolved Oxygen'),
+#                              c('pH','pH'),
+#                              c('TP_P','Total Phosphorus'),
+#                              c('SUSSOL','Total Suspended Solids'),
+#                              c('Temp',"Water Temperature (°C)"),
+#                              #c('TPN','Total Nitrogen'),
+#                              #for the sake of this example let's use nitate
+#                              c('TPN','Nitrate-Nitrite as N'),
+#                              c('Turb','Turbidity')))
+# colnames(parm_table)<-c('shortParmName','parameter')
+# 
+# 
+# tc_annual_wqi<-streams_wq_dat %>%
+#   left_join(parm_table) %>%
+#  # filter(shortParmName!='Temp') %>%
+#   filter(!is.na(shortParmName)) %>%
+#   with(.,
+#        wqi_calc(period='Annual',
+#                 summary_by='ByParameter',
+#                 site=SITE_CODE,
+#                 value=newResultValue,
+#                 shortParmName = shortParmName,
+#                 date=as.Date(DateTime),
+#                 TemperatureCode = 8, #assume core for no2
+#                 OxygenCode = 26, #assume core for now,
+#                 small_PS_stream = T #assume all puget sound small streams
+#                 ))
+# 
