@@ -156,7 +156,7 @@ ui<-
                                aggregating the individual index scores, and the resulting score 
                                usually falls on a scale from 0 to 100, with higher values indicating 
                                better water quality."),
-                                selectInput('wqi_sum_year','Select Year to Highlight', rev(sort(unique(annual_wqi$WaterYear)))),
+                                selectInput('wqi_sum_year','Select Year to Highlight', years_list),
                                 plotlyOutput('wqi_summary_plot')
                          )),
                 fluidRow(column(12, br()))
