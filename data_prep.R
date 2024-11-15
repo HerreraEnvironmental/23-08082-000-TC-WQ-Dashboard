@@ -22,7 +22,8 @@ streams_sites<-wqp_data %>%
   select(gid,SITE_CODE,SITE_NAME,Metro_ID,LAT,LON)%>%
   distinct() %>%
   arrange(SITE_NAME) %>%
-  left_join(stream_use_designations)
+  left_join(stream_use_designations) %>%
+  mutate(AquaticLifeUse=ifelse(is.na(AquaticLifeUse),"Core Summer Salmonid Habitat",AquaticLifeUse))
 
 saveRDS(streams_sites,'outputs/streams_sites.RDS')
 write.csv(streams_sites, 'outputs/streams_sites.csv', row.names = F)
@@ -109,7 +110,7 @@ annual_wqi<-streams_wq_dat %>%
 saveRDS(annual_wqi,'outputs/annual_wqi.RDS')
 
 streams_wq_dat %>%
-  left_join(stream_use_designations) %>%
+  left_join(streams_sites %>% select(SITE_CODE,AquaticLifeUse)) %>%
   left_join(parm_table) %>%
   filter(!is.na(shortParmName)) %>%
   with(.,
@@ -127,7 +128,7 @@ streams_wq_dat %>%
   saveRDS('outputs/annual_wqi_by_parameter.RDS')
 
 streams_wq_dat %>%
-  left_join(stream_use_designations) %>%
+  left_join(streams_sites %>% select(SITE_CODE,AquaticLifeUse)) %>%
   left_join(parm_table) %>%
   filter(!is.na(shortParmName)) %>%
   with(.,
@@ -147,7 +148,7 @@ streams_wq_dat %>%
 
 
 streams_wq_dat %>%
-  left_join(stream_use_designations) %>%
+  left_join(streams_sites %>% select(SITE_CODE,AquaticLifeUse)) %>%
   left_join(parm_table) %>%
   filter(!is.na(shortParmName)) %>%
   with(.,

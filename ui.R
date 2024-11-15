@@ -23,9 +23,6 @@ library(rintrojs)
 sites_list<-readRDS('outputs/sites_list.RDS')
 parm_list<-readRDS('outputs/parm_list.RDS')
 years_list<-readRDS('outputs/years_list.RDS')
-annual_wqi<-readRDS('outputs/annual_wqi.RDS') %>%
-  mutate(Rating=ifelse(WQI>=80,'Good',
-                       ifelse(WQI>=40,'Moderate','Poor')))
 
 tagList(
   # tags$head(tags$link(includeScript("func.js"))),
