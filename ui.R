@@ -4,6 +4,7 @@ library(ggplot2)
 library(plotly)
 library(shiny)
 library(leaflet)
+library(leaflet.esri)
 library(bslib)
 library(DT)
 library(shinyWidgets)
@@ -111,7 +112,9 @@ ui<-
         overflow: hidden;
         color: white;
       }
-    '))),
+    ')),
+        tags$style(HTML(".vscomp-dropbox-container  {z-index:99999 !important;}")),
+        tags$style(HTML(".vscomp-dropbox {position: absolute; top: 0px !important;}"))),
       tags$script(HTML('
       $(document).ready(function() {
         $("header").find("nav").append(\'<span class="myClass"> Thurston County Water Quality Dashboard - BETA </span>\');
@@ -270,10 +273,7 @@ ui<-
                                selectInput('rktSeason_oneSite','Select Seasons for Mann-Kendall Test',
                                            c('All','Winter (Jan-Mar)'='winter','Spring (Apr-Jun)'='spring',
                                              'Summer (Jul-Sep)'='summer','Fall (Oct-Dec)'='fall')),
-                               materialSwitch(inputId = "data_log_scale", label = "Log-scale?", status = "default",value=F),
-                               hr(),
-                               h3('Water Quality Criteria Comparison for Selected Year'),
-                               tableOutput('wqc_site')
+                               materialSwitch(inputId = "data_log_scale", label = "Log-scale?", status = "default",value=F)
                                
                   ),
                   mainPanel(width = 9,
@@ -283,8 +283,12 @@ ui<-
                               tabPanel("Data Trends",
                                        plotlyOutput('trend_plot'),    
                                        htmlOutput('trend_text'))
-                            ))),
-                fluidRow(column(12, br()))
+                            ),
+                  hr(),
+                  h3('Water Quality Criteria Comparison for Selected Year'),
+                  tableOutput('wqc_site'))),
+                fluidRow(column(12, br())),
+
         ),
         
         tabItem(tabName = 'data_download',

@@ -74,6 +74,10 @@ trend_text<-function(dataSubset,input){
   
   p.value<-ifelse(input$rktAuto_oneSite,trend_out$sl.corrected,trend_out$sl)
   
+  if(is.na(p.value)){
+    HTML(paste0('<u>Mann-Kendall Trend Test:</u>','<br/>','There are not enough data to evaluate trends.'))
+    } else {
+  
   sigStatement<-paste0(ifelse(p.value<=0.05,'a  significant trend','insufficient evidence of a trend'),
                        ' (p',ifelse(p.value<0.001,'<0.001)',paste0('=',round(p.value,3),')')))
   
@@ -84,6 +88,7 @@ trend_text<-function(dataSubset,input){
         ifelse(input$rktSeason_oneSite=='All','',paste0(' (',input$rktSeason_oneSite,')')),
         ' at ',input$main_site2,', there is ','<b>',sigStatement,"</b>",' in <b>',input$trend_parm,'</b><br/>',
         slopeStatement))
+    }
 }
 # 
 # trend_text(dataSubset=
