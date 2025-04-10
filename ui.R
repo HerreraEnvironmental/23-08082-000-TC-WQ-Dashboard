@@ -177,7 +177,7 @@ ui<-
                                 br(),
                                 selectInput('wqc_sum_year','Select Year to Highlight', years_list),
                                 selectInput('wqc_sum_parm','Select All or Individual Parameters for Mapping',
-                                            c('All','Water Temperature (°C)','Dissolved Oxygen','pH','E. coli','Fecal Coliform')),
+                                            c('All','Temperature, water','Dissolved Oxygen','pH','E. coli','Fecal Coliform')),
                                 p(paste0('The table below summarizes the number of sites with a violation for each of',
                                          'the monitoring parameters relative to the total number of sites.')),
                                 tableOutput('wqc_summary')

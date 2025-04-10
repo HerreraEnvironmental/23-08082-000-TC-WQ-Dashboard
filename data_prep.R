@@ -44,8 +44,19 @@ streams_wq_dat <- wqp_data %>%
          Month=month(DateTime),
          WaterYear=ifelse(Month>=10,Year+1,Year),
          FakeDate=as.Date(paste(2000,Month,day(DateTime),sep='-')),
-         WY_FakeDate=as.Date(if_else(Month>=10,FakeDate-years(1),FakeDate)))
-streams_wq_dat["parameter"][streams_wq_dat["parameter"] == "Temperature, water"] <- "Water Temperature (°C)"
+         WY_FakeDate=as.Date(if_else(Month>=10,FakeDate-years(1),FakeDate)),
+#rename to internally consistent parameter names
+  parameter=case_when(  parameter %in% c("Dissolved oxygen (DO)" ) ~ "Dissolved Oxygen",
+             parameter %in% c("Temperature") ~ "Temperature, water",
+             parameter %in% c("Nitrate + Nitrite as N") ~ 'Nitrite + Nitrate',
+             parameter %in% c("Total Phosphorus, mixed forms",'Phosphorus','Total Phosphorus') ~ 'Total Phosphorus',
+             parameter %in% c("Escherichia coli") ~ 'E. coli',
+             parameter %in% c("Specific conductance",'Conductivity') ~'Conductivity' ,
+             parameter %in% c("Total suspended solids") ~ 'Total Suspended Solids',
+             .default = parameter)
+)
+
+#treams_wq_dat["parameter"][streams_wq_dat["parameter"] == "Temperature, water"] <- "Water Temperature (°C)"
 
 saveRDS(streams_wq_dat,'outputs/streams_wq_dat.RDS')
 
@@ -84,10 +95,10 @@ parm_table<-data.frame(rbind(c('FC','Fecal Coliform'),
                              c('pH','pH'),
                              c('TP_P','Total Phosphorus'),
                              c('SUSSOL','Total Suspended Solids'),
-                             c('Temp','Water Temperature (°C)'),
-                             #c('TPN','Total Nitrogen'),
+                             c('Temp','Temperature, water'),
+                             c('TPN','Total Nitrogen'),
                              #for the sake of this example let's use nitate
-                             c('TPN','Nitrate-Nitrite as N'),
+                             c('TPN',"Nitrate + Nitrite"),
                              c('Turb','Turbidity')))
 colnames(parm_table)<-c('shortParmName','parameter')
 

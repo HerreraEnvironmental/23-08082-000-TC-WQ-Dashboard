@@ -16,7 +16,7 @@ trend_plot<-function(dataSubset,input){
       theme_bw()+
       scale_y_continuous(input$trend_parm)
 
-if(input$trend_parm=='Water Temperature (°C)'){
+if(input$trend_parm=='Temperature, water'){
   temp_criteria<-wqc_finder(unique(dataSubset$AquaticLifeUse),input$trend_parm)
   trendplot<-trendplot+
     geom_hline(yintercept = temp_criteria)

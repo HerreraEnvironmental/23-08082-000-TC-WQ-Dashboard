@@ -133,9 +133,9 @@ wqc_function<-function(AquaticLifeUse=c("Char Spawning and Rearing", "Core Summe
       summarise(nViolation=length(which(GM_Violation|STV_Violation)),
                 Notes=ifelse(length(which(GM_Violation))==0&length(which(STV_Violation))==0,'No Violations',
                              paste(ifelse(length(which(GM_Violation))==0,'No Geometric Mean Violations and',
-                                          paste('Geometric Mean Violations in',Season[GM_Violation],'and')),
+                                          paste('Geometric Mean Violation(s) in',Season[GM_Violation],'AND')),
                                    ifelse(length(which(STV_Violation))==0,'No STV Violations',
-                                          paste('STV Violations in',Season[STV_Violation]))
+                                          paste('STV Violation(s) in',Season[STV_Violation]))
                              )
                 ))
   }
