@@ -237,21 +237,21 @@ server<-function(input,output,session){
   
   ##updates for tabs
   observe({
-    updateSelectInput(session,
+    updateVirtualSelect(session=session,
                       'main_site',
                       selected = input$main_site
     )
   })
   
   observe({
-    updateSelectInput(session,
+    updateVirtualSelect(session=session,
                       'main_site2',
                       selected = input$main_site
     )
   })
   
   observe({
-    updateSliderInput(session,
+    updateSliderInput(session=session,
                       'trend_years',
                       min=min(dataSubset()$Year),
                       max=max(dataSubset()$Year),
@@ -260,21 +260,22 @@ server<-function(input,output,session){
     )
   })
   observe({
-    updateSelectInput(session,
+    updateVirtualSelect(session=session,
                       'trend_parm',
                       choices=parm_list[
-                        parm_list %in% (streams_wq_dat %>% filter(SITE_CODE==input$main_site) %>% pull(parameter) %>% unique())]
+                        parm_list %in% (streams_wq_dat %>% filter(SITE_CODE==input$main_site) %>% pull(parameter) %>% unique())],
+                      selected='Temperature, water'
     )
   })
   observe({
-    updateSelectInput(session,
+    updateSelectInput(session=session,
                       'data_year2',
                       choices=streams_wq_dat %>% filter(SITE_CODE==input$main_site) %>% pull(WaterYear) %>% unique()
     )
   })
   
   observe({
-    updateSelectInput(session,
+    updateSelectInput(session=session,
                       'data_year',
                       choices = sort(unique(dataSubset()$WaterYear),T)
     )
@@ -282,61 +283,63 @@ server<-function(input,output,session){
   
   
   observe({
-    updateSelectInput(session,
+    updateVirtualSelect(session=session,
                       'data_parm',
                       choices=parm_list[
-                        parm_list %in% (streams_wq_dat %>% filter(SITE_CODE==input$main_site) %>% pull(parameter) %>% unique())]
+                        parm_list %in% 
+                          (streams_wq_dat %>% filter(SITE_CODE==input$main_site) %>% pull(parameter) %>% unique())]
     )
   })
   # MAP 1 updates all variables
   observeEvent(input$map_marker_click, {
     click <- input$map_marker_click
-    updateSelectInput(session, "main_site", 
+    updateVirtualSelect(session=session, "main_site", 
                       selected = click$id)
-    updateSelectInput(session, "main_site2", 
+    updateVirtualSelect(session=session, "main_site2", 
                       selected = click$id)
-    updateSelectInput(session, "main_site3", 
+    updateVirtualSelect(session=session, "main_site3", 
                       selected = click$id)
-    updateSelectInput(session, "main_site4", 
+    updateVirtualSelect(session=session, "main_site4", 
                       selected = click$id)
-    updateSelectInput(session, "main_site5", 
+    updateVirtualSelect(session=session, "main_site5", 
                       selected = click$id)
   })
   # MAP 2 updates all variables
   observeEvent(input$wqi_map_marker_click, {
     click <- input$wqi_map_marker_click
-    updateSelectInput(session, "main_site", 
+    updateVirtualSelect(session=session, "main_site", 
                       selected = click$id)
-    updateSelectInput(session, "main_site2", 
+    updateVirtualSelect(session=session, "main_site2", 
                       selected = click$id)
-    updateSelectInput(session, "main_site3", 
+    updateVirtualSelect(session=session, "main_site3", 
                       selected = click$id)
-    updateSelectInput(session, "main_site4", 
+    updateVirtualSelect(session=session, "main_site4", 
                       selected = click$id)
-    updateSelectInput(session, "main_site5", 
+    updateVirtualSelect(session=session, "main_site5", 
                       selected = click$id)
   })
   # Dropdown 1 updates all variables
   observeEvent(input$main_site, {
-    updateSelectInput(session, "main_site2",
+    updateVirtualSelect(session=session, "main_site2",
                       selected = input$main_site)
-    updateSelectInput(session, "main_site3",
+    updateVirtualSelect(session=session, "main_site3",
                       selected = input$main_site)
-    updateSelectInput(session, "main_site4",
+    updateVirtualSelect(session=session, "main_site4",
                       selected = input$main_site)
-    updateSelectInput(session, "main_site5",
+    updateVirtualSelect(session=session, "main_site5",
                       selected = input$main_site)
   })
   # Dropdown 2 updates all variables
   observeEvent(input$main_site2, {
-    updateSelectInput(session, "main_site",
+    updateVirtualSelect(session=session, "main_site",
                       selected = input$main_site2)
-    updateSelectInput(session, "main_site3",
+    updateVirtualSelect(session=session, "main_site3",
                       selected = input$main_site2)
-    updateSelectInput(session, "main_site4",
+    updateVirtualSelect(session=session, "main_site4",
                       selected = input$main_site2)
-    updateSelectInput(session, "main_site5",
+    updateVirtualSelect(session=session, "main_site5",
                       selected = input$main_site2)
   })
   
 }
+

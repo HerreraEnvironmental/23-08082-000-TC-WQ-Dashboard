@@ -61,7 +61,26 @@ streams_wq_dat <- wqp_data %>%
 saveRDS(streams_wq_dat,'outputs/streams_wq_dat.RDS')
 
 sites_list<-setNames(streams_sites$SITE_CODE,paste0(streams_sites$SITE_NAME,' (',streams_sites$SITE_CODE,')'))
-parm_list<-unique(streams_wq_dat$parameter)
+parm_list<-unique(streams_wq_dat$parameter) %>%
+  factor(.,levels=c('Temperature, water',
+                    'Dissolved Oxygen',
+                    'pH',
+                    'Conductivity',
+                    'Turbidity',
+                    'Total Phosphorus',
+                    'Nitrate + Nitrite',
+                    'Ammonia-nitrogen',
+                    'Total Suspended Solids',
+                    'Fecal Coliform',
+                    'E. coli',
+                    "Enterococcus",
+                    'Flow',
+                    'Copper',
+                    'Lead',
+                    'Zinc',
+                    'Hardness',
+                    "Petroleum hydrocarbons, total extractable")) %>%
+  levels()
 years_list<-sort(unique(streams_wq_dat$WaterYear),T)
 
 saveRDS(sites_list,'outputs/sites_list.RDS')
