@@ -46,7 +46,7 @@ monthly_wqi_by_parameter<-readRDS('outputs/monthly_wqi_by_parameter.RDS')
 monthly_wqi<-readRDS('outputs/monthly_wqi.RDS')
 
 sites_list<-readRDS('outputs/sites_list.RDS')
-parm_list<-readRDS('outputs/parm_list.RDS')
+parm_list<-readRDS('outputs/parm_list.RDS') %>% factor(.,levels=.)
 years_list<-readRDS('outputs/years_list.RDS')
 
 sites_list_df <- streams_sites[,c(2,3)]
@@ -262,9 +262,9 @@ server<-function(input,output,session){
   observe({
     updateVirtualSelect(session=session,
                       'trend_parm',
-                      choices=parm_list[
-                        parm_list %in% (streams_wq_dat %>% filter(SITE_CODE==input$main_site) %>% pull(parameter) %>% unique())],
-                      selected='Temperature, water'
+                      disabledChoices = parm_list[
+                        !(parm_list %in%
+                            (streams_wq_dat %>% filter(SITE_CODE==input$main_site) %>% pull(parameter) %>% unique()))]
     )
   })
   observe({
@@ -285,9 +285,9 @@ server<-function(input,output,session){
   observe({
     updateVirtualSelect(session=session,
                       'data_parm',
-                      choices=parm_list[
-                        parm_list %in% 
-                          (streams_wq_dat %>% filter(SITE_CODE==input$main_site) %>% pull(parameter) %>% unique())]
+                      disabledChoices = parm_list[
+                        !(parm_list %in%
+                             (streams_wq_dat %>% filter(SITE_CODE==input$main_site) %>% pull(parameter) %>% unique()))]
     )
   })
   # MAP 1 updates all variables

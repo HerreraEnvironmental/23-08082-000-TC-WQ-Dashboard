@@ -22,7 +22,7 @@ library(rintrojs)
 # User Interface ----------------------------------------------------------
 
 sites_list<-readRDS('outputs/sites_list.RDS')
-parm_list<-readRDS('outputs/parm_list.RDS')
+parm_list<-readRDS('outputs/parm_list.RDS') %>% factor(.,levels=.)
 years_list<-readRDS('outputs/years_list.RDS')
 
 tagList(

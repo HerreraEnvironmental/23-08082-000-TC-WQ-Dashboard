@@ -6,11 +6,13 @@ withinYear_plot<-function(dataSubset,input){
     ggplot(aes(x=WY_FakeDate,y=value,group=WaterYear))+
     geom_point(alpha=.2,
                aes(text=paste0('Date: ',as.Date(DateTime),'\n',
-                               'Value: ', ifelse(nonDetectFlag,'<',''),value,' ',unit,' ',qualifier)))+
+                               'Value: ', ifelse(nonDetectFlag,'<',''),value,' ',unit,'\n',
+                               'Qualifier: ',ifelse(is.na(qualifier),'none',qualifier))))+
     geom_path(data=~.x %>% filter(WaterYear==input$data_year))+
     geom_point(data=~.x %>% filter(WaterYear==input$data_year),
                aes(text=paste0('Date: ',as.Date(DateTime),'\n',
-                               'Value: ', ifelse(nonDetectFlag,'<',''),value,' ',unit,' ',qualifier)))+
+                               'Value: ', ifelse(nonDetectFlag,'<',''),value,' ',unit,'\n',
+                               'Qualifier: ',ifelse(is.na(qualifier),'none',qualifier))))+
     theme_bw()+
     scale_x_date('',date_breaks = '2 months',date_labels = '%b',
                  #limits=as.Date(c('1999-9-25','2000-10-05')),
