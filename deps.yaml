@@ -1,0 +1,26 @@
+# deps.yaml
+cran:
+  - bslib
+  - dataRetrieval
+  - dplyr
+  - DT
+  - fresh
+  - leaflet
+  - lubridate
+  - plotly
+  - purrr
+  - rintrojs
+  - rkt
+  - shiny
+  - shiny.router
+  - shinyBS
+  - shinyjs
+  - shinydashboard
+  - shinyWidgets
+
+# leaflet.esri is archived on CRAN; install from GitHub:
+github:
+  - bhaskarvk/leaflet.esri
+
+dev:
+  - testthat
