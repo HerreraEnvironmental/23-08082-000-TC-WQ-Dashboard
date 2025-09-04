@@ -1,0 +1,23 @@
+# Global linters -----------------------------------------------------------
+linters: lintr::linters_with_defaults(
+  # --- Tidyverse settings -----------------------------------------
+  line_length_linter           = lintr::line_length_linter(80),   # concise lines
+  indentation_linter           = lintr::indentation_linter(indent = 2),
+  trailing_whitespace_linter   = lintr::trailing_whitespace_linter(),
+  infix_spaces_linter          = lintr::infix_spaces_linter(),     # x + y, a <- b
+  commas_linter                = lintr::commas_linter(),           # spacing after commas
+  spaces_left_parenthesis_linter = lintr::spaces_left_parenthesis_linter(),
+  
+  # --- Naming / usage / safety ----------------------------------------------
+  object_name_linter           = lintr::object_name_linter(styles = "snake_case"),
+  object_usage_linter          = lintr::object_usage_linter(),     # undefined/unused objects
+  T_and_F_symbol_linter        = lintr::T_and_F_symbol_linter(),   # prefer TRUE/FALSE
+  join_by_linter               = join_by_linter,                   # flag by = c("a" = "b")
+  
+  # --- Pipe policy -----------------------------------------------------------
+  pipe_linter                  = lintr::pipe_linter(),             # flag %>% → suggest |>
+)
+
+# Cache & encoding ---------------------------------------------------------
+cache: TRUE
+encoding: "UTF-8"
