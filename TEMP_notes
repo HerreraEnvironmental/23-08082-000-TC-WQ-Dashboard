@@ -30,10 +30,11 @@ Thurston_repository/
 ## For update_data.R, consider GHA if it needs to be more automated. Do we need snapshots?
 ## Consider switching to parquet; faster than RDS and interchangeable with Python
 ## Simple precommit hook to standardize lintr/styler
+## I think we should carefully apply ellmer to some of the wqi_function.R ifelse loops for readibility.
 
 # More ambitious guardrails for data quality: 
 
-## Add assertions with {pointblank} instead of :
+## Add assertions with {pointblank} instead of:
 - required columns present
 - dtypes / ranges / negative concentrations (use GSI as starting point, or can be simpler)
 - Snapshot comparison if we're doing snapshots, ie row counts not implausibly low/high vs last snapshot
