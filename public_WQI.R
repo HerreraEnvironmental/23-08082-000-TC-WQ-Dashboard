@@ -208,6 +208,7 @@ wqi_calc2 <- function(period = c("Annual", "Monthly"), summary_by = c("Index", "
   
   ecology_curves <- read.csv(curveSource)
   
+  ## Create initial wqi frame
   wqi_prep <- tibble(site, date, shortParmName, value, TemperatureCode, OxygenCode) %>%
     mutate(
       Year = year(date),
@@ -268,7 +269,7 @@ wqi_calc2 <- function(period = c("Annual", "Monthly"), summary_by = c("Index", "
         shortParmName = "Sediment",
         WQI = sum(WQI^-1)^-1 * length(WQI)
       )
-    # For joining later as columns
+
     sediment_cols <- sediment_score %>%
       transmute(site, WaterYear, Month, Sediment_WQI = WQI)
   } else {
@@ -307,10 +308,18 @@ wqi_calc2 <- function(period = c("Annual", "Monthly"), summary_by = c("Index", "
       group_by(site, WaterYear, Month, shortParmName) %>%
       summarise(WQI = mean(WQI))
     
+<<<<<<< HEAD
+=======
+    # For joining later as columns
+>>>>>>> 7fc5bb6e7f085d7ca37c89d763e4023a1f3e0f1c
     nutrient_cols <- nutrient_score %>%
       ungroup() %>%
       transmute(site, WaterYear, Month, Nutrient_WQI = WQI)
     
+<<<<<<< HEAD
+=======
+    # Annual NP ratio for annual outputs
+>>>>>>> 7fc5bb6e7f085d7ca37c89d763e4023a1f3e0f1c
     annual_np <- np_ratios %>%
       group_by(site, WaterYear) %>%
       summarise(NPRatio = mean(NPRatio, na.rm = TRUE))
@@ -333,6 +342,10 @@ wqi_calc2 <- function(period = c("Annual", "Monthly"), summary_by = c("Index", "
       summarise(WQI = mean(WQI) - sum(Penalty)) %>%
       mutate(WQI = ifelse(WQI < 1, 1, WQI))
     
+<<<<<<< HEAD
+=======
+    # Attach derived columns if they exist
+>>>>>>> 7fc5bb6e7f085d7ca37c89d763e4023a1f3e0f1c
     if (!is.null(np_ratios)) {
       monthly_wqi <- monthly_wqi %>%
         left_join(np_ratios, by = c("site", "WaterYear", "Month"))
@@ -374,6 +387,10 @@ wqi_calc2 <- function(period = c("Annual", "Monthly"), summary_by = c("Index", "
       )) %>%
       tidyr::pivot_wider(values_from = WQI, names_from = shortParmName, values_fn = mean, names_expand = TRUE)
     
+<<<<<<< HEAD
+=======
+    # Attach monthly NP ratio if it exists
+>>>>>>> 7fc5bb6e7f085d7ca37c89d763e4023a1f3e0f1c
     if (!is.null(np_ratios)) {
       monthly_wqi_by_parameter <- monthly_wqi_by_parameter %>%
         left_join(np_ratios, by = c("site", "WaterYear", "Month"))
@@ -396,7 +413,12 @@ wqi_calc2 <- function(period = c("Annual", "Monthly"), summary_by = c("Index", "
                    "Turb", "SUSSOL", "Sediment")
       )) %>%
       tidyr::pivot_wider(values_from = WQI, names_from = shortParmName, values_fn = mean, names_expand = TRUE)
+<<<<<<< HEAD
 
+=======
+    
+    # Attach annual mean NP ratio if it exists
+>>>>>>> 7fc5bb6e7f085d7ca37c89d763e4023a1f3e0f1c
     if (!is.null(annual_np)) {
       annual_wqi_by_parameter <- annual_wqi_by_parameter %>%
         left_join(annual_np, by = c("site", "WaterYear"))
@@ -409,7 +431,12 @@ wqi_calc2 <- function(period = c("Annual", "Monthly"), summary_by = c("Index", "
     annual_wqi <- monthly_wqi %>%
       group_by(site, WaterYear) %>%
       summarise(WQI = mean(sort(WQI)[1:3], na.rm = TRUE))
+<<<<<<< HEAD
 
+=======
+    
+    # Attach annual summaries of derived variables if they exist
+>>>>>>> 7fc5bb6e7f085d7ca37c89d763e4023a1f3e0f1c
     if (!is.null(annual_np)) {
       annual_wqi <- annual_wqi %>%
         left_join(annual_np, by = c("site", "WaterYear"))
@@ -433,6 +460,10 @@ wqi_calc2 <- function(period = c("Annual", "Monthly"), summary_by = c("Index", "
   }
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7fc5bb6e7f085d7ca37c89d763e4023a1f3e0f1c
 # Application of new and old calcs ----------------------------------------
 streams_wq_dat <- readRDS("outputs/streams_wq_dat.RDS")
 
