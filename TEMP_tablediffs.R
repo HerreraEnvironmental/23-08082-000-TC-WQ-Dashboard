@@ -1,10 +1,12 @@
-## Temp comparison script
 library(tidyverse)
 
 wqp_data <- read.csv("wqp_data.csv") |>
   mutate(date_col = as_date(date_time))
+
+## This variable is after the data_prep.R script. 
 streams_wq_dat <- readRDS("outputs/streams_wq_dat.RDS") |>
   mutate(date_col = as_date(2))
+
 
 t_wqp <- wqp_data %>%
   select(parameter, date_col) %>%
