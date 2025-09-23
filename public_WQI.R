@@ -107,7 +107,10 @@ wqi_calc<-function(period=c('Annual','Monthly'),summary_by=c('Index','ByParamete
               WQI_Value=mean(WQI_Value),
               WQI=mean(WQI)) %>%
     mutate(Month=factor(Month,levels=c(10:12,1:9))) %>%
-    arrange(site,shortParmName,WaterYear,Month)
+    arrange(site,shortParmName,WaterYear,Month) %>%
+    group_by(site, WaterYear, Month) %>% ## TODO: Grouping by month results in no samples >8
+    mutate(nSamples = n())
+    
 
     if(any(shortParmName %in% c('SUSSOL','Turb'))){
       sediment_score<-wqi_prep %>%
@@ -177,8 +180,9 @@ wqi_calc<-function(period=c('Annual','Monthly'),summary_by=c('Index','ByParamete
       select(-WQI_Value,-value) %>%
       bind_rows(sediment_score,nutrient_score) %>%
       group_by(site,shortParmName,WaterYear) %>%
-      summarise(WQI=ifelse(grepl('Oxygen|Temp|pH',shortParmName),sort(WQI)[1],mean(sort(WQI)[1:3],na.rm=T))) %>%
-      summarise(WQI=mean(WQI,na.rm=T)) %>%
+      # TODO: summarize changed to mutate for specific troubleshooting.
+      mutate(WQI=ifelse(grepl('Oxygen|Temp|pH',shortParmName),sort(WQI)[1],mean(sort(WQI)[1:3],na.rm=T))) %>%
+      mutate(WQI=mean(WQI,na.rm=T)) %>%
       mutate(shortParmName=factor(shortParmName,
                                   levels=c('Temp','Oxygen','pH','FC',
                                            'TPN','TP_P','Nutrient',
@@ -213,5 +217,8 @@ annual_wqi_public<-streams_wq_dat %>%
                 OxygenCode =  ifelse(AquaticLifeUse=='Core Summer Salmonid Habitat',26,
                                      ifelse(AquaticLifeUse=='Salmonid Spawning, Rearing, and Migration',21,NA)), 
                 small_PS_stream = T
-       ))
+       )) #%>%
+  #group_by(site) %>%
+  #filter(WaterYear=max(WaterYear[nSamples>=8]))
+
 
