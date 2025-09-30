@@ -86,7 +86,7 @@ wqi_calc<-function(period=c('Annual','Monthly'),summary_by=c('Index','ByParamete
            WaterYear=ifelse(Month>=10,Year+1,Year)) %>%
     mutate(MonthFraction=Month+day(date)/days_in_month(Month)) %>%
     group_by(site,shortParmName,WaterYear,Month,MonthFraction) %>%
-    summarise(value=mean(value)) %>%
+    mutate(value=mean(value)) %>% #TODO Was summarise
     mutate(WQI_Value=ifelse(shortParmName %in% parms_to_log,log(value),value)) %>%
     mutate(rownumber=ifelse(shortParmName=='Temp',TemperatureCode,
                             ifelse(shortParmName=='TP_P',ifelse(small_PS_stream,72,272),
@@ -108,7 +108,7 @@ wqi_calc<-function(period=c('Annual','Monthly'),summary_by=c('Index','ByParamete
               WQI=mean(WQI)) %>%
     mutate(Month=factor(Month,levels=c(10:12,1:9))) %>%
     arrange(site,shortParmName,WaterYear,Month) %>%
-    group_by(site, WaterYear, Month) %>% ## TODO: Grouping by month results in no samples >8
+    group_by(site, WaterYear) %>%
     mutate(nSamples = n())
     
 
@@ -213,13 +213,18 @@ annual_wqi_public<-streams_wq_dat %>%
                 shortParmName = shortParmName,
                 date=as.Date(DateTime),
                 # TODO Temperature and Oxygen are getting lost with this aquatic life use filtering
+                # TemperatureCode = 8,
+                # OxygenCode = 26,
                 TemperatureCode = ifelse(AquaticLifeUse=='Core Summer Salmonid Habitat',8,
                                          ifelse(AquaticLifeUse=='Salmonid Spawning, Rearing, and Migration',9,NA)), 
                 OxygenCode =  ifelse(AquaticLifeUse=='Core Summer Salmonid Habitat',26,
                                      ifelse(AquaticLifeUse=='Salmonid Spawning, Rearing, and Migration',21,NA)), 
                 small_PS_stream = T
-       )) #%>%
-  #group_by(site) %>%
-  #filter(WaterYear=max(WaterYear[nSamples>=8]))
+       )) %>%
+  ungroup() %>%
+  filter(n_distinct(Month, na.rm = TRUE) >= 8, .by = c(site, WaterYear)) %>%
+  select(site, WaterYear, nSamples:Sediment) %>%
+  unique()
 
+write_csv(annual_wqi_public, "public_dashboard_outputs_streams/recent_WQI.csv")
 
