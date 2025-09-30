@@ -3,9 +3,9 @@ library(lubridate)
 library(ggplot2)
 
 
-source('WQP_r_script.R')
+source('external_data/WQP_r_script.R')
 
-wqp_data <- read.csv("wqp_data.csv") %>%
+wqp_data <- read.csv("inputs/wqp_data.csv") %>%
   filter(parameter != "Depth to water from rim of well casing")
 
 stream_use_designations<-readxl::read_xlsx('inputs/Stream Use Designations Herrera.xlsx') %>%
@@ -117,7 +117,7 @@ unique(streams_wq_dat$qualifier)
 ##need to do:
 #Stream WQI
 
-source('wqi_function.R')
+source('helper_functions/wqi_function.R')
 
 parm_table<-data.frame(rbind(c('FC','Fecal Coliform'),
                              c('FC','E. coli'),

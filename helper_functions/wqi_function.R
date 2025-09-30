@@ -24,7 +24,7 @@ library(lubridate)
 wqi_calc<-function(period=c('Annual','Monthly'),summary_by=c('Index','ByParameter'),
                    site=NULL,date,value,shortParmName,TemperatureCode=NULL,OxygenCode=NULL,
                    small_PS_stream=T,
-                   curveSource='wqi_ecology_curves_v6.csv'){
+                   curveSource='inputs/wqi_ecology_curves_v6.csv'){
   #basic equation is WQI = a + b1 * [C] + b2 * [C]^2
   #where [C] is the constituent in question 
   #Fecal Coliform, Total Suspended Solids,Total Phosphorus, and Turbitity are (natural) log-transformed prior to this euqation

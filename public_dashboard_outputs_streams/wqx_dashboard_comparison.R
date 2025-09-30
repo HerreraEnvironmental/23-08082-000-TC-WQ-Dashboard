@@ -7,7 +7,7 @@ library(tidyverse)
 # Comparison --------------------------------------------------------------
 
 ## This variable is the initial download called from WQP by WQP_r_script.R
-wqp_data <- read.csv("wqp_data.csv") |>
+wqp_data <- read.csv("inputs/wqp_data.csv") |>
   mutate(date_col = as_date(date_time))
 
 ## This variable is produced after the data_prep.R script. 

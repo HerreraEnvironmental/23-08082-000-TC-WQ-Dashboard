@@ -11,6 +11,7 @@ cran:
   - purrr
   - rintrojs
   - rkt
+  - rsconnect
   - shiny
   - shiny.router
   - shinyBS

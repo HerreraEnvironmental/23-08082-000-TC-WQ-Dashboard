@@ -147,4 +147,4 @@ hec_final <- hec_final[!is.na(hec_final$date_time),]
 
 # Transform data to format used in Herrera All Stream Data Dump 4 12 2023.csv
 
-write.csv(hec_final, file = "wqp_data.csv")
+write.csv(hec_final, file = "inputs/wqp_data.csv")

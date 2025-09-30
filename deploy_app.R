@@ -1,14 +1,15 @@
 #deploy app
 
-source('package_check_script.R')
-source('data_prep.R')
+source('package_check_script.R') #TODO might replace with install_deps.R
+source('external_data/data_prep.R')
 
 rsconnect::deployApp(appFiles = c('ui.R',
                                   'server.R',
                                   'disclaimer.txt',
-                                  'functions/',
+                                  'external_data/',
+                                  'helper_functions/',
                                   'outputs/',
-                                  'wqi_function.R',
+                                  #'wqi_function.R',
                                   'www/'
                                   ),
                      appId=9060286,

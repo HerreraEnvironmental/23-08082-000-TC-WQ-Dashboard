@@ -49,7 +49,7 @@ parm_table <- tibble::tibble(
 wqi_calc<-function(period=c('Annual','Monthly'),summary_by=c('Index','ByParameter'),
                    site=NULL,date,value,shortParmName,TemperatureCode=NULL,OxygenCode=NULL,
                    small_PS_stream=T,
-                   curveSource='wqi_ecology_curves_v6.csv'){
+                   curveSource='inputs/wqi_ecology_curves_v6.csv'){
   period=period[1]
   summary_by=summary_by[1]
   parms_to_log<-c('FC','SUSSOL','TP_P','Turb')

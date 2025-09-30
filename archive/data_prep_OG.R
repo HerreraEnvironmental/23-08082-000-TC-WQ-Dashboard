@@ -67,7 +67,7 @@ unique(streams_wq_dat$qualifier)
 ##need to do:
 #Stream WQI
 
-source('wqi_function.R')
+source('helper_functions/wqi_function.R')
 
 parm_table<-data.frame(rbind(c('FC','Fecal Coliform'),
                              c('FC','E. coli'),

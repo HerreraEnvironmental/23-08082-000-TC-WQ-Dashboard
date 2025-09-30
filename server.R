@@ -25,15 +25,15 @@ log10_minor_break = function (...){
   }
 }
 # Data Load ---------------------------------------------------------------
-source('functions/wqc_functions.R',local=T)
-source('functions/site_map.R',local=T)
-source('functions/trend_summary_and_plot.R',local=T)
-source('functions/wqc_map.R',local=T)
-source('functions/wqc_site.R',local=T)
-source('functions/trend_shiny_functions.R',local=T)
-source('functions/withinYear_plot.R',local=T)
-source('functions/wqi_site_plot.R',local=T)
-source('functions/wqi_map.R',local=T)
+source('helper_functions/wqc_functions.R',local=T)
+source('helper_functions/site_map.R',local=T)
+source('helper_functions/trend_summary_and_plot.R',local=T)
+source('helper_functions/wqc_map.R',local=T)
+source('helper_functions/wqc_site.R',local=T)
+source('helper_functions/trend_shiny_functions.R',local=T)
+source('helper_functions/withinYear_plot.R',local=T)
+source('helper_functions/wqi_site_plot.R',local=T)
+source('helper_functions/wqi_map.R',local=T)
 
 streams_wq_dat<-readRDS('outputs/streams_wq_dat.RDS')
 streams_sites<-readRDS('outputs/streams_sites.RDS')
