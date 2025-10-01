@@ -56,6 +56,18 @@ streams_wq_dat <- wqp_data %>%
              .default = parameter)
 )
 
+#TODO The following snippet will be removed in a future update and replaced with a config file. 
+mini_params <- data.frame(
+  parameter = c("Dissolved oxygen (DO)", "Temperature", "Nitrate + Nitrite as N",
+                "Total Phosphorus, mixed forms", "Phosphorus", "Total Phosphorus",
+                "Escherichia coli", "Specific conductance", "Conductivity",
+                "Total suspended solids"),
+  mini_param = c("Dissolved Oxygen", "Temperature, water", "Nitrite + Nitrate",
+                 "Total Phosphorus", "Total Phosphorus", "Total Phosphorus",
+                 "E. coli", "Conductivity", "Conductivity", "Total Suspended Solids")
+)
+write_csv(mini_params, "public_dashboard_outputs_streams/parameter_merges.csv")
+
 #treams_wq_dat["parameter"][streams_wq_dat["parameter"] == "Temperature, water"] <- "Water Temperature (°C)"
 
 saveRDS(streams_wq_dat,'outputs/streams_wq_dat.RDS')
