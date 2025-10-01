@@ -3,7 +3,7 @@ library(lubridate)
 library(ggplot2)
 
 
-source('external_data/WQP_r_script.R')
+source('sourcing_script/WQP_r_script.R')
 
 wqp_data <- read.csv("inputs/wqp_data.csv") %>%
   filter(parameter != "Depth to water from rim of well casing")
@@ -55,18 +55,6 @@ streams_wq_dat <- wqp_data %>%
              parameter %in% c("Total suspended solids") ~ 'Total Suspended Solids',
              .default = parameter)
 )
-
-#TODO The following snippet will be removed in a future update and replaced with a config file. 
-mini_params <- data.frame(
-  parameter = c("Dissolved oxygen (DO)", "Temperature", "Nitrate + Nitrite as N",
-                "Total Phosphorus, mixed forms", "Phosphorus", "Total Phosphorus",
-                "Escherichia coli", "Specific conductance", "Conductivity",
-                "Total suspended solids"),
-  mini_param = c("Dissolved Oxygen", "Temperature, water", "Nitrite + Nitrate",
-                 "Total Phosphorus", "Total Phosphorus", "Total Phosphorus",
-                 "E. coli", "Conductivity", "Conductivity", "Total Suspended Solids")
-)
-write_csv(mini_params, "public_dashboard_outputs_streams/parameter_merges.csv")
 
 #treams_wq_dat["parameter"][streams_wq_dat["parameter"] == "Temperature, water"] <- "Water Temperature (°C)"
 
