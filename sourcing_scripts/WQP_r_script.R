@@ -1,7 +1,6 @@
+library(arrow)
 library(tidyverse)
 library(dataRetrieval)
-#library(stringr)
-#library(lubridate)
 
 ## Define Required Codes
 WQP_COUNTY_CODE <- "US:53:067"
@@ -20,29 +19,23 @@ STREAM_SITE_TYPES <- c(
   "River/Stream Ephemeral"
 )
 
-# Filter list for:
-#   Thurston County owned sites
-#   Sites that capture stream data
-# add filter for only routine stream sites
-
+## Import data with required filters
 thurston_stream_sites <- readWQPdata(
-  organization = "THURSTONCOUNTY",
-  service = "Station",
-  Project = "Ambient_Water_Quality_Streams"
+  organization = "THURSTONCOUNTY", # Sites owned by Thurston County
+  service = "Station", # Sites that capture stream data
+  Project = "Ambient_Water_Quality_Streams" # Routine stream sites
 )
 
-# Select only the site ids to be used in next data fetch
-# This list of ids will likely not change very often so the previous steps may not be necessary each time only to update site id list
-thurston_stream_sites_ids <- thurston_stream_sites$MonitoringLocationIdentifier
-
-# Now fetch all water quality data for the selected sites
+## Fetch all water quality data to be used
 # Takes roughly 1 minute to download
 wqp_data <- readWQPdata(
-  siteid = thurston_stream_sites_ids
+  siteid = thurston_stream_sites$MonitoringLocationIdentifier
 )
+
+## Print unique wqp parameters
 unique(wqp_data$CharacteristicName)
 
-# Fetch other meta data from thurston_stream_sites to combine with hec_data
+## Fetch other metadata from thurston_stream_sites to combine with hec_data
 gid_ref <- thurston_stream_sites %>%
   select(c(
     MonitoringLocationIdentifier,
@@ -52,14 +45,11 @@ gid_ref <- thurston_stream_sites %>%
     LongitudeMeasure
   ))
 
-gid_ref$gid <- str_match(
-  gid_ref$MonitoringLocationDescriptionText,
-  "GData ID:\\s*(.*?)\\s*;"
-)
+gid_ref$gid <- str_match(gid_ref$MonitoringLocationDescriptionText,
+                         "GData ID:\\s*(.*?)\\s*;")[, 2] |>
+  as.numeric()
 
-gid_ref$gid <- as.numeric(gid_ref$gid[, 2])
-
-# Grab necessary columns for HEC format
+## Grab necessary columns for HEC format
 hec_data <- wqp_data %>%
   select(
     c(
@@ -79,12 +69,11 @@ hec_data <- wqp_data %>%
   )
 
 
-# Merging hec_data with gid_ref
+## Merge hec_data with gid references
 hec_data_merged <- merge(hec_data, gid_ref, by = "MonitoringLocationIdentifier")
-
 unique(hec_data_merged$CharacteristicName)
 
-# Cleaning of hec_data_merged dataframe
+## Tidy the hec_data_merged dataframe
 hec_data_merged$MonitoringLocationIdentifier <- str_remove(
   hec_data_merged$MonitoringLocationIdentifier,
   "THURSTONCOUNTY-"
@@ -95,19 +84,17 @@ hec_data_merged$DT <- paste(
   hec_data_merged$ActivityStartTime.Time,
   sep = " "
 )
-#TODO this one is introducing NAs by 
-hec_data_merged$ResultMeasureValue <- as.numeric(
-  hec_data_merged$ResultMeasureValue
-)
-hec_data_merged$DetectionQuantitationLimitMeasure.MeasureValue <- as.numeric(
-  hec_data_merged$DetectionQuantitationLimitMeasure.MeasureValue
-)
-hec_data_merged$SITE_CODE <- hec_data_merged$MonitoringLocationIdentifier
 
-hec_data_merged$sample_utc_offset <- NA
-hec_data_merged$pql <- NA
-hec_data_merged$lab_batch <- NA
-
+hec_data_merged <- hec_data_merged |>
+  mutate(
+    ResultMeasureValue = as.numeric(as.factor(ResultMeasureValue)),
+    DetectionQuantitationLimitMeasure.MeasureValue =
+      as.numeric(DetectionQuantitationLimitMeasure.MeasureValue),
+    SITE_CODE = MonitoringLocationIdentifier,
+    sample_utc_offset = NA,
+    pql = NA,
+    lab_batch = NA
+  )
 
 hec_final <- hec_data_merged %>%
   select(c(
@@ -132,7 +119,7 @@ hec_final <- hec_data_merged %>%
     ResultDepthHeightMeasure.MeasureValue
   ))
 
-
+## Rename columns
 colnames(hec_final) <- c(
   "SITE_CODE",
   "Metro_ID",
@@ -155,14 +142,15 @@ colnames(hec_final) <- c(
   "depth_m"
 )
 
+hec_final <- hec_final |>
+  mutate(
+    date_time = date_time |>
+      str_replace("NA", "00:00:00") |>
+      ymd_hms()
+  ) |>
+  filter(!is.na(date_time))
 
-hec_final$date_time <- str_replace(hec_final$date_time, "NA", "00:00:00")
 
-hec_final$date_time <- ymd_hms(hec_final$date_time)
-
-hec_final <- hec_final[!is.na(hec_final$date_time), ]
-
-
-# Transform data to format used in Herrera All Stream Data Dump 4 12 2023.csv
-
+## Transform data to format used in Herrera All Stream Data Dump 4 12 2023.csv
 write.csv(hec_final, file = "inputs/wqp_data.csv")
+write_parquet(hec_final, "inputs/wqp_data.parquet")
