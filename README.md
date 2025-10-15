@@ -31,7 +31,7 @@ the app locally, please see the deps.yaml file in this directory for a
 complete list of dependencies. The install_deps.R script will
 automatically install the necessary packages.
 
-You will need to have R and a compatible IDE (RStudio or Positron)
+You will need to have R and a compatible IDE (e.g., RStudio or Positron)
 installed on your computer.
 
 ## :droplet: Data
@@ -76,7 +76,7 @@ inputs/ subdirectory:
     -   It contains the following column structure:
 
 | Field         | Description                                                                                                                                                                                                                      |
-|------------------------|-----------------------------------------------|
+|--------------------------|----------------------------------------------|
 | **date_time** | `MM/DD/YY HH:MM` in local time (assumed to be text value)                                                                                                                                                                        |
 | **SITE_CODE** | Text value designating the site – note that the SITE_CODE names on WQX appear to be slightly different, often having a prefix                                                                                                    |
 | **SITE_NAME** | Long-form site name                                                                                                                                                                                                              |
