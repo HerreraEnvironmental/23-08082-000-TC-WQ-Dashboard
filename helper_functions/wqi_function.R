@@ -132,7 +132,7 @@ wqi_calc <- function(
         )
       )
     ) %>%
-    left_join(ecology_curves, by = c('rownumber' = 'ParamClassID')) %>%
+    left_join(ecology_curves, by = c('rownumber' = 'ParamClassID'), relationship = "many-to-many") %>%
     filter(
       value >= LowerResult &
         value <= UpperResult &
@@ -180,7 +180,7 @@ wqi_calc <- function(
       filter(shortParmName %in% c('TPN', 'TP_P')) %>%
       left_join(np_ratios) %>%
       group_by(site, WaterYear, Month) %>%
-      summarise(
+      reframe( #TODO replaced summarise()
         WQI = ifelse(
           is.na(NPRatio),
           min(WQI, na.rm = T),
@@ -276,13 +276,14 @@ wqi_calc <- function(
       select(-WQI_Value, -value) %>%
       bind_rows(sediment_score, nutrient_score) %>%
       group_by(site, shortParmName, WaterYear) %>%
-      summarise(
+      reframe( # TODO replaced summarise
         WQI = ifelse(
           grepl('Oxygen|Temp|pH', shortParmName),
           sort(WQI)[1],
           mean(sort(WQI)[1:3], na.rm = T)
         )
       ) %>%
+      group_by(site, shortParmName, WaterYear) %>% #TODO added this back in
       summarise(WQI = mean(WQI, na.rm = T)) %>%
       mutate(
         shortParmName = factor(
