@@ -1,10 +1,5 @@
-#summary of Water quality trends for a selected parameter
-# To Do - Change Display to a Map
-# maybe include start year and end year to avoid confusions
-
-#set a limit for number of samples for selected time period
-#let's go for 4
-#if((input$trend_summary_years[2]-input$trend_summary_years[1])<4) "Please select at least 4 years" else{
+## Summary of water quality trends for a selected parameter
+# Requires: tidyverse, leaflet
 
 trend_summary_func <- function(streams_wq_dat, input) {
   temp_trend_data <- streams_wq_dat %>%
@@ -14,17 +9,17 @@ trend_summary_func <- function(streams_wq_dat, input) {
         parameter == input$trend_summary_parm #&
       #    SITE_CODE %in% input$main_site3
     )
-  if (input$rktSeason == 'winter') {
-    temp_trend_data <- temp_trend_data %>% filter(Month >= 1 & Month <= 3)
-  }
-  if (input$rktSeason == 'spring') {
-    temp_trend_data <- temp_trend_data %>% filter(Month >= 4 & Month <= 6)
-  }
-  if (input$rktSeason == 'summer') {
-    temp_trend_data <- temp_trend_data %>% filter(Month >= 7 & Month <= 9)
-  }
-  if (input$rktSeason == 'fall') {
-    temp_trend_data <- temp_trend_data %>% filter(Month >= 10 & Month <= 12)
+  
+  season_months <- list(
+    winter = 1:3,
+    spring = 4:6,
+    summer = 7:9,
+    fall   = 10:12
+  )
+
+  if (input$rktSeason %in% names(season_months)) {
+    temp_trend_data <- temp_trend_data |>
+      dplyr::filter(Month %in% season_months[[input$rktSeason]])
   }
 
   temp_trend_data %>%
@@ -87,12 +82,6 @@ trend_summary_func <- function(streams_wq_dat, input) {
     )
 }
 
-# trend_summary_func(streams_wq_dat,
-#                    input=list(trend_summary_years=c(2000,2020),
-#                               trend_summary_parm='Total Phosphorus',
-#                               rktAuto=F,
-#                               rktSeason='All',
-#                               main_site3='05b'))
 
 trend_summary_map <- function(trend_summary, stream_sites, input) {
   pal_trend <- colorFactor(
@@ -109,37 +98,20 @@ trend_summary_map <- function(trend_summary, stream_sites, input) {
     left_join(streams_sites) %>%
     leaflet() %>%
     addCircleMarkers(
-      fillColor = ~ pal_trend(Statement),
+      fillColor   = ~pal_trend(Statement),
       fillOpacity = 0.9,
-      weight = 1,
-      color = 'black',
-      popup = ~ paste0(
-        "<h6>",
-        "<b>",
-        SITE_NAME,
-        '<br>',
-        "</b>",
-        "</h6>",
-        '<br>',
-        SITE_CODE,
-        '<br>',
-        'Season: ',
-        input$rktSeason,
-        '<br>',
-        'Corrected for Autocorrelation? ',
-        input$rktAuto,
-        '<br>',
-        Statement,
-        ' (p=',
-        round(p, 4),
-        ')',
-        '<br>',
-        StartYear,
-        ' to ',
-        EndYear
+      weight      = 1,
+      color       = "black",
+      popup = ~paste0(
+        "<h6><b>", SITE_NAME, "</b></h6>",
+        "<br>", SITE_CODE,
+        "<br>Season: ", input$rktSeason,
+        "<br>Corrected for Autocorrelation? ", input$rktAuto,
+        "<br>", Statement, " (p = ", round(p, 4), ")",
+        "<br>", StartYear, " to ", EndYear
       ),
       layerId = ~SITE_CODE,
-      label = ~SITE_NAME
+      label   = ~SITE_NAME
     ) %>%
     addProviderTiles('Esri.NatGeoWorldMap') %>%
     addLegend(
@@ -154,15 +126,6 @@ trend_summary_map <- function(trend_summary, stream_sites, input) {
       opacity = 1
     )
 }
-# trend_summary_map(
-#   trend_summary = trend_summary_func(streams_wq_dat,
-#                                      input=list(trend_summary_years=c(2000,2020),
-#                                                 trend_summary_parm='Total Phosphorus',
-#                                                 rktAuto=F,
-#                                                 rktSeason='All',
-#                                                 main_site3='05b')),
-#   stream_sites
-# )
 
 trend_summary_plot <- function(trend_summary, input) {
   plot <- trend_summary %>%
@@ -186,14 +149,6 @@ trend_summary_plot <- function(trend_summary, input) {
 
   ggplotly(plot)
 }
-# trend_summary_plot(
-#   trend_summary = trend_summary_func(streams_wq_dat,
-#                                      input=list(trend_summary_years=c(2000,2020),
-#                                                 trend_summary_parm='Total Phosphorus',
-#                                                 rktAuto=F,
-#                                                 rktSeason='All',
-#                                                 main_site3='05b'))
-# )
 
 trend_summary_trend_plot <- function(streams_wq_dat, input) {
   temp_trend_data <- streams_wq_dat %>%
@@ -202,17 +157,17 @@ trend_summary_trend_plot <- function(streams_wq_dat, input) {
       parameter == input$trend_summary_parm &
         SITE_CODE == input$trend_summary_site
     )
-  if (input$rktSeason == 'winter') {
-    temp_trend_data <- temp_trend_data %>% filter(Month >= 1 & Month <= 3)
-  }
-  if (input$rktSeason == 'spring') {
-    temp_trend_data <- temp_trend_data %>% filter(Month >= 4 & Month <= 6)
-  }
-  if (input$rktSeason == 'summer') {
-    temp_trend_data <- temp_trend_data %>% filter(Month >= 7 & Month <= 9)
-  }
-  if (input$rktSeason == 'fall') {
-    temp_trend_data <- temp_trend_data %>% filter(Month >= 10 & Month <= 12)
+  
+  season_months <- list(
+    winter = 1:3,
+    spring = 4:6,
+    summer = 7:9,
+    fall   = 10:12
+  )
+
+  if (input$rktSeason %in% names(season_months)) {
+    temp_trend_data <- temp_trend_data |>
+      dplyr::filter(Month %in% season_months[[input$rktSeason]])
   }
 
   trendplot <- temp_trend_data %>%
@@ -240,3 +195,10 @@ trend_summary_trend_plot <- function(streams_wq_dat, input) {
 
   ggplotly(trendplot)
 }
+
+## TODO: Change Display to a Map
+# maybe include start year and end year to avoid confusions
+
+#set a limit for number of samples for selected time period
+#let's go for 4
+#if((input$trend_summary_years[2]-input$trend_summary_years[1])<4) "Please select at least 4 years" else{
