@@ -1,3 +1,5 @@
+*.parquet
+outputs/*.RDS
 # History files
 .Rhistory
 .Rapp.history

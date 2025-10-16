@@ -26,15 +26,15 @@ Access the dashboard here:
 
 ## 📦 Requirements and Dependencies
 
-This Shiny application is hosted on shinyapps.io. Should you need to run
-the app locally, please see the deps.yaml file in this directory for a
-complete list of dependencies. The install_deps.R script will
-automatically install the necessary packages.
+This Shiny application is hosted on shinyapps.io (see link above).
+Should you need to run the app locally, please see the deps.yaml file in
+this directory for a complete list of dependencies. The install_deps.R
+script will automatically install the necessary packages.
 
 You will need to have R and a compatible IDE (e.g., RStudio or Positron)
 installed on your computer.
 
-## :droplet: Data
+## :droplet: Data and Analysis
 
 The original, unmodified data used in this project is located in the
 inputs/ subdirectory, which is backed up both on this GitHub and in
@@ -44,24 +44,25 @@ Herrera's private
 If you do not have access to the data, please contact the contributors
 listed at the bottom of the repository.
 
-### :arrows_counterclockwise: Layout of directory and data
+### :arrows_counterclockwise: Layout of directory, data, and analysis
 
-The ui.R and server.R scripts contain the application code.
+The ui.R and server.R scripts contain the Shiny application code.
 
 **General flow of data acquisition + tidying:**
 
-The inputs/ folder contains internal and external data used in the app.
-The sourcing_scripts/ folder contains the scripts that will pull in
-external data, tidy it, and produce the data used in the app.
+The inputs/ folder contains raw data. The sourcing_scripts/ folder
+contains the scripts that will pull in external data from WQP, tidy it,
+and produce the data that is used in the app. Within the
+sourcing_scripts/ folder:
 
 -   WQP_r_script.R sources data from the remote [Water Quality
     Portal](https://www.waterqualitydata.us.) and tidies the sourced
     data to match with internal formatting. This tidied dataframe is
-    saved as wqp_data.csv and is used to produce the various dashboard
-    tables.
+    saved as wqp_data.csv (or parquet) and is used to produce the
+    various dashboard tables.
 
--   The data_prep.R script produces multiple RDS files that are used
-    within the dashboard.
+-   The data_prep.R script produces multiple RDS (or parquet) files that
+    are used within the dashboard.
 
 Internal, raw data consists of the following files located in the
 inputs/ subdirectory:

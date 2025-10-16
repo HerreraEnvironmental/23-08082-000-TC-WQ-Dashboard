@@ -1,7 +1,9 @@
+library(arrow)
 library(tidyverse)
 
 ## This script uses data sourced from the WQP (Water Quality Portal Data Home)
-source("sourcing_script/WQP_r_script.R")
+source("sourcing_scripts/WQP_r_script.R")
+source("helper_functions/wqi_function.R")
 
 ## Import the wqp data
 wqp_data <- read_parquet("inputs/wqp_data.parquet") |>
@@ -23,12 +25,12 @@ stream_use_designations <- readxl::read_xlsx(
   ) |>
   filter(!is.na(SITE_CODE))
 
-## Using wqp data
+## Create site use designations file
 streams_sites <- wqp_data |>
   select(gid, SITE_CODE, SITE_NAME, Metro_ID, LAT, LON) |>
   distinct() |>
   arrange(SITE_NAME) |>
-  left_join(stream_use_designations) |>
+  left_join(stream_use_designations, by = "SITE_CODE") |>
   mutate(
     AquaticLifeUse = ifelse(
       is.na(AquaticLifeUse),
@@ -37,17 +39,18 @@ streams_sites <- wqp_data |>
     )
   )
 
-saveRDS(streams_sites, "outputs/streams_sites.RDS")
-write.csv(streams_sites, "outputs/streams_sites.csv", row.names = F)
+write_parquet(streams_sites, "outputs/streams_sites.parquet")
+#saveRDS(streams_sites, "outputs/streams_sites.RDS")
+#write.csv(streams_sites, "outputs/streams_sites.csv", row.names = F)
 
-## WQP data
+## Create streams water quality data
 streams_wq_dat <- wqp_data |>
   tibble() |>
-  mutate(sample_utc_offset = ifelse(dst(date_time), 7, 8)) |>
   mutate(
+    sample_utc_offset = if_else(dst(date_time), 7L, 8L),
     DateTime = with_tz(
       as_datetime(date_time, tz = "UTC") + hours(sample_utc_offset),
-      tz = "America/Los_Angeles"
+      tzone = "America/Los_Angeles"
     )
   ) |>
   select(
@@ -63,46 +66,45 @@ streams_wq_dat <- wqp_data |>
     qualifier
   ) |>
   mutate(
-    unit = trimws(unit),
-    qualifier = trimws(qualifier),
-    nonDetectFlag = grepl("U", qualifier),
-    newResultValue = ifelse(nonDetectFlag, pql, value),
-    newResultValue = ifelse(
+    across(c(unit, qualifier), trimws),
+    nonDetectFlag = grepl("U", qualifier, fixed = TRUE),
+    newResultValue = if_else(nonDetectFlag, pql, value),
+    newResultValue = if_else(
       parameter == "Turbidity" & newResultValue <= 0,
       0.01,
       newResultValue
     ),
     Year = year(DateTime),
     Month = month(DateTime),
-    WaterYear = ifelse(Month >= 10, Year + 1, Year),
-    FakeDate = as.Date(paste(2000, Month, day(DateTime), sep = "-")),
-    WY_FakeDate = as.Date(if_else(Month >= 10, FakeDate - years(1), FakeDate)),
-    # rename to internally consistent parameter names
-    parameter = case_when(
-      parameter %in% c("Dissolved oxygen (DO)") ~ "Dissolved Oxygen",
-      parameter %in% c("Temperature") ~ "Temperature, water",
-      parameter %in% c("Nitrate + Nitrite as N") ~ "Nitrite + Nitrate",
-      parameter %in%
-        c("Total Phosphorus, mixed forms", "Phosphorus", "Total Phosphorus") ~
+    WaterYear = if_else(Month >= 10L, Year + 1L, Year),
+    FakeDate = make_date(2000, Month, day(DateTime)),
+    WY_FakeDate = as.Date(if_else(Month >= 10L, FakeDate - years(1), FakeDate)),
+    parameter = dplyr::case_match(
+      parameter,
+      c("Dissolved oxygen (DO)") ~ "Dissolved Oxygen",
+      c("Temperature") ~ "Temperature, water",
+      c("Nitrate + Nitrite as N") ~ "Nitrite + Nitrate",
+      c("Total Phosphorus, mixed forms", "Phosphorus", "Total Phosphorus") ~
         "Total Phosphorus",
-      parameter %in% c("Escherichia coli") ~ "E. coli",
-      parameter %in% c("Specific conductance", "Conductivity") ~ "Conductivity",
-      parameter %in% c("Total suspended solids") ~ "Total Suspended Solids",
+      c("Escherichia coli") ~ "E. coli",
+      c("Specific conductance", "Conductivity") ~ "Conductivity",
+      c("Total suspended solids") ~ "Total Suspended Solids",
       .default = parameter
     )
   )
 
-# treams_wq_dat["parameter"][streams_wq_dat["parameter"] == "Temperature, water"] <- "Water Temperature (°C)"
+write_parquet(streams_wq_dat, "outputs/streams_wq_dat.parquet")
+#saveRDS(streams_wq_dat, "outputs/streams_wq_dat.RDS")
 
-saveRDS(streams_wq_dat, "outputs/streams_wq_dat.RDS")
-
+## Create list of sites
 sites_list <- setNames(
   streams_sites$SITE_CODE,
   paste0(streams_sites$SITE_NAME, " (", streams_sites$SITE_CODE, ")")
 )
+
+## Create list of parameters
 parm_list <- unique(streams_wq_dat$parameter) |>
   factor(
-    .,
     levels = c(
       "Temperature, water",
       "Dissolved Oxygen",
@@ -125,6 +127,8 @@ parm_list <- unique(streams_wq_dat$parameter) |>
     )
   ) |>
   levels()
+
+## Create list of years
 years_list <- sort(unique(streams_wq_dat$WaterYear), T)
 
 saveRDS(sites_list, "outputs/sites_list.RDS")
@@ -134,22 +138,6 @@ saveRDS(years_list, "outputs/years_list.RDS")
 unique(streams_wq_dat$depth_m) # all 0 or NA
 unique(streams_wq_dat$dup) # there are dups
 unique(streams_wq_dat$qualifier)
-# [1] "   " "FE " "JL " "FH " ""    "U  " "J  " "K  " "FA " "EST" "EQP" "FS " "FD " "JG "
-# EST = estimated J
-# JG = estimated high
-# JG = estimated low
-# FE = ????
-# FH = ????
-# U = nonDetect
-# K = ????
-# FD = ?????
-# EQP = ????
-# FA = ????
-
-## need to do:
-# Stream WQI
-
-source("helper_functions/wqi_function.R")
 
 parm_table <- data.frame(rbind(
   c("FC", "Fecal Coliform"),
@@ -161,7 +149,6 @@ parm_table <- data.frame(rbind(
   c("SUSSOL", "Total Suspended Solids"),
   c("Temp", "Temperature, water"),
   c("TPN", "Total Nitrogen"),
-  # for the sake of this example let's use nitate
   c("TPN", "Nitrate + Nitrite"),
   c("Turb", "Turbidity")
 ))
@@ -169,11 +156,10 @@ colnames(parm_table) <- c("shortParmName", "parameter")
 
 
 annual_wqi <- streams_wq_dat |>
-  left_join(stream_use_designations) |>
-  left_join(parm_table) |>
+  left_join(stream_use_designations, by = "SITE_CODE") |>
+  left_join(parm_table, by = "parameter") |>
   filter(!is.na(shortParmName)) |>
   with(
-    .,
     wqi_calc(
       site = SITE_CODE,
       value = newResultValue,
@@ -200,14 +186,15 @@ annual_wqi <- streams_wq_dat |>
       small_PS_stream = T # assume all puget sound small streams
     )
   )
-saveRDS(annual_wqi, "outputs/annual_wqi.RDS")
+write_parquet(annual_wqi, "outputs/annual_wqi.parquet")
+#saveRDS(annual_wqi, "outputs/annual_wqi.RDS")
 
-streams_wq_dat |>
-  left_join(streams_sites |> select(SITE_CODE, AquaticLifeUse)) |>
-  left_join(parm_table) |>
+annual_wqi_by_parameter <- streams_wq_dat |>
+  left_join(streams_sites |> select(SITE_CODE, AquaticLifeUse), by = "SITE_CODE") |>
+  left_join(parm_table, by = "parameter") |>
   filter(!is.na(shortParmName)) |>
   with(
-    .,
+    #.,
     wqi_calc(
       site = SITE_CODE,
       value = newResultValue,
@@ -234,15 +221,16 @@ streams_wq_dat |>
       small_PS_stream = T, # assume all puget sound small streams
       summary_by = "ByParameter"
     )
-  ) |>
-  saveRDS("outputs/annual_wqi_by_parameter.RDS")
+  )
+saveRDS(annual_wqi_by_parameter, "outputs/annual_wqi_by_parameter.RDS")
+write_parquet(annual_wqi_by_parameter, "outputs/annual_wqi_by_parameter.parquet")
 
-streams_wq_dat |>
-  left_join(streams_sites |> select(SITE_CODE, AquaticLifeUse)) |>
-  left_join(parm_table) |>
+monthly_wqi_by_parameter <- streams_wq_dat |>
+  left_join(streams_sites |> select(SITE_CODE, AquaticLifeUse), by = "SITE_CODE") |>
+  left_join(parm_table, by = "parameter") |>
   filter(!is.na(shortParmName)) |>
   with(
-    .,
+    #.,
     wqi_calc(
       site = SITE_CODE,
       value = newResultValue,
@@ -270,16 +258,16 @@ streams_wq_dat |>
       summary_by = "ByParameter",
       period = "Monthly"
     )
-  ) |>
-  saveRDS("outputs/monthly_wqi_by_parameter.RDS")
+  )
+saveRDS(monthly_wqi_by_parameter, "outputs/monthly_wqi_by_parameter.RDS")
+write_parquet(monthly_wqi_by_parameter, "outputs/monthly_wqi_by_parameter.parquet")
 
-
-streams_wq_dat |>
-  left_join(streams_sites |> select(SITE_CODE, AquaticLifeUse)) |>
-  left_join(parm_table) |>
+monthly_wqi <- streams_wq_dat |>
+  left_join(streams_sites |> select(SITE_CODE, AquaticLifeUse), by = "SITE_CODE") |>
+  left_join(parm_table, by = "parameter") |>
   filter(!is.na(shortParmName)) |>
   with(
-    .,
+    #.,
     wqi_calc(
       site = SITE_CODE,
       value = newResultValue,
@@ -306,5 +294,6 @@ streams_wq_dat |>
       small_PS_stream = T, # assume all puget sound small streams
       period = "Monthly"
     )
-  ) |>
-  saveRDS("outputs/monthly_wqi.RDS")
+  )
+saveRDS(monthly_wqi, "outputs/monthly_wqi.RDS")
+write_parquet(monthly_wqi, "outputs/monthly_wqi.parquet")
