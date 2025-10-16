@@ -1,38 +1,37 @@
-#Trend Plot and text summary for water quality data
+# Trend Plot and text summary for water quality data
 
 trend_plot <- function(dataSubset, input) {
-  if (input$rktSeason_oneSite == 'winter') {
-    dataSubset <- dataSubset %>% filter(Month >= 1 & Month <= 3)
-  }
-  if (input$rktSeason_oneSite == 'spring') {
-    dataSubset <- dataSubset %>% filter(Month >= 4 & Month <= 6)
-  }
-  if (input$rktSeason_oneSite == 'summer') {
-    dataSubset <- dataSubset %>% filter(Month >= 7 & Month <= 9)
-  }
-  if (input$rktSeason_oneSite == 'fall') {
-    dataSubset <- dataSubset %>% filter(Month >= 10 & Month <= 12)
-  }
+  # Takes user-selected parameter and a given data subset to create the trend plot
+  season_ranges <- list(
+    winter = 1:3,
+    spring = 4:6,
+    summer = 7:9,
+    fall   = 10:12
+  )
+
+  dataSubset <- dataSubset |>
+    dplyr::filter(Month %in% season_ranges[[input$rktSeason_oneSite]])
 
   trendplot <- dataSubset %>%
     ggplot(aes(x = DateTime, y = value)) +
     geom_point(
-      data = ~ filter(.x, WaterYear == input$data_year),
-      col = 'red',
+      data = ~ dplyr::filter(.x, WaterYear == input$data_year),
+      color = "red",
       size = 4
     ) +
     geom_point() +
     geom_smooth(
-      data = ~ filter(
+      data = ~ dplyr::filter(
         .x,
-        WaterYear >= input$trend_years[1] & WaterYear <= input$trend_years[2]
+        WaterYear >= input$trend_years[1] &
+          WaterYear <= input$trend_years[2]
       ),
-      se = F
+      se = FALSE
     ) +
     theme_bw() +
-    scale_y_continuous(input$trend_parm)
+    scale_y_continuous(name = input$trend_parm)
 
-  if (input$trend_parm == 'Temperature, water') {
+  if (input$trend_parm == "Temperature, water") {
     temp_criteria <- wqc_finder(
       unique(dataSubset$AquaticLifeUse),
       input$trend_parm
@@ -41,7 +40,7 @@ trend_plot <- function(dataSubset, input) {
       geom_hline(yintercept = temp_criteria)
   }
 
-  if (input$trend_parm == 'Dissolved Oxygen') {
+  if (input$trend_parm == "Dissolved Oxygen") {
     do_criteria <- wqc_finder(
       unique(dataSubset$AquaticLifeUse),
       input$trend_parm
@@ -50,16 +49,16 @@ trend_plot <- function(dataSubset, input) {
       geom_hline(yintercept = do_criteria)
   }
 
-  if (input$trend_parm == 'pH') {
+  if (input$trend_parm == "pH") {
     trendplot <- trendplot +
       geom_hline(yintercept = c(6.5, 8.5))
   }
 
-  if (input$trend_parm == 'Fecal Coliform') {
+  if (input$trend_parm == "Fecal Coliform") {
     trendplot <- trendplot +
       geom_hline(yintercept = c(100, 200))
   }
-  if (input$trend_parm == 'E. coli') {
+  if (input$trend_parm == "E. coli") {
     trendplot <- trendplot +
       geom_hline(yintercept = c(100, 320))
   }
@@ -77,27 +76,17 @@ trend_plot <- function(dataSubset, input) {
 }
 
 
-# trend_plot(dataSubset=
-# streams_wq_dat %>%
-#   filter(SITE_CODE=='05b'&
-#            parameter=='Total Phosphorus')%>%
-#   mutate(AquaticLifeUse='Core Summer Salmonid Habitat'),
-# input=list(data_log_scale=F,trend_parm='Total Phosphorus',data_year=2022,
-#            trend_years=c(2000,2022)))
-
 trend_text <- function(dataSubset, input) {
-  if (input$rktSeason_oneSite == 'winter') {
-    dataSubset <- dataSubset %>% filter(Month >= 1 & Month <= 3)
-  }
-  if (input$rktSeason_oneSite == 'spring') {
-    dataSubset <- dataSubset %>% filter(Month >= 4 & Month <= 6)
-  }
-  if (input$rktSeason_oneSite == 'summer') {
-    dataSubset <- dataSubset %>% filter(Month >= 7 & Month <= 9)
-  }
-  if (input$rktSeason_oneSite == 'fall') {
-    dataSubset <- dataSubset %>% filter(Month >= 10 & Month <= 12)
-  }
+  # Takes user-selected parameter input and a data subset to add text to the trend plot
+  season_months <- list(
+    winter = 1:3,
+    spring = 4:6,
+    summer = 7:9,
+    fall   = 10:12
+  )
+
+  dataSubset <- dataSubset |>
+    dplyr::filter(Month %in% season_months[[input$rktSeason_oneSite]])
 
   trend_out <- dataSubset %>%
     filter(
@@ -110,7 +99,7 @@ trend_text <- function(dataSubset, input) {
         newResultValue,
         Month,
         correct = input$rktAuto_oneSite,
-        rep = 'a'
+        rep = "a"
       )
     )
 
@@ -120,63 +109,44 @@ trend_text <- function(dataSubset, input) {
 
   if (is.na(p.value)) {
     HTML(paste0(
-      '<u>Mann-Kendall Trend Test:</u>',
-      '<br/>',
-      'There are not enough data to evaluate trends.'
+      "<u>Mann-Kendall Trend Test:</u>",
+      "<br/>",
+      "There are not enough data to evaluate trends."
     ))
   } else {
     sigStatement <- paste0(
       ifelse(
         p.value <= 0.05,
-        'a  significant trend',
-        'insufficient evidence of a trend'
+        "a  significant trend",
+        "insufficient evidence of a trend"
       ),
-      ' (p',
-      ifelse(p.value < 0.001, '<0.001)', paste0('=', round(p.value, 3), ')'))
+      " (p",
+      ifelse(p.value < 0.001, "<0.001)", paste0("=", round(p.value, 3), ")"))
     )
 
     slopeStatement <- ifelse(
       p.value <= 0.05,
       paste(
-        'The trend slope is',
+        "The trend slope is",
         round(trend_out$B, 4),
         trend_unit,
-        'per year'
+        "per year"
       ),
-      ''
+      ""
     )
 
     HTML(paste0(
-      '<u>Mann-Kendall Trend Test:</u>',
-      '<br/>',
-      'Between water years <b>',
-      input$trend_years[1],
-      '</b> and <b>',
-      input$trend_years[2],
-      '</b>',
+      "<u>Mann–Kendall Trend Test:</u><br/>",
+      "Between water years <b>", input$trend_years[1], "</b> and <b>",
+      input$trend_years[2], "</b>",
       ifelse(
-        input$rktSeason_oneSite == 'All',
-        '',
-        paste0(' (', input$rktSeason_oneSite, ')')
+        input$rktSeason_oneSite == "All",
+        "",
+        paste0(" (", input$rktSeason_oneSite, ")")
       ),
-      ' at ',
-      input$main_site2,
-      ', there is ',
-      '<b>',
-      sigStatement,
-      "</b>",
-      ' in <b>',
-      input$trend_parm,
-      '</b><br/>',
+      " at ", input$main_site2, ", there is <b>", sigStatement, "</b> in <b>",
+      input$trend_parm, "</b><br/>",
       slopeStatement
     ))
   }
 }
-#
-# trend_text(dataSubset=
-#              streams_wq_dat %>%
-#              filter(SITE_CODE=='05b'&
-#                       parameter=='Total Phosphorus')%>%
-#              mutate(AquaticLifeUse='Core Summer Salmonid Habitat'),
-#            input=list(data_log_scale=F,trend_parm='Total Phosphorus',data_year=2022,
-#                       trend_years=c(2000,2022)))
