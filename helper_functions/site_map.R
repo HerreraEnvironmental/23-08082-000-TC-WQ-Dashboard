@@ -1,77 +1,33 @@
-#Map of all monitoring sites in leaflet
+# Map of all monitoring sites in leaflet
+# Requires: tidyverse, leaflet
 
 site_map <- function(recent_streams_data, input) {
   leaflet(recent_streams_data) %>%
     addMarkers(
       popup = ~ paste0(
-        "<h5>",
-        "<b>",
-        SITE_NAME,
-        '<br>',
-        "</b>",
-        "</h5>",
-        "<h6>",
-        "<i>",
-        "Last Sampled on ",
-        as.Date(DateTime, "%Y-%M-%d"),
-        "</i>",
-        "<br>",
-        "<br>",
-        #can insert photo
-        #   '<img src="https://thumbs.dreamstime.com/z/deep-forest-stream-crystal-clear-water-sunshine-plitvice-lakes-croatia-41645592.jpg" width="250px" height="250px"/>',
+        "<h5><b>", SITE_NAME, "</b></h5>",
+        "<h6><i>Last Sampled on ", as.Date(DateTime, "%Y-%m-%d"), "</i><br><br>",
+        # Optional image:
+        # '<img src="https://thumbs.dreamstime.com/z/deep-forest-stream-crystal-clear-water-sunshine-plitvice-lakes-croatia-41645592.jpg" width="250" height="250"/>',
         "<hr>",
-        "Most Recent WQI Score of ",
-        "<b>",
-        as.character(round(WQI, 0)),
-        ' in ',
-        WaterYear,
-        ' (',
-        Rating,
-        ')',
-        "</b>",
-        "</h6>",
-        #  "<hr>"),
-        "<h6>",
-        "<b>",
-        "Click to do the following:",
-        "</b>",
-        "<ul>",
-        "<br>",
-        "<li>",
-        "<a href='#' onclick=",
-        "openTab('wqi')>",
-        'View Recent Water Quality Index',
-        '</a>',
-        "<br>",
-        "</li>",
-        "<li>",
-        "<a href='#' onclick=",
-        "openTab('all_data')>",
-        'View Water Quality trends and all data for this station',
-        '</a>',
-        "<br>",
-        "</li>",
-        "<li>",
-        "<a href='#' onclick=",
-        "openTab('data_download')>",
-        'Download all data for this station',
-        '</a>',
-        "<br>",
-        "</li>",
-        "</ul>",
-        "</h6>"
+        "Most Recent WQI Score of <b>", round(WQI, 0), "</b> in ", WaterYear, " (", Rating, ")<br><br>",
+        "<b>Click to do the following:</b><ul>",
+        "<li><a href='#' onclick=openTab('wqi')>View Recent Water Quality Index</a></li>",
+        "<li><a href='#' onclick=openTab('all_data')>View Water Quality Trends and All Data for This Station</a></li>",
+        "<li><a href='#' onclick=openTab('data_download')>Download All Data for This Station</a></li>",
+        "</ul></h6>"
       ),
       layerId = ~SITE_CODE,
       label = ~SITE_NAME
     ) %>%
-    #addPolygons(data = ThurstonCo_WA,
+    # addPolygons(data = ThurstonCo_WA,
     #            fillColor = "")%>%
     leaflet.esri::addEsriFeatureLayer(
-      'https://map.co.thurston.wa.us/arcgis/rest/services/Thurston/Thurston_Watersheds/FeatureServer/0',
+      "https://map.co.thurston.wa.us/arcgis/rest/services/Thurston/Thurston_Watersheds/FeatureServer/0",
       useServiceSymbology = TRUE,
-      fillColor = 'lightblue',
+      fillColor = "lightblue",
       stroke = 1,
-      color = 'black',
+      color = "black",
       popupProperty = JS(paste0(
         "function(feature) {",
         " return L.Util.template(",
@@ -83,7 +39,5 @@ site_map <- function(recent_streams_data, input) {
         "}"
       ))
     ) %>%
-    addProviderTiles('Esri.NatGeoWorldMap')
+    addProviderTiles("Esri.NatGeoWorldMap")
 }
-
-#site_map(recent_streams_data)
