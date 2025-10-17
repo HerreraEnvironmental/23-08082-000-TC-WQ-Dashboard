@@ -3,8 +3,10 @@
 source("install_deps.R")
 source("sourcing_scripts/data_prep.R")
 
+## Identify branch for merge
 branch <- system("git rev-parse --abbrev-ref HEAD", intern = TRUE)
 
+## Only launch main branch
 if (branch == "main") {
   rsconnect::deployApp(
     appFiles = c(
