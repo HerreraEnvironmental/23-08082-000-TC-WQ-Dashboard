@@ -1,6 +1,8 @@
-#Water Quality Index plot for individual site.
-#Annual plot of summary WQI over time
-#Monthly Plot for a selected year broken out by parameter
+## Water Quality Index plot for individual site.
+# Annual plot of summary WQI over time
+# Monthly Plot for a selected year broken out by parameter
+
+# Requires: tidyverse
 
 wqi_annual_plot <- function(annual_wqi, input) {
   annual_wqi %>%
@@ -8,7 +10,7 @@ wqi_annual_plot <- function(annual_wqi, input) {
     ggplot(aes(x = WaterYear, y = WQI)) +
     geom_point(
       data = ~ filter(.x, WaterYear == input$wqi_year),
-      col = 'red',
+      col = "red",
       size = 4
     ) +
     geom_point() +
@@ -21,8 +23,8 @@ wqi_annual_plot <- function(annual_wqi, input) {
       se = F
     ) +
     theme_bw() +
-    xlab('Water year') +
-    scale_y_continuous('Water Quality Index', limits = c(0, 100))
+    xlab("Water year") +
+    scale_y_continuous("Water Quality Index", limits = c(0, 100))
 }
 
 wqi_trend_text <- function(annual_wqi, input) {
@@ -37,16 +39,16 @@ wqi_trend_text <- function(annual_wqi, input) {
       MK_Out = map(
         .x = data,
         .f = ~ {
-          mk_out <- with(.x, rkt::rkt(WaterYear, WQI, rep = 'a'))
+          mk_out <- with(.x, rkt::rkt(WaterYear, WQI, rep = "a"))
           tibble(p = mk_out$sl, Slope = mk_out$B) %>%
             mutate(
               Statement = ifelse(
                 is.na(Slope),
-                'Test Not Run - insufficient data',
+                "Test Not Run - insufficient data",
                 ifelse(
                   p > 0.05 | Slope == 0,
-                  'No Significant Trend',
-                  ifelse(Slope > 0, 'Increasing Trend', 'Decreasing Trend')
+                  "No Significant Trend",
+                  ifelse(Slope > 0, "Increasing Trend", "Decreasing Trend")
                 )
               )
             )
@@ -59,10 +61,10 @@ wqi_trend_text <- function(annual_wqi, input) {
       Statement = factor(
         Statement,
         levels = rev(c(
-          'Decreasing Trend',
-          'Test Not Run - insufficient data',
-          'No Significant Trend',
-          'Increasing Trend'
+          "Decreasing Trend",
+          "Test Not Run - insufficient data",
+          "No Significant Trend",
+          "Increasing Trend"
         ))
       ),
       StartYear = input$wqi_trend_years[1],
@@ -70,37 +72,37 @@ wqi_trend_text <- function(annual_wqi, input) {
       sigStatement = paste0(
         ifelse(
           p <= 0.05,
-          'a  significant trend',
-          'insufficient evidence of a trend'
+          "a  significant trend",
+          "insufficient evidence of a trend"
         ),
-        ' (p',
-        ifelse(p < 0.001, '<0.001)', paste0('=', round(p, 3), ')'))
+        " (p",
+        ifelse(p < 0.001, "<0.001)", paste0("=", round(p, 3), ")"))
       ),
       slopeStatement = ifelse(
         p <= 0.05,
-        paste('The trend slope is', round(Slope, 4), 'units per year'),
-        ''
+        paste("The trend slope is", round(Slope, 4), "units per year"),
+        ""
       )
     )
   HTML(paste0(
-    '<u>Mann-Kendall Trend Test:</u>',
-    '<br/>',
-    'Between water years <b>',
+    "<u>Mann-Kendall Trend Test:</u>",
+    "<br/>",
+    "Between water years <b>",
     wqi_trend_out$StartYear,
-    '</b> and <b>',
+    "</b> and <b>",
     wqi_trend_out$EndYear,
-    '</b>',
-    ', there is ',
+    "</b>",
+    ", there is ",
     ifelse(
       is.na(wqi_trend_out$p),
-      'inadequate data to evalute a trend',
+      "inadequate data to evalute a trend",
       paste0(
-        '<b>',
+        "<b>",
         wqi_trend_out$sigStatement,
         "</b>",
-        ' in <b>',
-        'WQI',
-        '</b><br/>',
+        " in <b>",
+        "WQI",
+        "</b><br/>",
         wqi_trend_out$slopeStatement
       )
     )
@@ -114,45 +116,45 @@ monthly_wqi_plot <- function(monthly_wqi_by_parameter, monthly_wqi, input) {
     rename(Bacteria = FC, Temperature = Temp) %>%
     tidyr::pivot_longer(
       cols = -c(site:Month),
-      names_to = 'Parameter',
-      values_to = 'WQI'
+      names_to = "Parameter",
+      values_to = "WQI"
     ) %>%
     select(site, WaterYear, Month, Parameter, WQI) %>%
     mutate(
       Parameter = factor(
         Parameter,
         levels = c(
-          'Summary Score',
-          'Temperature',
-          'Oxygen',
-          'pH',
-          'Bacteria',
-          'Sediment',
-          'Nutrient'
+          "Summary Score",
+          "Temperature",
+          "Oxygen",
+          "pH",
+          "Bacteria",
+          "Sediment",
+          "Nutrient"
         )
       ),
       Month = factor(Month, c(10:12, 1:9), labels = month.abb[c(10:12, 1:9)])
     ) %>%
     filter(!is.na(Parameter)) %>%
-    #ggplot()+
+    # ggplot()+
     ggplot(aes(x = Month, y = WQI, col = Parameter)) +
     geom_line(alpha = .75, aes(group = Parameter)) +
     geom_point(alpha = .75) +
     theme_bw() +
-    xlab('Month') +
-    scale_y_continuous('Water Quality Index', limits = c(0, 100)) +
+    xlab("Month") +
+    scale_y_continuous("Water Quality Index", limits = c(0, 100)) +
     scale_color_manual(
       values = c(
-        'Summary Score' = 'black',
-        'Temperature' = 'red',
-        'Oxygen' = 'blue',
-        'pH' = 'yellow',
-        'Bacteria' = 'brown',
-        'Sediment',
-        'rosybrown',
-        'Nutrient' = 'green'
+        "Summary Score" = "black",
+        "Temperature" = "red",
+        "Oxygen" = "blue",
+        "pH" = "yellow",
+        "Bacteria" = "brown",
+        "Sediment",
+        "rosybrown",
+        "Nutrient" = "green"
       )
     )
   ggplotly(monthly_wqi_ggplot) %>%
-    layout(legend = list(title = list(text = 'Parameter')))
+    layout(legend = list(title = list(text = "Parameter")))
 }

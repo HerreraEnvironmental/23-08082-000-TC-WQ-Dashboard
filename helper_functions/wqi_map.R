@@ -1,4 +1,5 @@
-#map and summary plot of all WQI data
+## Map and summary plot of all WQI data
+# Requires: tidyverse, leaflet
 
 wqi_map <- function(streams_sites, annual_wqi, input) {
   pal <- colorFactor(
