@@ -1,4 +1,5 @@
-#compare to water quality criteria for selected site
+## Compare to water quality criteria for selected site
+# Requires: Tidyverse
 
 wqc_site <- function(streams_wq_data, streams_sites, input) {
   streams_wq_dat %>%
@@ -8,14 +9,13 @@ wqc_site <- function(streams_wq_data, streams_sites, input) {
     ) %>%
     left_join(streams_sites %>% select(SITE_CODE, AquaticLifeUse)) %>%
     filter(
-      parameter %in%
-        c(
-          'Temperature, water',
-          'Dissolved Oxygen',
-          'pH',
-          'E. coli',
-          'Fecal Coliform'
-        )
+      parameter %in% c(
+        "Temperature, water",
+        "Dissolved Oxygen",
+        "pH",
+        "E. coli",
+        "Fecal Coliform"
+      )
     ) %>%
     group_by(AquaticLifeUse, parameter) %>%
     nest() %>%
@@ -39,15 +39,16 @@ wqc_site <- function(streams_wq_data, streams_sites, input) {
       parameter = factor(
         parameter,
         levels = c(
-          'Temperature, water',
-          'Dissolved Oxygen',
-          'pH',
-          'E. coli',
-          'Fecal Coliform'
+          "Temperature, water",
+          "Dissolved Oxygen",
+          "pH",
+          "E. coli",
+          "Fecal Coliform"
         )
       )
     ) %>%
-    complete(parameter, fill = list(nViolation = NA, Notes = 'No Data'))
+    complete(
+      parameter,
+      fill = list(nViolation = NA, Notes = "No Data")
+    )
 }
-
-#wqc_site(streams_wq_data,input=list(main_site='05b',data_year=2022))
