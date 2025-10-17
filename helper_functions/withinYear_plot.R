@@ -1,86 +1,54 @@
-#plot of  data for a given parameter normalized across a water year
+## Plot of data for a given parameter normalized across a water year
+# Requires tidyverse
 
 withinYear_plot <- function(dataSubset, input) {
   dataplot <- dataSubset %>%
     arrange(WY_FakeDate) %>%
     ggplot(aes(x = WY_FakeDate, y = value, group = WaterYear)) +
     geom_point(
-      alpha = .2,
+      alpha = 0.2,
       aes(
         text = paste0(
-          'Date: ',
-          as.Date(DateTime),
-          '\n',
-          'Value: ',
-          ifelse(nonDetectFlag, '<', ''),
-          value,
-          ' ',
-          unit,
-          '\n',
-          'Qualifier: ',
-          ifelse(is.na(qualifier), 'none', qualifier)
+          "Date: ", as.Date(DateTime), "\n",
+          "Value: ", ifelse(nonDetectFlag, "<", ""), value, " ", unit, "\n",
+          "Qualifier: ", ifelse(is.na(qualifier), "none", qualifier)
         )
       )
     ) +
     geom_path(data = ~ .x %>% filter(WaterYear == input$data_year)) +
     geom_point(
-      data = ~ .x %>% filter(WaterYear == input$data_year),
+      data = ~ .x |>
+        dplyr::filter(WaterYear == input$data_year),
       aes(
         text = paste0(
-          'Date: ',
-          as.Date(DateTime),
-          '\n',
-          'Value: ',
-          ifelse(nonDetectFlag, '<', ''),
-          value,
-          ' ',
-          unit,
-          '\n',
-          'Qualifier: ',
-          ifelse(is.na(qualifier), 'none', qualifier)
+          "Date: ", as.Date(DateTime), "\n",
+          "Value: ", ifelse(nonDetectFlag, "<", ""), value, " ", unit, "\n",
+          "Qualifier: ", ifelse(is.na(qualifier), "none", qualifier)
         )
       )
     ) +
     theme_bw() +
     scale_x_date(
-      '',
-      date_breaks = '2 months',
-      date_labels = '%b',
-      #limits=as.Date(c('1999-9-25','2000-10-05')),
-      date_minor_breaks = '1 month'
+      "",
+      date_breaks = "2 months",
+      date_labels = "%b",
+      # limits=as.Date(c('1999-9-25','2000-10-05')),
+      date_minor_breaks = "1 month"
     ) +
     scale_y_continuous(input$trend_parm)
 
-  if (input$trend_parm == 'Temperature, water') {
-    temp_criteria <- wqc_finder(
-      unique(dataSubset$AquaticLifeUse),
-      input$trend_parm
-    )
-    dataplot <- dataplot +
-      geom_hline(yintercept = temp_criteria)
-  }
+  criteria <- switch(input$trend_parm,
+    "Temperature, water" = wqc_finder(unique(dataSubset$AquaticLifeUse), input$trend_parm),
+    "Dissolved Oxygen" = wqc_finder(unique(dataSubset$AquaticLifeUse), input$trend_parm),
+    "pH" = c(6.5, 8.5),
+    "Fecal Coliform" = c(100, 200),
+    "E. coli" = c(100, 320),
+    NULL
+  )
 
-  if (input$trend_parm == 'Dissolved Oxygen') {
-    do_criteria <- wqc_finder(
-      unique(dataSubset$AquaticLifeUse),
-      input$trend_parm
-    )
+  if (!is.null(criteria)) {
     dataplot <- dataplot +
-      geom_hline(yintercept = do_criteria)
-  }
-
-  if (input$trend_parm == 'pH') {
-    dataplot <- dataplot +
-      geom_hline(yintercept = c(6.5, 8.5))
-  }
-
-  if (input$trend_parm == 'Fecal Coliform') {
-    dataplot <- dataplot +
-      geom_hline(yintercept = c(100, 200))
-  }
-  if (input$trend_parm == 'E. coli') {
-    dataplot <- dataplot +
-      geom_hline(yintercept = c(100, 320))
+      geom_hline(yintercept = criteria)
   }
 
   if (input$data_log_scale) {
@@ -92,13 +60,5 @@ withinYear_plot <- function(dataSubset, input) {
       )
   }
 
-  ggplotly(dataplot, tooltip = 'text')
+  ggplotly(dataplot, tooltip = "text")
 }
-
-# withinYear_plot(dataSubset=
-#              streams_wq_dat %>%
-#              filter(SITE_CODE=='05b'&
-#                       parameter=='Total Phosphorus')%>%
-#              mutate(AquaticLifeUse='Core Summer Salmonid Habitat'),
-#            input=list(data_log_scale=F,trend_parm='Total Phosphorus',data_year=2011,
-#                       trend_years=c(2000,2022)))
