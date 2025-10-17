@@ -8,13 +8,18 @@ source('WQP_r_script.R')
 wqp_data <- read.csv("wqp_data.csv") %>%
   filter(parameter != "Depth to water from rim of well casing")
 
+wqx_site_names<-unique(wqp_data$SITE_CODE)
+
 stream_use_designations<-readxl::read_xlsx('inputs/Stream Use Designations Herrera.xlsx') %>%
   transmute(SITE_CODE=`Site Code`,
             AquaticLifeUse=case_when(grepl('Spawn',`ALU (Temp. °C)`) ~'Salmonid Spawning, Rearing, and Migration',
                                      grepl('Core',`ALU (Temp. °C)`) ~'Core Summer Salmonid Habitat',
                                      grepl('13',`ALU (Temp. °C)`) ~'Marine',
                                      T ~ 'ERROR')) %>%
-  filter(!is.na(SITE_CODE))
+  filter(!is.na(SITE_CODE)) %>%
+  rowwise() %>%
+  mutate(SITE_CODE=wqx_site_names[which(grepl(SITE_CODE,wqx_site_names))[1]]) %>%
+  ungroup()
 
 
 ## Using wqp data
