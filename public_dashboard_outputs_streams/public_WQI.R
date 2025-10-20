@@ -51,7 +51,7 @@ parm_table <- tibble::tibble(
 
 
 # WQI calc ----------------------------------------------------------------
-source('wqi_function.R')
+source('helper_functions/wqi_function.R')
 
 # Application of calcs ----------------------------------------
 streams_wq_dat <- readRDS("outputs/streams_wq_dat.RDS")

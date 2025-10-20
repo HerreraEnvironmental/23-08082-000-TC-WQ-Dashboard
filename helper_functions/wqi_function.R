@@ -11,7 +11,7 @@ wqi_calc <- function(period = c('Annual', 'Monthly'),
                      TemperatureCode = NULL,
                      OxygenCode = NULL,
                      small_PS_stream = TRUE,
-                     curveSource = 'wqi_ecology_curves_v6.csv',
+                     curveSource = 'inputs/wqi_ecology_curves_v6.csv',
                      debug = FALSE) {
   
   # Validate inputs ----
