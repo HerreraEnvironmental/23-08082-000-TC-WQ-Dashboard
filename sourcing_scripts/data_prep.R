@@ -9,6 +9,8 @@ source("helper_functions/wqi_function.R")
 wqp_data <- read_parquet("inputs/wqp_data.parquet") |>
   filter(parameter != "Depth to water from rim of well casing")
 
+wqx_site_names<-unique(wqp_data$SITE_CODE)
+
 ## Import external stream use designations
 stream_use_designations <- readxl::read_xlsx(
   "inputs/Stream Use Designations Herrera.xlsx"
@@ -23,7 +25,10 @@ stream_use_designations <- readxl::read_xlsx(
       T ~ "ERROR"
     )
   ) |>
-  filter(!is.na(SITE_CODE))
+  filter(!is.na(SITE_CODE)) |>
+  rowwise() |>
+  mutate(SITE_CODE=wqx_site_names[which(grepl(SITE_CODE,wqx_site_names))[1]]) |>
+  ungroup()
 
 ## Create site use designations file
 streams_sites <- wqp_data |>
