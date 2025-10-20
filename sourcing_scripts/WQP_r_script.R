@@ -87,7 +87,7 @@ hec_data_merged$DT <- paste(
 
 hec_data_merged <- hec_data_merged |>
   mutate(
-    ResultMeasureValue = as.numeric(as.factor(ResultMeasureValue)),
+    ResultMeasureValue = as.numeric(as.character(ResultMeasureValue)),
     DetectionQuantitationLimitMeasure.MeasureValue =
       as.numeric(DetectionQuantitationLimitMeasure.MeasureValue),
     SITE_CODE = MonitoringLocationIdentifier,

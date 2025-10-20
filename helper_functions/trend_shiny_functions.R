@@ -3,6 +3,7 @@
 trend_plot <- function(dataSubset, input) {
   # Takes user-selected parameter and a given data subset to create the trend plot
   season_ranges <- list(
+    All = 1:12,
     winter = 1:3,
     spring = 4:6,
     summer = 7:9,
