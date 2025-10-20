@@ -1,4 +1,4 @@
-*.parquet
+outputs/*.parquet
 outputs/*.RDS
 # History files
 .Rhistory
