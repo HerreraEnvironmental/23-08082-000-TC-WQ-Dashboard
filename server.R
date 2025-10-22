@@ -35,16 +35,16 @@ source("helper_functions/withinYear_plot.R", local = T)
 source("helper_functions/wqi_site_plot.R", local = T)
 source("helper_functions/wqi_map.R", local = T)
 
-streams_wq_dat <- readRDS("outputs/streams_wq_dat.RDS")
-streams_sites <- readRDS("outputs/streams_sites.RDS")
-annual_wqi <- readRDS("outputs/annual_wqi.RDS") %>%
+streams_wq_dat <- read_parquet("outputs/streams_wq_dat.parquet")
+streams_sites <- read_parquet("outputs/streams_sites.parquet")
+annual_wqi <- read_parquet("outputs/annual_wqi.parquet") %>%
   mutate(
     Rating = ifelse(WQI >= 80, "Good", ifelse(WQI >= 40, "Moderate", "Poor"))
   )
 
 
-monthly_wqi_by_parameter <- readRDS("outputs/monthly_wqi_by_parameter.RDS")
-monthly_wqi <- readRDS("outputs/monthly_wqi.RDS")
+monthly_wqi_by_parameter <- read_parquet("outputs/monthly_wqi_by_parameter.parquet")
+monthly_wqi <- read_parquet("outputs/monthly_wqi.parquet")
 
 sites_list <- readRDS("outputs/sites_list.RDS")
 parm_list <- readRDS("outputs/parm_list.RDS") %>% factor(., levels = .)
