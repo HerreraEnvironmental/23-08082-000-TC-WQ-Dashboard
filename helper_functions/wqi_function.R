@@ -279,6 +279,7 @@ wqi_calc <- function(period = c('Annual', 'Monthly'),
                          20, Penalty),
         TotalPenalty = sum(Penalty)
       ) %>%
+      select(-Penalty) %>%
       mutate(
         shortParmName = factor(
           shortParmName,
