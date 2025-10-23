@@ -10,6 +10,7 @@ library(shinyWidgets)
 library(purrr)
 library(tidyr)
 library(rkt)
+library(arrow)
 
 
 log10_minor_break <- function(...) {
@@ -62,6 +63,7 @@ recent_streams_data <- streams_wq_dat %>%
   left_join(
     .,
     annual_wqi %>%
+      group_by(site) %>%
       slice(which.max(WaterYear)),
     by = c("SITE_CODE" = "site")
   ) %>%
