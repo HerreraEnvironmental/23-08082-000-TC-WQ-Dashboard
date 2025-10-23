@@ -302,3 +302,8 @@ monthly_wqi <- streams_wq_dat |>
   )
 saveRDS(monthly_wqi, "outputs/monthly_wqi.RDS")
 write_parquet(monthly_wqi, "outputs/monthly_wqi.parquet")
+
+
+annual_wqi_by_parameter %>%
+  filter(nSamples>=6) %>%
+  write_csv("public_dashboard_outputs_streams/recent_WQI.csv")

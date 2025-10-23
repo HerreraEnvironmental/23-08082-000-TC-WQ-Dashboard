@@ -1,5 +1,5 @@
 library(tidyverse)
-
+library(arrow)
 ## This is a small test script that compares the initial WQX (aka WQP)
 ## download to the data produced by the data_prep.R script.
 
@@ -10,7 +10,7 @@ wqp_data <- read.csv("inputs/wqp_data.csv") |>
   mutate(date_col = as_date(date_time))
 
 ## This variable is produced after the data_prep.R script.
-streams_wq_dat <- readRDS("outputs/streams_wq_dat.RDS") |>
+streams_wq_dat <- read_parquet("outputs/streams_wq_dat.parquet") |>
   mutate(date_col = as_date(DateTime))
 
 ## Test wqp data by record of parameter.
