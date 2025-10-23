@@ -1,5 +1,6 @@
 # deps.yaml
 cran:
+  - arrow
   - bslib
   - dataRetrieval
   - dplyr
@@ -11,6 +12,7 @@ cran:
   - purrr
   - rintrojs
   - rkt
+  - rsconnect
   - shiny
   - shiny.router
   - shinyBS
