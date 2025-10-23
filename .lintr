@@ -1,0 +1,14 @@
+linters: lintr::linters_with_defaults(
+  line_length_linter(80L),
+  indentation_linter(indent = 2L, hanging_indent_style = "tidy"),
+  infix_spaces_linter(),
+  spaces_left_parentheses_linter(),
+  spaces_inside_linter(),
+  brace_linter(allow_single_line = FALSE),
+  pipe_continuation_linter(),
+  trailing_whitespace_linter(),
+  whitespace_linter(),
+  semicolon_linter(),
+  quotes_linter(delimiter = '"'),
+  pipe_used_linter()
+)
