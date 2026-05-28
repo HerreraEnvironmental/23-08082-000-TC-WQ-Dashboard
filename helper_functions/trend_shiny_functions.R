@@ -80,6 +80,7 @@ trend_plot <- function(dataSubset, input) {
 trend_text <- function(dataSubset, input) {
   # Takes user-selected parameter input and a data subset to add text to the trend plot
   season_months <- list(
+    All = 1:12,
     winter = 1:3,
     spring = 4:6,
     summer = 7:9,
